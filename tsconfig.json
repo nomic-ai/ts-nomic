@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "module": "es2020",
+    "lib": [
+      "es2020"
+    ],
+    "target": "es2020",
+    "sourceMap": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "allowJs": true,
+    "checkJs": true,
+    "outDir": "dist",
+    "strict": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/openapi.d.ts"
+  ]
+}
