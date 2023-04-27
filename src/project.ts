@@ -1,78 +1,51 @@
 import type { Schema, Table } from 'apache-arrow'
 import { AtlasUser, get_user } from './user'
+import AtlasIndex from './index'
 // get the API key from the node environment
-
-
+import { BaseAtlasClass } from './general';
+import type { Response } from 'node-fetch';
 type UUID = string;
 
-type ProjectInitOptions = {
-  name: string;
-  description?: string;
-  id: string;
-  modality: string;
-}
-
-type LoadProjectByName = {
-  name: string;
-}
-
-type typeLoadProjectById = {
-  id: UUID;
-}
-
-type LoadProjectOptions = LoadProjectByName | typeLoadProjectById;
-
-type TextIndexOptions = {
-  indexed_field: string;
-}
-
-type EmbeddingIndexOptions = {
-
-}
-
-type IndexCreateOptions = TextIndexOptions | EmbeddingIndexOptions;
-
-// returns any concrete type that extends AtlasProject
 
 export function get_project(options: LoadProjectOptions) : AtlasProject {
-   
+    throw new Error("Not implemented")
 } 
 
-export function create_project(LoadProjectOptions) {
-
-}
+export async function create_project(options: ProjectInitOptions) : Promise<AtlasProject> {
+  const user = get_user();
+    if (options.unique_id_field === undefined) {
+      throw new Error("id_field is required")
+    }
+    if (options.project_name === undefined) {
+      throw new Error("name is required")
+    }
+    if (options.organization_name === undefined) {
+      options.organization_id = await user.info().then(d => d.organizations[0]['organization_id'])
+      // Delete because this isn't allowed at the endpoint.
+      delete options.organization_name
+    } else {
+      const info = await user.info()
+      options.organization_id = info['organizations'].find(d => d.nickname === options.organization_name)['organization_id']
+    }
+    options['is_public'] = options['is_public'] || false
+    options['modality'] = options['modality'] || "text"
+    const response = await user.apiCall(`/v1/project/create`, "POST", options)
+    if (response.status !== 201) {
+      throw new Error(`Error ${response.status}, ${response.headers}, creating project: ${response.statusText}`)
+    }
+    const data = await response.json() as ProjectInfo;
+    return new AtlasProject(data['project_id'], user);
+  }
 
 type DataIngest = Record<string, string | number | Date> | Table;
 type SingleEmbedding = Array<number>;
 type EmbeddingMatrix = Array<SingleEmbedding>;
 type TypedArrayEmbedding = Float32Array | Float64Array;
 
-function isSingleEmbedding(value: any): value is SingleEmbedding {
-  return Array.isArray(value) && value.every((element) => typeof element === 'number');
-}
-
-function isEmbeddingMatrix(value: any): value is EmbeddingMatrix {
-  return (
-    Array.isArray(value) &&
-    value.every((element) => isSingleEmbedding(element))
-  );
-}
-
-function isTypedArrayEmbedding(value: any): value is TypedArrayEmbedding {
-  return value instanceof Float32Array || value instanceof Float64Array;
-}
-
-function isEmbeddingType(value: any): value is EmbeddingType {
-  return isEmbeddingMatrix(value) || isTypedArrayEmbedding(value);
-}
-
-function isRecordIngest(value: any): value is Record<string, string | number | Date> {
-  return typeof value === 'object' && value !== null;
-}
-
 type ProjectInfo = {
   id: UUID;
 }
+
 type EmbeddingType = EmbeddingMatrix | TypedArrayEmbedding;
 
 interface AddDataOptions {
@@ -87,32 +60,67 @@ class AtlasProjection {
   }
 }
 
-export class AtlasProject {
-  options: ProjectInitOptions;
-  user: AtlasUser;
+
+export class AtlasProject extends BaseAtlasClass {
+  //options: ProjectInitOptions;
   indices: AtlasIndex[] = [];
   _schema?: Schema | null;
-  info: ProjectInfo;
-  constructor(options : ProjectInitOptions, user: AtlasUser | undefined) {
-    this.options = options;
-    if (user === undefined) {
-      this.user = get_user();
-    } else {
-      this.user = user;
-    }
+  id: UUID;
+  //info: ProjectInfo;
+
+  /**
+   * 
+   * @param id The project's unique UUID. To create a new project or fetch
+   * an existing project, use the create_project or load_project functions.
+   * @param user An existing AtlasUser object. If not provided, a new one will be created.
+   * 
+   * @returns An AtlasProject object.
+  */
+
+  constructor(id: UUID, user?: AtlasUser) {
+    super(user)
+    // check if id is a valid UUID
+    const uuid = /[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}/
+    if (!id.toLowerCase().match(uuid)) {
+      throw new Error(`${id} is not a valid UUID.`)
+    }    
+    this.id = id;
+  }
+
+  apiCall(endpoint: string, method: "GET" | "POST", options: FetchOptions = null, headers: null | Record<string, string> = null): Promise<Response> {
+    return this.user.apiCall(endpoint, method, options, headers)
+  }
+  
+  async delete() : Promise<Response> {
+    return this.apiCall(`/v1/project/remove`, "POST", {'project_id': this.id})
+  }
+
+  get info() : Promise<ProjectInfo> {
+    return this.apiCall(
+      `/v1/project/${this.id}`, "GET"
+    ).then(async d => {
+      if (d.status !== 200) {
+        const body = d.clone()
+        console.error({body})
+        throw new Error(`Error ${d.status}, ${d.headers}, fetching project info: ${d.statusText}`)
+      }
+
+      const value = await d.json()
+      return value as ProjectInfo
+    })
   }
 
   validate_metadata() : void {
     // validate metadata
   }
 
-  async create_projection(options: IndexCreateOptions) : Promise<AtlasProjection> {
+  /*  async create_projection(options: IndexCreateOptions) : Promise<AtlasProjection> {
     await 
-  }
+  } */
 
   get schema() {
     if (this._schema === undefined) {
-      this.update_info()
+      // this.update_info()
     }
     return this._schema;
   }
@@ -121,20 +129,20 @@ export class AtlasProject {
     // upload arrow to the server
   }
 
-  addData(options : AddDataOptions) : Promise<void> {
+  async addData(options : AddDataOptions) : Promise<Response> {
     if (isRecordIngest(options.data)) {
       // convert to arrow
     }
+    throw new Error("Not implemented")
 
     if (isEmbeddingType(options.embeddings)) {
       if (isEmbeddingMatrix(options.embeddings)) {
         // convert to typed array
-
       }
       // convert to arrow
     }
     if (this.schema === null) {
-      this._schema = table.schema;
+      // this._schema = table.schema;
     }
   }
 

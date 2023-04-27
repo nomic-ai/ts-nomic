@@ -30,3 +30,10 @@ export ATLAS_API_KEY=your-api-key
 ### Through your hosting environment
 
 If running in an environment like Vercel or Heroku, you can set the environment variable through the hosting environment.
+
+# Design
+
+This library is designed to be used in a browser or in Node.js. It is written in TypeScript and compiled to JavaScript.
+
+Since the precise mechanism for calls differs in the browser as opposed to node,
+all calls are handler by an `AtlasUser` interface.

@@ -5,6 +5,14 @@
     "lib": [
       "es2020"
     ],
+    "paths": {
+      "*": [
+        "src/*"
+      ],
+      "@types/*": [
+        "types/*"
+      ]
+    },
     "target": "es2020",
     "sourceMap": false,
     "esModuleInterop": true,
@@ -17,6 +25,7 @@
     "strict": true
   },
   "include": [
+    "src/global.d.ts",
     "src/**/*.ts",
     "src/openapi.d.ts"
   ]

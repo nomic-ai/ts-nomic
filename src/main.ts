@@ -1,2 +1,2 @@
-import { AtlasProject, create_project, load_project } from './project';
-import { get_index } from './index';
+import { AtlasProject, create_project } from './project';
+import AtlasIndex from './index';

@@ -2,3 +2,4 @@
 node_modules
 src/openapi.d.ts
 src/global.d.ts
+etc/openapi.json
