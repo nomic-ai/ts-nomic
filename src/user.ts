@@ -92,7 +92,7 @@ export type UserInfo = {
   'organizations': OrganizationInfo[],
 }
 
-type Payload = Uint8Array | Record<string, number | string | boolean> | null;
+type Payload = Uint8Array | Record<string, number | string | boolean | string[]> | null;
 
 export class AtlasUser {
   /* 
@@ -125,7 +125,7 @@ export class AtlasUser {
   }
 
   async apiCall(endpoint : string, method: "GET" | "POST" = "GET",
-  payload: Payload = null, headers: null | Record<string, string> = null): Promise<Response> {
+    payload: Payload = null, headers: null | Record<string, string> = null): Promise<Response> {
     // make an API call
     if (headers === null) {
       headers = await this.header()
@@ -142,7 +142,6 @@ export class AtlasUser {
     }
 
 
-
     const url =  `https://${this.apiEndpoint}${endpoint}`
     const response = await fetch(
       url,
@@ -153,8 +152,10 @@ export class AtlasUser {
         },
         body
       });
+
       if (response.status < 200 || response.status > 299) {
-        const body = await response.clone().json()
+        const body = await response.clone()
+        console.log({body})
         throw new Error(`Error ${response.status}, ${JSON.stringify(response.headers)}, fetching project info: ${response.statusText}, ${body}`)
       }
     return response;

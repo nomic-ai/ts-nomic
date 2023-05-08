@@ -1,7 +1,6 @@
 import { test } from 'uvu';
 import * as assert from 'uvu/assert';
 import { AtlasUser } from '../src/user';
-/*
 test('AtlasUser header', async () => {
   const user = new AtlasUser();
   const header = await user.header();
@@ -15,4 +14,3 @@ test('AtlasUser info', async () => {
 });
 
 test.run();
-*/
