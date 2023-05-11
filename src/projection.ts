@@ -17,9 +17,9 @@ export class AtlasProjection extends BaseAtlasClass {
   project_id: UUID;
   _index?: AtlasIndex;
 
-  constructor(private id: UUID, options: ProjectionInitializationOptions) {    
+  constructor(public id: UUID, options: ProjectionInitializationOptions) {    
     const { project, project_id, user } = options;
-    super(user);
+    super(user || project?.user);
 
     if (project_id === undefined && project === undefined) {
       throw new Error("project_id or project is required");
@@ -34,6 +34,9 @@ export class AtlasProjection extends BaseAtlasClass {
       this.project_id = project!.id;
       this._project = project;
     }
+    if (options.index) {
+      this._index = options.index;
+    }
   }
   async project() : Promise<AtlasProject> {
     if (this._project === undefined) {
@@ -43,12 +46,21 @@ export class AtlasProjection extends BaseAtlasClass {
   }
 
   async index() : Promise<AtlasIndex> {
-      
-    throw new Error("Not implemented")
-
-    //const project_info = await this.project().then(d => d.info())
-
-    // This is going to be a slight pain.
+    if (this._index) {
+      return this._index
+    }      
+    const indices = await this.project().then(d => d.indices())
+    console.log({indices})
+    for (let index of indices) {
+      console.log({index})
+      for (let projection of await index.projections()) {
+        if (projection.id === this.id) {
+          this._index = index
+          return index
+        }
+      }
+    }
+    throw new Error("Could not find index for projection")
   }
 
   get quadtree_root() : string {

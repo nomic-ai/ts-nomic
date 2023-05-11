@@ -22,7 +22,6 @@ interface Credentials {
 }
 
 function getTenant() {
-  console.log({env: process.env})
   return (process.env.ATLAS_TENANT || 'production') as keyof typeof tenants;
 }
 

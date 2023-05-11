@@ -3,7 +3,7 @@ import * as arrow from 'apache-arrow';
 import * as assert from 'uvu/assert';
 import { AtlasProject, create_project } from '../src/project';
 import { make_test_table } from './arrow.test';
-
+import { AtlasProjection } from '../src/projection';
 
 // OK, we're addicted to stateful tests here.
 // This manager allows named promises that tests
@@ -23,7 +23,7 @@ class ResolutionManager {
       // A timeout to mark the command as failed if they don't fail themselves.
       setTimeout(() => {
         reject("timeout")
-      }, 10_000)
+      }, 30_000)
     })
   }
 }
@@ -55,7 +55,6 @@ test('Fetch project by id', async () => {
   const project = new AtlasProject(id);
   const info = await project.info;
   assert.is(info.id, id);
-  console.log({info})
 });
 
 manager.add("First upload")
@@ -78,8 +77,23 @@ test('Create index', async () => {
     colorable_fields: []
   });
   manager.resolutions["index created"](index_id);
-  manager.resolutions['text project ready to delete'](id);
 })
+
+test('Instantiate projection', async () => {
+  const project_id = await manager.promises["First upload"]
+  const index_id = await manager.promises["index created"]
+  const project = new AtlasProject(project_id);
+  await project.wait_for_lock();
+  const index = (await project.indices())[0]
+  const orig_projection = (await index.projections())[0];
+  // Re-instantiate with just the project; test if we properly infer the index.
+  const projection = new AtlasProjection(orig_projection.id, {project});
+  const inferred_index = await projection.index();
+  assert.is(inferred_index.id, index.id);
+  manager.resolutions['text project ready to delete'](project_id);
+
+})
+
 
 manager.add("text project ready to delete")
 test('Delete project', async () => {

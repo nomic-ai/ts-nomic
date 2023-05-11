@@ -34,7 +34,10 @@ export async function create_project(options: Atlas.ProjectInitOptions) : Promis
     if (response.status !== 201) {
       throw new Error(`Error ${response.status}, ${response.headers}, creating project: ${response.statusText}`)
     }
-    const data = await response.json() as Atlas.ProjectInfo;
+    type CreateResponse = {
+      project_id: UUID
+    }
+    const data = await response.json() as CreateResponse;
     return new AtlasProject(data['project_id'], user);
   }
 
@@ -56,8 +59,9 @@ interface AddDataOptions {
  */
 export class AtlasProject extends BaseAtlasClass {
   //options: ProjectInitOptions;
-  indices: AtlasIndex[] = [];
+  _indices: AtlasIndex[] = [];
   _schema?: Schema | null;
+  _info?: components["schemas"]["Project"];
   id: UUID;
   //info: Project;
 
@@ -92,19 +96,50 @@ export class AtlasProject extends BaseAtlasClass {
     return value
   }
 
-  get info() : Promise<AtlasProject> {
+  async wait_for_lock() : Promise<void> {
+    return new Promise((resolve, reject)  => {
+      const interval = setInterval(async () => {
+      const info = await this.project_info() as Atlas.ProjectInfo;
+        if (info.insert_update_delete_lock === false) {
+          clearInterval(interval)
+          resolve()
+        }
+      }, 1000)
+
+    })
+  }
+
+  private async project_info() {
     return this.apiCall(
       `/v1/project/${this.id}`, "GET"
     ).then(async d => {
       if (d.status !== 200) {
         const body = d.clone()
-        console.error({body})
         throw new Error(`Error ${d.status}, ${d.headers}, fetching project info: ${d.statusText}`)
       }
 
       const value = await d.json()
-      return value as AtlasProject;
+      this._info = value;
+      return value;
     })
+  }
+  get info() {
+    if (this._info !== undefined) {
+      return this._info
+    }
+    return this.project_info()
+
+  }
+  async indices() : Promise<AtlasIndex[]> {
+    if (this._indices.length > 0) {
+      return this._indices
+    }
+    const {atlas_indices} = await this.info as Atlas.ProjectInfo;
+    if (atlas_indices === undefined) {
+      return []
+    }
+    this._indices = atlas_indices.map(d => new AtlasIndex(d['id'], this.user, this))
+    return this._indices
   }
 
   async update_indices(rebuild_topic_models: boolean = false) : Promise<void> {
@@ -183,7 +218,6 @@ export class AtlasProject extends BaseAtlasClass {
       ...options
     } as components['schemas']['CreateAtlasIndexRequest']
 
-    console.log({prefs})
     const response = await this.apiCall(
         "/v1/project/index/create",
         "POST",
@@ -192,13 +226,12 @@ export class AtlasProject extends BaseAtlasClass {
       throw new Error(`Error ${response.status}, ${response.headers}, creating index: ${response.statusText}`)
     }
     const id = await response.json() as string;
-    console.log("ID IS", id)
-    return new AtlasIndex(id, this.user)
+    return new AtlasIndex(id, this.user, this)
   }
 
   async delete_data(ids: string[]) : Promise<void> {
     // TODO: untested
-    const info = await this.info
+    // const info = await this.info
     await this.user.apiCall(
       "/v1/project/data/delete",
       "POST",

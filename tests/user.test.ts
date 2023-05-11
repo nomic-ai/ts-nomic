@@ -7,7 +7,6 @@ test('AtlasOrganization test', async () => {
   const info = await user.info();
   const organization = new AtlasOrganization(info.organizations[0].organization_id, user);
   const projects = await organization.projects();
-  console.log({projects})
   assert.is(projects.length > 0, true);
 })
 
@@ -20,7 +19,6 @@ test('AtlasUser header', async () => {
 test('AtlasUser info', async () => {
   const user = new AtlasUser();
   const info = await user.info();
-  console.log(info)
 });
 
 test.run();
