@@ -12,7 +12,7 @@
     }
   },
   "scripts": {
-    "test": "uvu tests -r esbuild-register",
+    "test": "env-cmd --file .env uvu tests -r esbuild-register",
     "build-types": "openapi-typescript etc/openapi.json > etc/openapi.d.ts",
     "build": "tsc"
   },
@@ -21,6 +21,7 @@
     "@types/jest": "^29.5.1",
     "@types/node": "^18.13.0",
     "apache-arrow": "^11.0.0",
+    "env-cmd": "^10.1.0",
     "esbuild": "^0.17.17",
     "esbuild-jest": "^0.5.0",
     "esbuild-register": "^3.4.2",
@@ -39,7 +40,6 @@
   },
   "dependencies": {
     "dotenv": "^16.0.3",
-    "js-yaml": "^4.1.0",
-    "node-fetch": "^3.3.1"
+    "js-yaml": "^4.1.0"
   }
 }

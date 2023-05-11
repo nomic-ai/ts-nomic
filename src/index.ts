@@ -1,8 +1,8 @@
-import { BaseAtlasClass } from "general";
+import { BaseAtlasClass } from "./general";
 
-import AtlasProjection from './projection';
-import { AtlasProject } from "project";
-export default class AtlasIndex extends BaseAtlasClass {
+import { AtlasProjection } from './projection';
+import { AtlasProject } from "./project";
+export class AtlasIndex extends BaseAtlasClass {
   id: Atlas.UUID;
   projections: AtlasProjection[] = []
   project?: AtlasProject;
@@ -11,7 +11,6 @@ export default class AtlasIndex extends BaseAtlasClass {
     super(user);
     this.id = id;
   }
-
 
   // Updates all indices
   update() {

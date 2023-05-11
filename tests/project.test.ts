@@ -3,12 +3,13 @@ import * as arrow from 'apache-arrow';
 import * as assert from 'uvu/assert';
 import { AtlasProject, create_project } from '../src/project';
 import { make_test_table } from './arrow.test';
+
+
 // OK, we're addicted to stateful tests here.
 // This manager allows named promises that tests
 // can either resolve or await. This allows us to
 // block some tests until others have completed
 // and to share variables like ids between tests.
-
 class ResolutionManager {
   promises: Record<string, Promise<any>> = {}
   resolutions: Record<string, (any) => void> = {}
@@ -34,33 +35,9 @@ const manager = new ResolutionManager();
 // 'manager.resolutions[id](value?)
 // and another has to call 'await manager.promises[id]',
 // which gives it access to the value (which might be, say),
-// a UUID for a created project.
+// a UUID for a created project. They need to be added at the top
+// level. 
 
-
-/*
-test('test_arrow', async () => {
-  {
-    const f = 
-      new arrow.FixedSizeList(5, new arrow.Field("inner", new arrow.Float32()))
-  
-    const data = [
-      new Float32Array([1.1, 2.2, 3.3, 4.4, 5.5]),
-      new Float32Array([6.6, 7.7, 8.8, 9.9, 10.1])
-    ];
-  
-    const arrays = data.map((float32Array) => {
-      return arrow.makeVector(data);
-    });
-  
-    const builder = arrow.makeBuilder({
-      type: new arrow.FixedSizeList(3, new arrow.Field("inner", new arrow.Float16())),
-      children: [{ type: new arrow.Float16() }],
-      nullValues: [null, "n/a"]
-    });
-    return builder;
-  }
-})
-*/
 
 manager.add("text project created")
 test('Project creation', async () => {
@@ -98,6 +75,7 @@ test('Create index', async () => {
   const index_id = await project.createIndex({
     index_name: "test index",
     indexed_field: "text",
+    colorable_fields: []
   });
   manager.resolutions["index created"](index_id);
   manager.resolutions['text project ready to delete'](id);

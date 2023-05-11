@@ -1,15 +1,8 @@
-import { Command } from 'commander';
-const program = new Command();
-program.version('0.0.1');
-
-import fetch, { RequestInit, Response } from 'node-fetch';
-import dotenv from 'dotenv';
-dotenv.config();
-
 const tenants = {
   'staging': {'frontend_domain': 'staging-atlas.nomic.ai', 'api_domain': 'staging-api-atlas.nomic.ai'},
   'production': {'frontend_domain': 'atlas.nomic.ai', 'api_domain': 'api-atlas.nomic.ai'},
 } as const;
+
 
 function validateApiHttpResponse(response: Response): Response {
   if (response.status >= 500 && response.status < 600) {
@@ -18,11 +11,9 @@ function validateApiHttpResponse(response: Response): Response {
   return response;
 }
 
-import { operations } from "./openapi";
-import { type } from 'os';
+import { AtlasProject } from './project';
 
-type TokenRefreshResponse = operations["auth0_obtain_token_from_refresh_v1_user_token_refresh__refresh_token__get"]["responses"]["200"]["content"]["application/json"];
-
+type TokenRefreshResponse = any;
 interface Credentials {
   refresh_token: string;
   token: string;
@@ -31,12 +22,15 @@ interface Credentials {
 }
 
 function getTenant() {
+  console.log({env: process.env})
   return (process.env.ATLAS_TENANT || 'production') as keyof typeof tenants;
 }
 
-async function get_access_token(): Promise<Credentials> {
-  const tenant = getTenant()
-  const apiKey = tenant === 'production' ? 
+async function get_access_token(key = undefined, env : "staging" | "production" | undefined= undefined): Promise<Credentials> {
+  const tenant = env === undefined ? getTenant() : env;
+  const apiKey = key !== undefined ? 
+    key :
+    tenant === 'production' ? 
     process.env.ATLAS_API_KEY :
     process.env.ATLAS_STAGING_API_KEY;
 
@@ -92,7 +86,30 @@ export type UserInfo = {
   'organizations': OrganizationInfo[],
 }
 
-type Payload = Uint8Array | Record<string, number | string | boolean | string[]> | null;
+
+type OrganizationInfoFull = {
+  id: UUID,
+  projects : AtlasProject[]
+}
+
+export class AtlasOrganization {
+  id: UUID;
+  user: AtlasUser;
+  constructor(id: UUID, user?: AtlasUser) {
+    this.id = id;
+    this.user = user || get_user();
+  }
+  async info() {
+    const response = await this.user.apiCall(`/v1/organization/${this.id}`, 'GET');
+    return response.json();
+  }
+
+  async projects() {
+    const info = (await this.info()) as OrganizationInfoFull
+    return info.projects;
+  }
+
+}
 
 export class AtlasUser {
   /* 
@@ -104,14 +121,25 @@ export class AtlasUser {
   apiEndpoint: string;
   _info: UserInfo | undefined = undefined;
 
-  constructor() {
-    this.credentials = get_access_token();
+  constructor(api_key = undefined, env : "staging" | "production" = 'production') {
+    this.credentials = get_access_token(api_key, env);
     this.apiEndpoint = tenants[getTenant()].api_domain;
   }
 
   async header() {
     const token = (await this.credentials).token;
     return {"Authorization": `Bearer ${token}`}
+  }
+
+  async projects() {
+    const organizations = (await this.info()).organizations;
+    const all_projects : AtlasProject[] = [];
+    for (const org of organizations) {
+      const orgInfo = new AtlasOrganization(org.organization_id, this);
+      const projects = await orgInfo.projects();
+      all_projects.push(...projects); 
+    }
+    return all_projects;
   }
 
   async info() {
@@ -125,7 +153,7 @@ export class AtlasUser {
   }
 
   async apiCall(endpoint : string, method: "GET" | "POST" = "GET",
-    payload: Payload = null, headers: null | Record<string, string> = null): Promise<Response> {
+    payload: Atlas.Payload = null, headers: null | Record<string, string> = null): Promise<Response> {
     // make an API call
     if (headers === null) {
       headers = await this.header()

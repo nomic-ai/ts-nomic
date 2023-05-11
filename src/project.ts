@@ -1,13 +1,12 @@
 import type { Schema, Table } from 'apache-arrow'
 import { tableToIPC } from 'apache-arrow';
 import { AtlasUser, get_user } from './user'
-import AtlasIndex from './index'
+import {AtlasIndex} from './index'
 // get the API key from the node environment
 import { BaseAtlasClass } from './general';
-import type { Response } from 'node-fetch';
-import { isEmbeddingIndexOptions, isTextIndexOptions } from 'global';
+// import { isEmbeddingIndexOptions, isTextIndexOptions } from 'global';
 type UUID = string;
-// import {components} from '../private/openapi.d'
+import {components} from '../private/openapi.d'
 
 export function load_project(options: Atlas.LoadProjectOptions) : AtlasProject {
     throw new Error("Not implemented")
@@ -27,7 +26,7 @@ export async function create_project(options: Atlas.ProjectInitOptions) : Promis
       delete options.organization_name
     } else {
       const info = await user.info()
-      options.organization_id = info['organizations'].find(d => d.nickname === options.organization_name)['organization_id']
+      options.organization_id = info['organizations'].find(d => d.nickname === options.organization_name)!['organization_id']
       delete options.organization_name
     }
     options['modality'] = options['modality'] || "text"
@@ -35,7 +34,7 @@ export async function create_project(options: Atlas.ProjectInitOptions) : Promis
     if (response.status !== 201) {
       throw new Error(`Error ${response.status}, ${response.headers}, creating project: ${response.statusText}`)
     }
-    const data = await response.json() as AtlasAPI.Project;
+    const data = await response.json() as Atlas.ProjectInfo;
     return new AtlasProject(data['project_id'], user);
   }
 
@@ -81,8 +80,8 @@ export class AtlasProject extends BaseAtlasClass {
     this.id = id;
   }
 
-  apiCall(endpoint: string, method: "GET" | "POST", options: FetchOptions = null, headers: null | Record<string, string> = null): Promise<Response> {
-    return this.user.apiCall(endpoint, method, options, headers)
+  apiCall(endpoint: string, method: "GET" | "POST", payload: Atlas.Payload = null, headers: null | Record<string, string> = null): Promise<Response> {
+    return this.user.apiCall(endpoint, method, payload, headers)
   }
   
   async delete() : Promise<Response> {
@@ -93,7 +92,7 @@ export class AtlasProject extends BaseAtlasClass {
     return value
   }
 
-  get info() : Promise<Project> {
+  get info() : Promise<AtlasProject> {
     return this.apiCall(
       `/v1/project/${this.id}`, "GET"
     ).then(async d => {
@@ -104,7 +103,7 @@ export class AtlasProject extends BaseAtlasClass {
       }
 
       const value = await d.json()
-      return value as Project;
+      return value as AtlasProject;
     })
   }
 
@@ -127,7 +126,7 @@ export class AtlasProject extends BaseAtlasClass {
    * @param ids A list of identifiers to fetch from the server.
    */
 
-  get_data(ids?: string[]) : Table {
+  async fetch_ids(ids?: string[]) : Promise<Record<string, any>[]> {
     throw new Error("Not implemented")
   }
 
@@ -167,7 +166,6 @@ export class AtlasProject extends BaseAtlasClass {
       'atomizer_strategies': null,
       "indexed_field": null,
     } 
-
     if (options['indexed_field'] !== undefined) {
       defaults = {
         ...defaults,
@@ -237,6 +235,7 @@ export class AtlasProject extends BaseAtlasClass {
 
   }
 
+    /*
   async addData(options : AddDataOptions) : Promise<Response> {
     if (isRecordIngest(options.data)) {
       // convert to arrow
@@ -253,6 +252,7 @@ export class AtlasProject extends BaseAtlasClass {
       // this._schema = table.schema;
     }
   }
+  */
 
 }
 
