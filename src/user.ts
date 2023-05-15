@@ -21,12 +21,14 @@ interface Credentials {
   expires: number;
 }
 
-function getTenant() {
-  return (process.env.ATLAS_TENANT || 'production') as keyof typeof tenants;
+function getTenant(env : undefined | "staging" | "production" = undefined) {
+  if (![undefined, 'staging', 'production'].includes(env))
+     throw new Error('Invalid environment. Valid environments are [undefined, "staging", "production"]');
+  return (env || process.env.ATLAS_TENANT || 'production') as keyof typeof tenants;
 }
 
 async function get_access_token(key = undefined, env : "staging" | "production" | undefined= undefined): Promise<Credentials> {
-  const tenant = env === undefined ? getTenant() : env;
+  const tenant = getTenant(env);
   const apiKey = key !== undefined ? 
     key :
     tenant === 'production' ? 
@@ -122,7 +124,7 @@ export class AtlasUser {
 
   constructor(api_key = undefined, env : "staging" | "production" = 'production') {
     this.credentials = get_access_token(api_key, env);
-    this.apiEndpoint = tenants[getTenant()].api_domain;
+    this.apiEndpoint = tenants[getTenant(env)].api_domain;
   }
 
   async header() {
@@ -182,7 +184,6 @@ export class AtlasUser {
 
       if (response.status < 200 || response.status > 299) {
         const body = await response.clone()
-        console.log({body})
         throw new Error(`Error ${response.status}, ${JSON.stringify(response.headers)}, fetching project info: ${response.statusText}, ${body}`)
       }
     return response;
