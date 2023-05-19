@@ -170,7 +170,6 @@ export class AtlasUser {
       body = null;
     }
 
-
     const url =  `https://${this.apiEndpoint}${endpoint}`
     const response = await fetch(
       url,

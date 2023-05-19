@@ -2,6 +2,7 @@ import { BaseAtlasClass } from "./general";
 
 import { AtlasProjection } from './projection';
 import { AtlasProject } from "./project";
+import { tableFromIPC } from "apache-arrow";
 export class AtlasIndex extends BaseAtlasClass {
   id: Atlas.UUID;
   _projections?: AtlasProjection[] = undefined;
@@ -57,13 +58,12 @@ export class AtlasIndex extends BaseAtlasClass {
     } else {
       params = { atom_ids }
     }
-    
-    const [neighbors, distances] = await this.apiCall(`/v1/project/data/get/nearest_neighbors/by_id`, 'POST', {
+    const tb = await this.apiCall(`/v1/project/data/get/arrow/nearest_neighbors/by_id`, 'POST', {
       atlas_index_id: this.id,
       ...params,
       k
-    }).then(d => d.json()).then(d => d.neighbors) as [string[][], number[][]]
-
-    return neighbors
+    }).then(d => d.arrayBuffer()).then(d => tableFromIPC(d))
+    console.log({tb})
+    return tb;
   }
 }
