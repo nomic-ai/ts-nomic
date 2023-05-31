@@ -158,7 +158,7 @@ export class AtlasUser {
       body = null;
     }
     const url = `https://${this.apiEndpoint}${endpoint}`;
-    console.log({ url, method, headers, body });
+    //    console.log({url, method, headers, body})
     const params = {
       method,
       headers: {
@@ -175,6 +175,7 @@ export class AtlasUser {
         params.credentials = "include";
       }
     }
+    //    console.log({params})
     const response = await fetch(url, params);
     if (response.status < 200 || response.status > 299) {
       const body = await response.clone();

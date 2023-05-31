@@ -51,7 +51,11 @@ export class AtlasIndex extends BaseAtlasClass {
         project_info.atlas_indices?.find((d) => d.id === this.id)
           ?.projections || [];
       this._projections = projections.map(
-        (d) => new AtlasProjection(d.id, { index: this, project: this.project })
+        (d) =>
+          new AtlasProjection(d.id, {
+            index: this,
+            project: this.project,
+          })
       );
       return this._projections;
     }
