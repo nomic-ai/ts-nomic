@@ -1,19 +1,17 @@
-Nomic-ts
-========
+# Nomic-ts
 
 This library provides a TypeScript client for the Nomic API that
 allows you to create, upload to, and download from projects
 hosted at atlas.nomic.ai.
 
+## Setting API keys
 
-Setting API keys
-----------------
-
-All operations require a nomic API key linked to your account. 
+All operations require a nomic API key linked to your account.
 To generate an API key, visit [https://atlas.nomic.ai/cli-login] while
 logged in to your account.
 
 ### In a file in yoiur project root directory
+
 Create a file in project root directory called `.env`
 In it, put the following line:
 

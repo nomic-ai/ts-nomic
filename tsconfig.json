@@ -2,17 +2,10 @@
   "compilerOptions": {
     "moduleResolution": "node",
     "module": "es2020",
-    "lib": [
-      "es2020",
-      "DOM"
-    ],
+    "lib": ["es2020", "DOM"],
     "paths": {
-      "*": [
-        "src/*"
-      ],
-      "@types/*": [
-        "types/*"
-      ]
+      "*": ["src/*"],
+      "@types/*": ["types/*"]
     },
     "target": "es2020",
     "sourceMap": false,
@@ -23,11 +16,8 @@
     "allowJs": true,
     "checkJs": true,
     "outDir": "dist",
-    "strict": true
+    "strict": true,
+    "declaration": true
   },
-  "include": [
-    "src/global.d.ts",
-    "src/**/*.ts",
-    "src/openapi.d.ts"
-  ]
+  "include": ["src/global.d.ts", "src/**/*.ts", "src/openapi.d.ts"]
 }
