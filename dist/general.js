@@ -1,18 +1,18 @@
 import { get_user } from "./user.js";
-export const isNode =
-  typeof process !== "undefined" && process.versions && process.versions.node;
+export const isNode = typeof process !== "undefined" && process.versions && process.versions.node;
 export class BaseAtlasClass {
-  constructor(user) {
-    if (user === undefined) {
-      this.user = get_user();
-    } else {
-      this.user = user;
+    constructor(user) {
+        if (user === undefined) {
+            this.user = get_user();
+        }
+        else {
+            this.user = user;
+        }
     }
-  }
-  async apiCall(endpoint, method, payload = null, headers = null) {
-    // make an API call
-    return this.user.apiCall(endpoint, method, payload, headers);
-  }
+    async apiCall(endpoint, method, payload = null, headers = null) {
+        // make an API call
+        return this.user.apiCall(endpoint, method, payload, headers);
+    }
 }
 /*
 function isSingleEmbedding(value: any): value is SingleEmbedding {
@@ -32,8 +32,8 @@ function isEmbeddingMatrix(value: any): value is Atlas.EmbeddingMatrix {
   );
 }*/
 function isRecordIngest(value) {
-  return typeof value === "object" && value !== null;
+    return typeof value === "object" && value !== null;
 }
 function isTextIndexOptions(value) {
-  return value.indexed_field !== undefined;
+    return value.indexed_field !== undefined;
 }

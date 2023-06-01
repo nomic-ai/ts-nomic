@@ -4,9 +4,7 @@ import { AtlasUser, get_user } from "./user.js";
 import { AtlasIndex } from "./index.js";
 // get the API key from the node environment
 import { BaseAtlasClass } from "./general.js";
-// import { isEmbeddingIndexOptions, isTextIndexOptions } from 'global';
 type UUID = string;
-import type { components } from "../private/openapi.d";
 
 export function load_project(options: Atlas.LoadProjectOptions): AtlasProject {
   throw new Error("Not implemented");
@@ -69,7 +67,7 @@ export class AtlasProject extends BaseAtlasClass {
   //options: ProjectInitOptions;
   _indices: AtlasIndex[] = [];
   _schema?: Schema | null;
-  _info?: components["schemas"]["Project"];
+  _info?: Atlas.ProjectInfo;
   id: UUID;
   //info: Project;
 
@@ -239,9 +237,9 @@ export class AtlasProject extends BaseAtlasClass {
 
     const prefs = {
       ...defaults,
-      ...options,
-    } as components["schemas"]["CreateAtlasIndexRequest"];
-
+      ...options
+    } as unknown as Atlas.CreateAtlasIndexRequest;
+    
     const response = await this.apiCall(
       "/v1/project/index/create",
       "POST",

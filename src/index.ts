@@ -1,5 +1,5 @@
 import { BaseAtlasClass } from "./general.js";
-
+import type { AtlasUser } from "user.js";
 import { AtlasProjection } from "./projection.js";
 import { AtlasProject } from "./project.js";
 import { tableFromIPC } from "apache-arrow";
@@ -10,7 +10,7 @@ export class AtlasIndex extends BaseAtlasClass {
 
   constructor(
     id: Atlas.UUID,
-    user?: Atlas.AtlasUser,
+    user?: AtlasUser,
     project?: AtlasProject,
     project_id?: Atlas.UUID
   ) {
