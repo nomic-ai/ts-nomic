@@ -237,9 +237,9 @@ export class AtlasProject extends BaseAtlasClass {
 
     const prefs = {
       ...defaults,
-      ...options
+      ...options,
     } as unknown as Atlas.CreateAtlasIndexRequest;
-    
+
     const response = await this.apiCall(
       "/v1/project/index/create",
       "POST",

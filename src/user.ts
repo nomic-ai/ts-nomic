@@ -97,7 +97,7 @@ async function get_access_token(
 let user: AtlasUser | undefined = undefined;
 export function get_user(): AtlasUser {
   if (user === undefined) {
-    console.warn("CREATING USER WITHOUT PARAMETERS")
+    console.warn("CREATING USER WITHOUT PARAMETERS");
     user = new AtlasUser();
   }
   return user;
