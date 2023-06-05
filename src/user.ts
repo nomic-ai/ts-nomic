@@ -181,7 +181,7 @@ export class AtlasUser {
   async header(): Promise<Record<string, string>> {
     const credentials = await this.credentials;
     if (credentials === "include") {
-      return { credentials: "include" };
+      return { };
     }
     const token = credentials.token;
     return { Authorization: `Bearer ${token}` };
@@ -214,6 +214,7 @@ export class AtlasUser {
     payload: Atlas.Payload = null,
     headers: null | Record<string, string> = null
   ): Promise<Response> {
+    console.log("ITSA AN A API CALL")
     // make an API call
     if (headers === null) {
       headers = await this.header();
@@ -234,7 +235,6 @@ export class AtlasUser {
     }
 
     const url = `https://${this.apiEndpoint}${endpoint}`;
-    //    console.log({url, method, headers, body})
     const params = {
       method,
       headers: {
@@ -242,16 +242,18 @@ export class AtlasUser {
       },
       body,
     } as RequestInit;
-    if (headers.credentials === "include") {
+    if ((await headers.credentials) === "include") {
       delete headers.credentials;
+      console.log("INCLUDING")
       if (
         typeof window !== "undefined" &&
         window.localStorage.isLoggedIn === true
       ) {
+        console.log("SETTING CREDENTIALS")
         params.credentials = "include";
       }
     }
-    //    console.log({params})
+    console.log("FETCHING", url, params)
     const response = await fetch(url, params);
 
     if (response.status < 200 || response.status > 299) {

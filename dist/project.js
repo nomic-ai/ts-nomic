@@ -181,7 +181,7 @@ export class AtlasProject extends BaseAtlasClass {
         }
         const prefs = {
             ...defaults,
-            ...options
+            ...options,
         };
         const response = await this.apiCall("/v1/project/index/create", "POST", prefs);
         if (response.status !== 200) {
