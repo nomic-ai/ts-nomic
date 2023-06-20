@@ -91,9 +91,18 @@ export class AtlasUser {
      * @param env The Nomic environment to use. Currently must be 'production' or 'staging'.
      */
     constructor(api_key = undefined, env = "production") {
+        this.bearer_token = undefined;
         this._info = undefined;
         if (api_key === null) {
             this.credentials = Promise.resolve("include");
+        }
+        else if (api_key?.startsWith('Bearer: ')) {
+            this.credentials = Promise.resolve({
+                refresh_token: null,
+                token: api_key.slice(8),
+                tenant: getTenant(env),
+                expires: Date.now() + 80000,
+            });
         }
         else {
             this.credentials = get_access_token(api_key, env);
@@ -128,7 +137,6 @@ export class AtlasUser {
         return info;
     }
     async apiCall(endpoint, method = "GET", payload = null, headers = null) {
-        console.log("ITSA AN A API CALL");
         // make an API call
         if (headers === null) {
             headers = await this.header();
@@ -155,11 +163,11 @@ export class AtlasUser {
             },
             body,
         };
-        if ((await headers.credentials) === "include") {
+        if ((await this.credentials) === "include") {
             delete headers.credentials;
             console.log("INCLUDING");
             if (typeof window !== "undefined" &&
-                window.localStorage.isLoggedIn === true) {
+                window.localStorage.isLoggedIn === "true") {
                 console.log("SETTING CREDENTIALS");
                 params.credentials = "include";
             }

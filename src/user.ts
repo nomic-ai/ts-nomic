@@ -22,7 +22,7 @@ function validateApiHttpResponse(response: Response): Response {
 
 type TokenRefreshResponse = any;
 interface Credentials {
-  refresh_token: string;
+  refresh_token: string | null;
   token: string;
   tenant: string;
   expires: number;
@@ -102,13 +102,16 @@ export function get_user(): AtlasUser {
   }
   return user;
 }
+
 type UUID = string;
+
 export type OrganizationInfo = {
   organization_id: UUID;
   nickname: string;
   user_id: string;
   access_role: "OWNER" | "MEMBER";
 };
+
 export type UserInfo = {
   sub: string;
   nickname: string;
@@ -126,7 +129,7 @@ type OrganizationInfoFull = {
 export class AtlasOrganization {
   id: UUID;
   user: AtlasUser;
-  constructor(id: UUID, user?: AtlasUser) {
+  constructor(id: UUID, user?: AtlasUser) {    
     this.id = id;
     this.user = user || get_user();
   }
@@ -150,8 +153,9 @@ export class AtlasUser {
   both information about the user and the credentials
   needed to make API calls.
   */
-  credentials: Promise<Credentials> | Promise<"include">;
+  private credentials: Promise<Credentials> | Promise<"include">;
   apiEndpoint: string;
+  private bearer_token: string | undefined = undefined;
   _info: UserInfo | undefined = undefined;
 
   /**
@@ -166,12 +170,20 @@ export class AtlasUser {
    *      succeed if the endpoint is public.
    * @param env The Nomic environment to use. Currently must be 'production' or 'staging'.
    */
+
   constructor(
     api_key: undefined | null | string = undefined,
     env: "staging" | "production" = "production"
   ) {
     if (api_key === null) {
       this.credentials = Promise.resolve("include" as const);
+    } else if (api_key?.startsWith('Bearer: ')) {
+      this.credentials = Promise.resolve({
+        refresh_token: null,
+        token: api_key.slice(8),
+        tenant: getTenant(env),
+        expires: Date.now() + 80000,
+      });
     } else {
       this.credentials = get_access_token(api_key, env);
     }
@@ -214,7 +226,6 @@ export class AtlasUser {
     payload: Atlas.Payload = null,
     headers: null | Record<string, string> = null
   ): Promise<Response> {
-    console.log("ITSA AN A API CALL")
     // make an API call
     if (headers === null) {
       headers = await this.header();
@@ -242,12 +253,12 @@ export class AtlasUser {
       },
       body,
     } as RequestInit;
-    if ((await headers.credentials) === "include") {
+    if ((await this.credentials) === "include") {
       delete headers.credentials;
       console.log("INCLUDING")
       if (
         typeof window !== "undefined" &&
-        window.localStorage.isLoggedIn === true
+        window.localStorage.isLoggedIn === "true"
       ) {
         console.log("SETTING CREDENTIALS")
         params.credentials = "include";

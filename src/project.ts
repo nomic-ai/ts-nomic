@@ -15,7 +15,7 @@ export async function create_project(
 ): Promise<AtlasProject> {
   const user = get_user();
   if (options.unique_id_field === undefined) {
-    throw new Error("id_field is required");
+    throw new Error("unique_id_field is required");
   }
   if (options.project_name === undefined) {
     throw new Error("Project name is required");

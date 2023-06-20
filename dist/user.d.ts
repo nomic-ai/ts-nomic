@@ -1,10 +1,4 @@
 import { AtlasProject } from "./project.js";
-interface Credentials {
-    refresh_token: string;
-    token: string;
-    tenant: string;
-    expires: number;
-}
 export declare function get_user(): AtlasUser;
 type UUID = string;
 export type OrganizationInfo = {
@@ -29,8 +23,9 @@ export declare class AtlasOrganization {
     projects(): Promise<AtlasProject[]>;
 }
 export declare class AtlasUser {
-    credentials: Promise<Credentials> | Promise<"include">;
+    private credentials;
     apiEndpoint: string;
+    private bearer_token;
     _info: UserInfo | undefined;
     /**
      *
