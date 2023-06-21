@@ -22,6 +22,11 @@ export declare class AtlasOrganization {
     info(): Promise<any>;
     projects(): Promise<AtlasProject[]>;
 }
+type AtlasUserOptions = {
+    api_key?: string;
+    bearer_token?: string;
+    env?: "staging" | "production";
+};
 export declare class AtlasUser {
     private credentials;
     apiEndpoint: string;
@@ -37,9 +42,11 @@ export declare class AtlasUser {
      *    in the browser, which is a secure way to avoid exposing secrets.
      *    * Otherwise, will attempt to make requests without credentials, which may
      *      succeed if the endpoint is public.
+     * @param bearer_token
+     *  If a string, will be used to handle requests.
      * @param env The Nomic environment to use. Currently must be 'production' or 'staging'.
      */
-    constructor(api_key?: undefined | null | string, env?: "staging" | "production");
+    constructor(options?: AtlasUserOptions);
     header(): Promise<Record<string, string>>;
     projects(): Promise<AtlasProject[]>;
     info(): Promise<UserInfo>;

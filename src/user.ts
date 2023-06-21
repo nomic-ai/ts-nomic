@@ -147,6 +147,12 @@ export class AtlasOrganization {
   }
 }
 
+type AtlasUserOptions = {
+  api_key?: string;
+  bearer_token?: string;
+  env?: "staging" | "production";
+}
+
 export class AtlasUser {
   /* 
   An AtlasUser is a registered user. The class contains 
@@ -168,24 +174,35 @@ export class AtlasUser {
    *    in the browser, which is a secure way to avoid exposing secrets.
    *    * Otherwise, will attempt to make requests without credentials, which may
    *      succeed if the endpoint is public.
+   * @param bearer_token
+   *  If a string, will be used to handle requests.
    * @param env The Nomic environment to use. Currently must be 'production' or 'staging'.
    */
 
   constructor(
-    api_key: undefined | null | string = undefined,
-    env: "staging" | "production" = "production"
+    options: AtlasUserOptions = {
+      api_key: undefined,
+      bearer_token: undefined,
+      env: "production",
+    }
   ) {
-    if (api_key === null) {
-      this.credentials = Promise.resolve("include" as const);
-    } else if (api_key?.startsWith('Bearer: ')) {
+    const { api_key, bearer_token, env } = options;
+    if (api_key) {
+      // if the api key is provided, we need to get a bearer token
+      this.credentials = get_access_token(api_key, env);
+    } else if (bearer_token) {
       this.credentials = Promise.resolve({
         refresh_token: null,
-        token: api_key.slice(8),
+        token: bearer_token,
         tenant: getTenant(env),
         expires: Date.now() + 80000,
       });
-    } else {
+    } else if (api_key === undefined) { 
+      // if the api key is not provided, we'll use the environment variable
       this.credentials = get_access_token(api_key, env);
+    } else {
+      // if the api key is null, we can use the browser's credentials
+      this.credentials = Promise.resolve("include" as const);
     }
     this.apiEndpoint = tenants[getTenant(env)].api_domain;
   }
@@ -214,7 +231,7 @@ export class AtlasUser {
     if (this._info !== undefined) {
       return this._info;
     }
-    const response = await this.apiCall("/v1/user", "GET");
+    const response = await this.apiCall("/v1/user/", "GET");
     const info = (await response.json()) as UserInfo;
     this._info = info;
     return info;
