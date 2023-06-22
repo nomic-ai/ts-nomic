@@ -1,6 +1,7 @@
 import { test } from "uvu";
 import * as assert from "uvu/assert";
-import { AtlasUser, AtlasOrganization } from "../src/user";
+import { AtlasUser } from "../src/user";
+import { AtlasOrganization } from "../src/organization";
 
 // TODO - should have a dedicated test account here
 

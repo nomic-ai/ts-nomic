@@ -1,4 +1,5 @@
-import { AtlasProject } from "./project.js";
+import { AtlasProject } from "./project";
+import { AtlasOrganization, OrganizationInfo } from "./organization";
 
 const tenants = {
   staging: {
@@ -99,15 +100,6 @@ export function get_env_user(): AtlasUser {
   return user;
 }
 
-type UUID = string;
-
-export type OrganizationInfo = {
-  organization_id: UUID;
-  nickname: string;
-  user_id: string;
-  access_role: "OWNER" | "MEMBER";
-};
-
 export type UserInfo = {
   sub: string;
   nickname: string;
@@ -116,38 +108,6 @@ export type UserInfo = {
   updated_at: string;
   organizations: OrganizationInfo[];
 };
-
-type OrganizationInfoFull = {
-  id: UUID;
-  projects: AtlasProject[];
-};
-
-export class AtlasOrganization {
-  id: UUID;
-  user: AtlasUser;
-  constructor(id: UUID, user?: AtlasUser) {
-    this.id = id;
-    this.user = user || get_env_user();
-  }
-  async info() {
-    const response = await this.user.apiCall(
-      `/v1/organization/${this.id}`,
-      "GET"
-    );
-    return response.json();
-  }
-
-  async projects() {
-    const info = (await this.info()) as OrganizationInfoFull;
-    return info.projects;
-  }
-}
-
-type AtlasUserOptions = {
-  api_key?: string;
-  bearer_token?: string;
-  env?: "staging" | "production";
-}
 
 type Envlogin = {
   environment: keyof typeof tenants;
