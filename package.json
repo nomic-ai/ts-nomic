@@ -6,6 +6,7 @@
     "dist"
   ],
   "module": "./dist/main.js",
+  "types": "./dist/main.d.ts",
   "exports": {
     ".": {
       "import": "./dist/main.js"
@@ -14,7 +15,8 @@
   "scripts": {
     "test": "env-cmd --file .env uvu tests -r esbuild-register",
     "build-types": "openapi-typescript etc/openapi.json > etc/openapi.d.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "build:watch": "tsc -w"
   },
   "devDependencies": {
     "@auth0/auth0-react": "^2.1.1",

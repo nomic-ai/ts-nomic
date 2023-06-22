@@ -1,4 +1,14 @@
 import { AtlasProject } from "./project.js";
+declare const tenants: {
+    readonly staging: {
+        readonly frontend_domain: "staging-atlas.nomic.ai";
+        readonly api_domain: "staging-api-atlas.nomic.ai";
+    };
+    readonly production: {
+        readonly frontend_domain: "atlas.nomic.ai";
+        readonly api_domain: "api-atlas.nomic.ai";
+    };
+};
 export declare function get_user(): AtlasUser;
 type UUID = string;
 export type OrganizationInfo = {
@@ -22,10 +32,29 @@ export declare class AtlasOrganization {
     info(): Promise<any>;
     projects(): Promise<AtlasProject[]>;
 }
-type AtlasUserOptions = {
-    api_key?: string;
-    bearer_token?: string;
-    env?: "staging" | "production";
+type Envlogin = {
+    environment: keyof typeof tenants;
+    useEnvToken: true;
+    apiKey?: never;
+    bearerToken?: never;
+};
+type ApiKeyLogin = {
+    environment: keyof typeof tenants;
+    useEnvToken?: never;
+    apiKey: string;
+    bearerToken?: never;
+};
+type BearerTokenLogin = {
+    environment: keyof typeof tenants;
+    useEnvToken?: never;
+    bearerToken: string;
+    apiKey?: never;
+};
+type AnonUser = {
+    environment: keyof typeof tenants;
+    useEnvToken?: never;
+    bearerToken?: never;
+    apiKey?: never;
 };
 export declare class AtlasUser {
     private credentials;
@@ -34,20 +63,22 @@ export declare class AtlasUser {
     _info: UserInfo | undefined;
     /**
      *
-     * @param api_key
-     *  If a string, will be used to generate a bearer token to handle requests.
-     *  If undefined, will look for the ATLAS_API_KEY environment variable.
-     *  If null, will proceed on with *no* API key. This can go in two directions:
-     *    * if window.isLoggedIn === true, will attempt to use credentials in http requests
-     *    in the browser, which is a secure way to avoid exposing secrets.
-     *    * Otherwise, will attempt to make requests without credentials, which may
-     *      succeed if the endpoint is public.
-     * @param bearer_token
-     *  If a string, will be used to handle requests.
-     * @param env The Nomic environment to use. Currently must be 'production' or 'staging'.
+     * @param params
+     *  An object that corresponds to one of the accepted login methods
+     *    Envlogin: Uses the environment variable
+     *      must have `useEnvToken: true`
+     *    ApiKeyLogin: Uses an api key
+     *      must have `apiKey: string`
+     *    BearerTokenLogin: Uses a bearer token
+     *      must have `bearerToken: string`
+     *    AnonUser: No credentials, used for anonymous users
+     *  All login methods must have `environment: "staging" | "production"`
+     *
      */
-    constructor(options?: AtlasUserOptions);
-    header(): Promise<Record<string, string>>;
+    constructor(params: Envlogin);
+    constructor(params: ApiKeyLogin);
+    constructor(params: BearerTokenLogin);
+    constructor(params: AnonUser);
     projects(): Promise<AtlasProject[]>;
     info(): Promise<UserInfo>;
     apiCall(endpoint: string, method?: "GET" | "POST", payload?: Atlas.Payload, headers?: null | Record<string, string>): Promise<Response>;
