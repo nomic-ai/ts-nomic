@@ -51,17 +51,17 @@ async function get_access_token(apiKey, env) {
     return tokenInfo;
 }
 let user = undefined;
-export function get_user() {
+export function get_env_user() {
     if (user === undefined) {
-        console.warn("CREATING USER WITHOUT PARAMETERS");
-        user = new AtlasUser({ environment: "production" });
+        console.warn("CREATING USER FROM ENV");
+        user = new AtlasUser({ environment: "production", useEnvToken: true });
     }
     return user;
 }
 export class AtlasOrganization {
     constructor(id, user) {
         this.id = id;
-        this.user = user || get_user();
+        this.user = user || get_env_user();
     }
     async info() {
         const response = await this.user.apiCall(`/v1/organization/${this.id}`, "GET");
@@ -155,7 +155,6 @@ export class AtlasUser {
             },
             body,
         };
-        console.log("FETCHING", url, params);
         const response = await fetch(url, params);
         if (response.status < 200 || response.status > 299) {
             const body = await response.clone();

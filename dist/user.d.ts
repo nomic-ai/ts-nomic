@@ -9,7 +9,7 @@ declare const tenants: {
         readonly api_domain: "api-atlas.nomic.ai";
     };
 };
-export declare function get_user(): AtlasUser;
+export declare function get_env_user(): AtlasUser;
 type UUID = string;
 export type OrganizationInfo = {
     organization_id: UUID;

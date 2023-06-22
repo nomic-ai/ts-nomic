@@ -1,4 +1,4 @@
-import { get_user } from "./user";
+import { get_env_user } from "./user";
 import type { AtlasUser } from "./user";
 
 export const isNode =
@@ -8,7 +8,7 @@ export abstract class BaseAtlasClass {
   user: AtlasUser;
   constructor(user?: AtlasUser) {
     if (user === undefined) {
-      this.user = get_user();
+      this.user = get_env_user();
     } else {
       this.user = user;
     }

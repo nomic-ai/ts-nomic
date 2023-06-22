@@ -1,5 +1,5 @@
 import { tableToIPC, tableFromJSON } from "apache-arrow";
-import { get_user } from "./user";
+import { get_env_user } from "./user";
 import { AtlasIndex } from "./index";
 // get the API key from the node environment
 import { BaseAtlasClass } from "./general";
@@ -7,7 +7,7 @@ export function load_project(options) {
     throw new Error("Not implemented");
 }
 export async function create_project(options) {
-    const user = get_user();
+    const user = get_env_user();
     if (options.unique_id_field === undefined) {
         throw new Error("unique_id_field is required");
     }
