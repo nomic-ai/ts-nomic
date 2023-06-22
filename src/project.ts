@@ -1,9 +1,9 @@
 import type { Schema, Table } from "apache-arrow";
 import { tableToIPC, tableFromJSON } from "apache-arrow";
-import { AtlasUser, get_user } from "./user.js";
-import { AtlasIndex } from "./index.js";
+import { AtlasUser, get_user } from "./user";
+import { AtlasIndex } from "./index";
 // get the API key from the node environment
-import { BaseAtlasClass } from "./general.js";
+import { BaseAtlasClass } from "./general";
 type UUID = string;
 
 export function load_project(options: Atlas.LoadProjectOptions): AtlasProject {

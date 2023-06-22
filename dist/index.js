@@ -1,6 +1,6 @@
-import { BaseAtlasClass } from "./general.js";
-import { AtlasProjection } from "./projection.js";
-import { AtlasProject } from "./project.js";
+import { BaseAtlasClass } from "./general";
+import { AtlasProjection } from "./projection";
+import { AtlasProject } from "./project";
 import { tableFromIPC } from "apache-arrow";
 export class AtlasIndex extends BaseAtlasClass {
     constructor(id, user, project, project_id) {

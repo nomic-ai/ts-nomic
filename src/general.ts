@@ -1,5 +1,5 @@
-import { get_user } from "./user.js";
-import type { AtlasUser } from "./user.js";
+import { get_user } from "./user";
+import type { AtlasUser } from "./user";
 
 export const isNode =
   typeof process !== "undefined" && process.versions && process.versions.node;

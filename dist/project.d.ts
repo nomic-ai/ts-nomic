@@ -1,7 +1,7 @@
 import type { Schema, Table } from "apache-arrow";
-import { AtlasUser } from "./user.js";
-import { AtlasIndex } from "./index.js";
-import { BaseAtlasClass } from "./general.js";
+import { AtlasUser } from "./user";
+import { AtlasIndex } from "./index";
+import { BaseAtlasClass } from "./general";
 type UUID = string;
 export declare function load_project(options: Atlas.LoadProjectOptions): AtlasProject;
 export declare function create_project(options: Atlas.ProjectInitOptions): Promise<AtlasProject>;

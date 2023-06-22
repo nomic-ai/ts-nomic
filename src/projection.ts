@@ -1,7 +1,7 @@
-import { BaseAtlasClass } from "./general.js";
-import type { AtlasUser } from "./user.js";
-import { AtlasProject } from "./project.js";
-import type { AtlasIndex } from "./index.js";
+import { BaseAtlasClass } from "./general";
+import type { AtlasUser } from "./user";
+import { AtlasProject } from "./project";
+import type { AtlasIndex } from "./index";
 type UUID = string;
 
 type ProjectionInitializationOptions = {

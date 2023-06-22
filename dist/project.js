@@ -1,8 +1,8 @@
 import { tableToIPC, tableFromJSON } from "apache-arrow";
-import { get_user } from "./user.js";
-import { AtlasIndex } from "./index.js";
+import { get_user } from "./user";
+import { AtlasIndex } from "./index";
 // get the API key from the node environment
-import { BaseAtlasClass } from "./general.js";
+import { BaseAtlasClass } from "./general";
 export function load_project(options) {
     throw new Error("Not implemented");
 }

@@ -1,4 +1,4 @@
-import { get_user } from "./user.js";
+import { get_user } from "./user";
 export const isNode = typeof process !== "undefined" && process.versions && process.versions.node;
 export class BaseAtlasClass {
     constructor(user) {
