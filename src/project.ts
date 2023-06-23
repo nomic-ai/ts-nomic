@@ -1,50 +1,13 @@
-import type { Schema, Table } from "apache-arrow";
-import { tableToIPC, tableFromJSON } from "apache-arrow";
-import { AtlasUser, get_env_user } from "./user";
-import { AtlasIndex } from "./index";
+import type { Schema, Table } from 'apache-arrow';
+import { tableToIPC, tableFromJSON } from 'apache-arrow';
+import { AtlasUser, get_env_user } from './user';
+import { AtlasIndex } from './index';
 // get the API key from the node environment
-import { BaseAtlasClass } from "./general";
+import { BaseAtlasClass } from './general';
 type UUID = string;
 
 export function load_project(options: Atlas.LoadProjectOptions): AtlasProject {
-  throw new Error("Not implemented");
-}
-
-export async function create_project(
-  options: Atlas.ProjectInitOptions
-): Promise<AtlasProject> {
-  const user = get_env_user();
-  if (options.unique_id_field === undefined) {
-    throw new Error("unique_id_field is required");
-  }
-  if (options.project_name === undefined) {
-    throw new Error("Project name is required");
-  }
-  if (options.organization_name === undefined) {
-    options.organization_id = await user
-      .info()
-      .then((d) => d.organizations[0]["organization_id"]);
-    // Delete because this isn't allowed at the endpoint.
-    delete options.organization_name;
-  } else {
-    const info = await user.info();
-    options.organization_id = info["organizations"].find(
-      (d) => d.nickname === options.organization_name
-    )!["organization_id"];
-    delete options.organization_name;
-  }
-  options["modality"] = options["modality"] || "text";
-  const response = await user.apiCall(`/v1/project/create`, "POST", options);
-  if (response.status !== 201) {
-    throw new Error(
-      `Error ${response.status}, ${response.headers}, creating project: ${response.statusText}`
-    );
-  }
-  type CreateResponse = {
-    project_id: UUID;
-  };
-  const data = (await response.json()) as CreateResponse;
-  return new AtlasProject(data["project_id"], user);
+  throw new Error('Not implemented');
 }
 
 type DataIngest = Record<string, string | number | Date> | Table;
@@ -93,7 +56,7 @@ export class AtlasProject extends BaseAtlasClass {
 
   apiCall(
     endpoint: string,
-    method: "GET" | "POST",
+    method: 'GET' | 'POST',
     payload: Atlas.Payload = null,
     headers: null | Record<string, string> = null
   ): Promise<Response> {
@@ -101,7 +64,7 @@ export class AtlasProject extends BaseAtlasClass {
   }
 
   async delete(): Promise<Response> {
-    const value = await this.apiCall(`/v1/project/remove`, "POST", {
+    const value = await this.apiCall(`/v1/project/remove`, 'POST', {
       project_id: this.id,
     });
     if (value.status !== 200) {
@@ -125,7 +88,7 @@ export class AtlasProject extends BaseAtlasClass {
   }
 
   private async project_info() {
-    return this.apiCall(`/v1/project/${this.id}`, "GET").then(async (d) => {
+    return this.apiCall(`/v1/project/${this.id}`, 'GET').then(async (d) => {
       if (d.status !== 200) {
         const body = d.clone();
         throw new Error(
@@ -153,13 +116,13 @@ export class AtlasProject extends BaseAtlasClass {
       return [];
     }
     this._indices = atlas_indices.map(
-      (d) => new AtlasIndex(d["id"], this.user, this)
+      (d) => new AtlasIndex(d['id'], this.user, this)
     );
     return this._indices;
   }
 
   async update_indices(rebuild_topic_models: boolean = false): Promise<void> {
-    await this.apiCall(`/v1/project/update_indices`, "POST", {
+    await this.apiCall(`/v1/project/update_indices`, 'POST', {
       project_id: this.id,
       rebuild_topic_models: rebuild_topic_models,
     });
@@ -180,23 +143,23 @@ export class AtlasProject extends BaseAtlasClass {
    */
 
   async fetch_ids(ids?: string[]): Promise<Record<string, any>[]> {
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 
   async createIndex(
-    options: Omit<Atlas.IndexCreateOptions, "project_id">
+    options: Omit<Atlas.IndexCreateOptions, 'project_id'>
   ): Promise<AtlasIndex> {
     let defaults = {
       project_id: this.id,
-      index_name: "New index",
+      index_name: 'New index',
       colorable_fields: [],
-      nearest_neighbor_index: "HNSWIndex",
+      nearest_neighbor_index: 'HNSWIndex',
       nearest_neighbor_index_hyperparameters: JSON.stringify({
-        space: "l2",
+        space: 'l2',
         ef_construction: 100,
         M: 16,
       }),
-      projection: "NomicProject",
+      projection: 'NomicProject',
       projection_hyperparameters: JSON.stringify({
         n_neighbors: 64,
         n_epochs: 64,
@@ -206,16 +169,16 @@ export class AtlasProject extends BaseAtlasClass {
     } as Record<string, any>;
 
     const text_defaults = {
-      indexed_field: "text",
-      geometry_strategies: [["document"]],
-      atomizer_strategies: ["document", "charchunk"],
+      indexed_field: 'text',
+      geometry_strategies: [['document']],
+      atomizer_strategies: ['document', 'charchunk'],
       model_hyperparameters: JSON.stringify({
         dataset_buffer_size: 1000,
         batch_size: 20,
-        polymerize_by: "charchunk",
-        norm: "both",
+        polymerize_by: 'charchunk',
+        norm: 'both',
       }),
-      model: "NomicEmbed", // options?.multilingual === true ? 'NomicEmbedMultilingual' : 'NomicEmbed',
+      model: 'NomicEmbed', // options?.multilingual === true ? 'NomicEmbedMultilingual' : 'NomicEmbed',
     };
 
     const embedding_defaults = {
@@ -223,7 +186,7 @@ export class AtlasProject extends BaseAtlasClass {
       atomizer_strategies: null,
       indexed_field: null,
     };
-    if (options["indexed_field"] !== undefined) {
+    if (options['indexed_field'] !== undefined) {
       defaults = {
         ...defaults,
         ...text_defaults,
@@ -241,8 +204,8 @@ export class AtlasProject extends BaseAtlasClass {
     } as unknown as Atlas.CreateAtlasIndexRequest;
 
     const response = await this.apiCall(
-      "/v1/project/index/create",
-      "POST",
+      '/v1/project/index/create',
+      'POST',
       prefs
     );
     if (response.status !== 200) {
@@ -257,7 +220,7 @@ export class AtlasProject extends BaseAtlasClass {
   async delete_data(ids: string[]): Promise<void> {
     // TODO: untested
     // const info = await this.info
-    await this.user.apiCall("/v1/project/data/delete", "POST", {
+    await this.user.apiCall('/v1/project/data/delete', 'POST', {
       project_id: this.id,
       datum_ids: ids,
     });
@@ -279,12 +242,12 @@ export class AtlasProject extends BaseAtlasClass {
   }
 
   async uploadArrow(table: Table): Promise<void> {
-    table.schema.metadata.set("project_id", this.id);
-    table.schema.metadata.set("on_id_conflict_ignore", JSON.stringify(true));
-    const data = tableToIPC(table, "file");
+    table.schema.metadata.set('project_id', this.id);
+    table.schema.metadata.set('on_id_conflict_ignore', JSON.stringify(true));
+    const data = tableToIPC(table, 'file');
     const response = await this.apiCall(
       `/v1/project/data/add/arrow`,
-      "POST",
+      'POST',
       data
     );
 
