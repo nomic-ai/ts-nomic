@@ -11,6 +11,13 @@ declare const tenants: {
     };
 };
 export declare function get_env_user(): AtlasUser;
+type UUID = string;
+type OrganizationUserInfo = {
+    organization_id: UUID;
+    nickname: string;
+    user_id: string;
+    access_role: "OWNER" | "MEMBER";
+};
 export type UserInfo = {
     sub: string;
     nickname: string;

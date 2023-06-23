@@ -100,6 +100,15 @@ export function get_env_user(): AtlasUser {
   return user;
 }
 
+type UUID = string;
+
+type OrganizationUserInfo = {
+  organization_id: UUID;
+  nickname: string;
+  user_id: string;
+  access_role: "OWNER" | "MEMBER";
+};
+
 export type UserInfo = {
   sub: string;
   nickname: string;

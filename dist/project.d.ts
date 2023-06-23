@@ -27,7 +27,7 @@ export declare class AtlasProject extends BaseAtlasClass {
     delete(): Promise<Response>;
     wait_for_lock(): Promise<void>;
     private project_info;
-    get info(): Atlas.ProjectInfo | Promise<any>;
+    get info(): Promise<any> | Atlas.ProjectInfo;
     indices(): Promise<AtlasIndex[]>;
     update_indices(rebuild_topic_models?: boolean): Promise<void>;
     add_text(records: Record<string, string>[]): Promise<void>;

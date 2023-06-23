@@ -1,15 +1,12 @@
 import { AtlasUser } from "./user";
 import { AtlasProject } from "./project";
 type UUID = string;
-export type OrganizationUserInfo = {
-    organization_id: UUID;
-    nickname: string;
-    user_id: string;
-    access_role: "OWNER" | "MEMBER";
-};
 type OrganizationInfo = {
     id: UUID;
-    projects: AtlasProject[];
+    projects: OrganizationProjectInfo[];
+};
+type OrganizationProjectInfo = {
+    id: UUID;
 };
 type ProjectInitOptions = {
     project_name: string;
@@ -22,7 +19,7 @@ export declare class AtlasOrganization {
     _info: OrganizationInfo | undefined;
     constructor(id: UUID, user?: AtlasUser);
     info(): Promise<OrganizationInfo>;
-    projects(): Promise<AtlasProject[]>;
+    projects(): Promise<OrganizationProjectInfo[]>;
     create_project(options: ProjectInitOptions): Promise<AtlasProject>;
 }
 export {};
