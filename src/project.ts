@@ -1,9 +1,9 @@
 import type { Schema, Table } from "apache-arrow";
 import { tableToIPC, tableFromJSON } from "apache-arrow";
-import { AtlasUser, get_user } from "./user.js";
-import { AtlasIndex } from "./index.js";
+import { AtlasUser, get_env_user } from "./user";
+import { AtlasIndex } from "./index";
 // get the API key from the node environment
-import { BaseAtlasClass } from "./general.js";
+import { BaseAtlasClass } from "./general";
 type UUID = string;
 
 export function load_project(options: Atlas.LoadProjectOptions): AtlasProject {
@@ -13,7 +13,7 @@ export function load_project(options: Atlas.LoadProjectOptions): AtlasProject {
 export async function create_project(
   options: Atlas.ProjectInitOptions
 ): Promise<AtlasProject> {
-  const user = get_user();
+  const user = get_env_user();
   if (options.unique_id_field === undefined) {
     throw new Error("unique_id_field is required");
   }

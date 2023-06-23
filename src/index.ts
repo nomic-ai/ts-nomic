@@ -1,7 +1,7 @@
-import { BaseAtlasClass } from "./general.js";
-import type { AtlasUser } from "user.js";
-import { AtlasProjection } from "./projection.js";
-import { AtlasProject } from "./project.js";
+import { BaseAtlasClass } from "./general";
+import type { AtlasUser } from "user";
+import { AtlasProjection } from "./projection";
+import { AtlasProject } from "./project";
 import { tableFromIPC } from "apache-arrow";
 export class AtlasIndex extends BaseAtlasClass {
   id: Atlas.UUID;
