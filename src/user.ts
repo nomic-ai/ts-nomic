@@ -1,7 +1,7 @@
 import { AtlasProject } from './project.js';
 
 const tenants = {
-   staging: {
+  staging: {
     frontend_domain: 'staging-atlas.nomic.ai',
     api_domain: 'staging-api-atlas.nomic.ai',
   },
