@@ -1,4 +1,5 @@
-import { AtlasProject } from "./project.js";
+import { AtlasProject } from "./project";
+import { OrganizationUserInfo } from "./organization";
 declare const tenants: {
     readonly staging: {
         readonly frontend_domain: "staging-atlas.nomic.ai";
@@ -11,7 +12,7 @@ declare const tenants: {
 };
 export declare function get_env_user(): AtlasUser;
 type UUID = string;
-export type OrganizationInfo = {
+type OrganizationUserInfo = {
     organization_id: UUID;
     nickname: string;
     user_id: string;
@@ -23,15 +24,8 @@ export type UserInfo = {
     name: string;
     picture: string;
     updated_at: string;
-    organizations: OrganizationInfo[];
+    organizations: OrganizationUserInfo[];
 };
-export declare class AtlasOrganization {
-    id: UUID;
-    user: AtlasUser;
-    constructor(id: UUID, user?: AtlasUser);
-    info(): Promise<any>;
-    projects(): Promise<AtlasProject[]>;
-}
 type Envlogin = {
     environment: keyof typeof tenants;
     useEnvToken: true;
