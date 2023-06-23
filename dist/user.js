@@ -84,7 +84,7 @@ export class AtlasUser {
             // using the token in the environment
             const apiKey = getTenant(environment) === "production"
                 ? process.env.ATLAS_API_KEY
-                : process.env.ATLAS_STAGING_API_KEY;
+                : process.env.STAGING_ATLAS_API_KEY;
             this.credentials = get_access_token(apiKey, environment);
         }
         else if (apiKey) {

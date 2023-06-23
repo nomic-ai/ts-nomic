@@ -21,9 +21,9 @@ test("AtlasUser from env variables", async () => {
 });
 
 test("AtlasUser from api key", async () => {
-  const key = process.env.ATLAS_API_KEY;
+  const key = process.env.STAGING_ATLAS_API_KEY;
   if (key === undefined) {
-    throw new Error("ATLAS_API_KEY not set");
+    throw new Error("STAGING_ATLAS_API_KEY not set");
   }
   const user = new AtlasUser({environment: "staging", apiKey: key});
   const info = await user.info();
