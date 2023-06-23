@@ -1,5 +1,5 @@
 import { AtlasProject } from "./project";
-import { AtlasOrganization, OrganizationInfo } from "./organization";
+import { AtlasOrganization, OrganizationUserInfo } from "./organization";
 
 const tenants = {
   staging: {
@@ -106,7 +106,7 @@ export type UserInfo = {
   name: string;
   picture: string;
   updated_at: string;
-  organizations: OrganizationInfo[];
+  organizations: OrganizationUserInfo[];
 };
 
 type Envlogin = {
