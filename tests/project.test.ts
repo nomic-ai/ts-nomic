@@ -1,9 +1,11 @@
 import { test } from "uvu";
 import * as arrow from "apache-arrow";
 import * as assert from "uvu/assert";
-import { AtlasProject, create_project } from "../src/project";
+import { AtlasProject } from "../src/project";
 import { make_test_table } from "./arrow.test";
 import { AtlasProjection } from "../src/projection";
+import { AtlasUser } from "../src/user";
+import { AtlasOrganization } from "../src/organization";
 
 // OK, we're addicted to stateful tests here.
 // This manager allows named promises that tests
@@ -40,9 +42,13 @@ const manager = new ResolutionManager();
 
 manager.add("text project created");
 test("Project creation", async () => {
-  const project = await create_project({
+  const user = new AtlasUser({ environment: "staging", useEnvToken: true });
+  const organization = new AtlasOrganization(
+    (await user.info()).organizations[0].organization_id,
+    user
+  );
+  const project = await organization.create_project({
     project_name: "a typescript test text project",
-    description: "a test project",
     unique_id_field: "id",
     modality: "text",
   });
