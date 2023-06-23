@@ -92,7 +92,9 @@ let user: AtlasUser | undefined = undefined;
 export function get_env_user(): AtlasUser {
   if (user === undefined) {
     console.warn("CREATING USER FROM ENV");
-    user = new AtlasUser({ environment: "production", useEnvToken: true });
+    // if the env variable ATLAS_TENANT is set, use that tenant
+    // otherwise, use production
+    user = new AtlasUser({ environment: getTenant(), useEnvToken: true });
   }
   return user;
 }

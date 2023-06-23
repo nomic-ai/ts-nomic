@@ -5,7 +5,7 @@ import { AtlasUser, AtlasOrganization } from "../src/user";
 // TODO - should have a dedicated test account here
 
 test("AtlasOrganization test", async () => {
-  const user = new AtlasUser({environment: "production", useEnvToken: true});
+  const user = new AtlasUser({environment: "staging", useEnvToken: true});
   const info = await user.info();
   const organization = new AtlasOrganization(
     info.organizations[0].organization_id,
@@ -15,7 +15,7 @@ test("AtlasOrganization test", async () => {
 });
 
 test("AtlasUser from env variables", async () => {
-  const user = new AtlasUser({environment: "production", useEnvToken: true});
+  const user = new AtlasUser({environment: "staging", useEnvToken: true});
   const info = await user.info();
   assert.type(info, "object");
 });
@@ -25,7 +25,7 @@ test("AtlasUser from api key", async () => {
   if (key === undefined) {
     throw new Error("ATLAS_API_KEY not set");
   }
-  const user = new AtlasUser({environment: "production", apiKey: key});
+  const user = new AtlasUser({environment: "staging", apiKey: key});
   const info = await user.info();
   assert.type(info, "object");
 });
