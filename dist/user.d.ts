@@ -1,5 +1,5 @@
 import { AtlasProject } from "./project";
-import { OrganizationInfo } from "./organization";
+import { OrganizationUserInfo } from "./organization";
 declare const tenants: {
     readonly staging: {
         readonly frontend_domain: "staging-atlas.nomic.ai";
@@ -17,7 +17,7 @@ export type UserInfo = {
     name: string;
     picture: string;
     updated_at: string;
-    organizations: OrganizationInfo[];
+    organizations: OrganizationUserInfo[];
 };
 type Envlogin = {
     environment: keyof typeof tenants;
