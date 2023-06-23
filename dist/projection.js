@@ -1,5 +1,5 @@
-import { BaseAtlasClass } from "./general.js";
-import { AtlasProject } from "./project.js";
+import { BaseAtlasClass } from "./general";
+import { AtlasProject } from "./project";
 export class AtlasProjection extends BaseAtlasClass {
     constructor(id, options) {
         const { project, project_id, user } = options;

@@ -23,17 +23,12 @@ function getTenant(env = undefined) {
 }
 /**
  *
- * @param key The Atlas user API key to use. If undefined, will use the ATLAS_API_KEY environment variable.
+ * @param apiKey The Atlas user API key to use.
  * @param env The endpoint on which to log in. Values other than 'production' are extremely rare.
  * @returns
  */
-async function get_access_token(key = undefined, env = undefined) {
+async function get_access_token(apiKey, env) {
     const tenant = getTenant(env);
-    const apiKey = key !== undefined
-        ? key
-        : tenant === "production"
-            ? process.env.ATLAS_API_KEY
-            : process.env.ATLAS_STAGING_API_KEY;
     if (apiKey === undefined) {
         throw new Error("Could not authorize you with Nomic. Please see the readme for instructions on setting ATLAS_API_KEY in your path.");
     }
@@ -56,17 +51,19 @@ async function get_access_token(key = undefined, env = undefined) {
     return tokenInfo;
 }
 let user = undefined;
-export function get_user() {
+export function get_env_user() {
     if (user === undefined) {
-        console.warn("CREATING USER WITHOUT PARAMETERS");
-        user = new AtlasUser();
+        console.warn("CREATING USER FROM ENV");
+        // if the env variable ATLAS_TENANT is set, use that tenant
+        // otherwise, use production
+        user = new AtlasUser({ environment: getTenant(), useEnvToken: true });
     }
     return user;
 }
 export class AtlasOrganization {
     constructor(id, user) {
         this.id = id;
-        this.user = user || get_user();
+        this.user = user || get_env_user();
     }
     async info() {
         const response = await this.user.apiCall(`/v1/organization/${this.id}`, "GET");
@@ -78,44 +75,35 @@ export class AtlasOrganization {
     }
 }
 export class AtlasUser {
-    /**
-     *
-     * @param api_key
-     *  If a string, will be used to generate a bearer token to handle requests.
-     *  If undefined, will look for the ATLAS_API_KEY environment variable.
-     *  If null, will proceed on with *no* API key. This can go in two directions:
-     *    * if window.isLoggedIn === true, will attempt to use credentials in http requests
-     *    in the browser, which is a secure way to avoid exposing secrets.
-     *    * Otherwise, will attempt to make requests without credentials, which may
-     *      succeed if the endpoint is public.
-     * @param env The Nomic environment to use. Currently must be 'production' or 'staging'.
-     */
-    constructor(api_key = undefined, env = "production") {
+    constructor(params) {
         this.bearer_token = undefined;
         this._info = undefined;
-        if (api_key === null) {
-            this.credentials = Promise.resolve("include");
+        const { environment, useEnvToken, apiKey, bearerToken } = params;
+        this.apiEndpoint = tenants[environment].api_domain;
+        if (useEnvToken) {
+            // using the token in the environment
+            const apiKey = getTenant(environment) === "production"
+                ? process.env.ATLAS_API_KEY
+                : process.env.STAGING_ATLAS_API_KEY;
+            this.credentials = get_access_token(apiKey, environment);
         }
-        else if (api_key?.startsWith('Bearer: ')) {
+        else if (apiKey) {
+            // using an api key
+            this.credentials = get_access_token(apiKey, environment);
+        }
+        else if (bearerToken) {
+            // using a bearer token
             this.credentials = Promise.resolve({
                 refresh_token: null,
-                token: api_key.slice(8),
-                tenant: getTenant(env),
+                token: bearerToken,
+                tenant: getTenant(environment),
                 expires: Date.now() + 80000,
             });
         }
         else {
-            this.credentials = get_access_token(api_key, env);
+            // no credentials
+            this.credentials = Promise.resolve(null);
         }
-        this.apiEndpoint = tenants[getTenant(env)].api_domain;
-    }
-    async header() {
-        const credentials = await this.credentials;
-        if (credentials === "include") {
-            return {};
-        }
-        const token = credentials.token;
-        return { Authorization: `Bearer ${token}` };
     }
     async projects() {
         const organizations = (await this.info()).organizations;
@@ -131,7 +119,7 @@ export class AtlasUser {
         if (this._info !== undefined) {
             return this._info;
         }
-        const response = await this.apiCall("/v1/user", "GET");
+        const response = await this.apiCall("/v1/user/", "GET");
         const info = (await response.json());
         this._info = info;
         return info;
@@ -139,7 +127,13 @@ export class AtlasUser {
     async apiCall(endpoint, method = "GET", payload = null, headers = null) {
         // make an API call
         if (headers === null) {
-            headers = await this.header();
+            const credentials = await this.credentials;
+            if (credentials === null) {
+                headers = {};
+            }
+            else {
+                headers = { Authorization: `Bearer ${credentials.token}` };
+            }
         }
         const replacer = (key, value) => typeof value === "bigint" ? value.toString() : value;
         let body = null;
@@ -163,16 +157,6 @@ export class AtlasUser {
             },
             body,
         };
-        if ((await this.credentials) === "include") {
-            delete headers.credentials;
-            console.log("INCLUDING");
-            if (typeof window !== "undefined" &&
-                window.localStorage.isLoggedIn === "true") {
-                console.log("SETTING CREDENTIALS");
-                params.credentials = "include";
-            }
-        }
-        console.log("FETCHING", url, params);
         const response = await fetch(url, params);
         if (response.status < 200 || response.status > 299) {
             const body = await response.clone();

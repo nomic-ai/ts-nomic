@@ -1,4 +1,4 @@
-import type { AtlasUser } from "./user.js";
+import type { AtlasUser } from "./user";
 export declare const isNode: string | false;
 export declare abstract class BaseAtlasClass {
     user: AtlasUser;
