@@ -1,13 +1,13 @@
-import { AtlasProject } from "./project.js";
+import { AtlasProject } from './project.js';
 
 const tenants = {
-  staging: {
-    frontend_domain: "staging-atlas.nomic.ai",
-    api_domain: "staging-api-atlas.nomic.ai",
+   staging: {
+    frontend_domain: 'staging-atlas.nomic.ai',
+    api_domain: 'staging-api-atlas.nomic.ai',
   },
   production: {
-    frontend_domain: "atlas.nomic.ai",
-    api_domain: "api-atlas.nomic.ai",
+    frontend_domain: 'atlas.nomic.ai',
+    api_domain: 'api-atlas.nomic.ai',
   },
 } as const;
 
@@ -22,20 +22,20 @@ interface Credentials {
 function validateApiHttpResponse(response: Response): Response {
   if (response.status >= 500 && response.status < 600) {
     throw new Error(
-      "Cannot contact establish a connection with Nomic services."
+      'Cannot contact establish a connection with Nomic services.'
     );
   }
   return response;
 }
 
-function getTenant(env: undefined | "staging" | "production" = undefined) {
-  if (![undefined, "staging", "production"].includes(env))
+function getTenant(env: undefined | 'staging' | 'production' = undefined) {
+  if (![undefined, 'staging', 'production'].includes(env))
     throw new Error(
       'Invalid environment. Valid environments are [undefined, "staging", "production"]'
     );
   return (env ||
     process.env.ATLAS_TENANT ||
-    "production") as keyof typeof tenants;
+    'production') as keyof typeof tenants;
 }
 
 /**
@@ -46,13 +46,13 @@ function getTenant(env: undefined | "staging" | "production" = undefined) {
  */
 async function get_access_token(
   apiKey: string | undefined,
-  env: keyof typeof tenants,
+  env: keyof typeof tenants
 ): Promise<Credentials> {
   const tenant = getTenant(env);
 
   if (apiKey === undefined) {
     throw new Error(
-      "Could not authorize you with Nomic. Please see the readme for instructions on setting ATLAS_API_KEY in your path."
+      'Could not authorize you with Nomic. Please see the readme for instructions on setting ATLAS_API_KEY in your path.'
     );
   }
 
@@ -64,7 +64,7 @@ async function get_access_token(
 
   if (validatedResponse.status !== 200) {
     throw new Error(
-      "Could not authorize you with Nomic. Run `nomic login` to re-authenticate."
+      'Could not authorize you with Nomic. Run `nomic login` to re-authenticate.'
     );
   }
 
@@ -74,7 +74,7 @@ async function get_access_token(
 
   if (access_token === undefined) {
     throw new Error(
-      "Could not authorize you with Nomic. Please see the readme for instructions on setting ATLAS_API_KEY in your path."
+      'Could not authorize you with Nomic. Please see the readme for instructions on setting ATLAS_API_KEY in your path.'
     );
   }
 
@@ -91,7 +91,7 @@ async function get_access_token(
 let user: AtlasUser | undefined = undefined;
 export function get_env_user(): AtlasUser {
   if (user === undefined) {
-    console.warn("CREATING USER FROM ENV");
+    console.warn('CREATING USER FROM ENV');
     // if the env variable ATLAS_TENANT is set, use that tenant
     // otherwise, use production
     user = new AtlasUser({ environment: getTenant(), useEnvToken: true });
@@ -105,7 +105,7 @@ export type OrganizationInfo = {
   organization_id: UUID;
   nickname: string;
   user_id: string;
-  access_role: "OWNER" | "MEMBER";
+  access_role: 'OWNER' | 'MEMBER';
 };
 
 export type UserInfo = {
@@ -132,7 +132,7 @@ export class AtlasOrganization {
   async info() {
     const response = await this.user.apiCall(
       `/v1/organization/${this.id}`,
-      "GET"
+      'GET'
     );
     return response.json();
   }
@@ -146,36 +146,36 @@ export class AtlasOrganization {
 type AtlasUserOptions = {
   api_key?: string;
   bearer_token?: string;
-  env?: "staging" | "production";
-}
+  env?: 'staging' | 'production';
+};
 
 type Envlogin = {
   environment: keyof typeof tenants;
   useEnvToken: true;
   apiKey?: never;
   bearerToken?: never;
-}
+};
 
 type ApiKeyLogin = {
   environment: keyof typeof tenants;
   useEnvToken?: never;
   apiKey: string;
   bearerToken?: never;
-}
+};
 
 type BearerTokenLogin = {
   environment: keyof typeof tenants;
   useEnvToken?: never;
   bearerToken: string;
   apiKey?: never;
-}
+};
 
 type AnonUser = {
   environment: keyof typeof tenants;
   useEnvToken?: never;
   bearerToken?: never;
   apiKey?: never;
-}
+};
 
 type LoginParams = Envlogin | ApiKeyLogin | BearerTokenLogin | AnonUser;
 
@@ -194,7 +194,7 @@ export class AtlasUser {
    *
    * @param params
    *  An object that corresponds to one of the accepted login methods
-   *    Envlogin: Uses the environment variable 
+   *    Envlogin: Uses the environment variable
    *      must have `useEnvToken: true`
    *    ApiKeyLogin: Uses an api key
    *      must have `apiKey: string`
@@ -202,7 +202,7 @@ export class AtlasUser {
    *      must have `bearerToken: string`
    *    AnonUser: No credentials, used for anonymous users
    *  All login methods must have `environment: "staging" | "production"`
-   *     
+   *
    */
 
   constructor(params: Envlogin);
@@ -215,9 +215,10 @@ export class AtlasUser {
 
     if (useEnvToken) {
       // using the token in the environment
-      const apiKey = getTenant(environment) === "production"
-        ? process.env.ATLAS_API_KEY
-        : process.env.STAGING_ATLAS_API_KEY;
+      const apiKey =
+        getTenant(environment) === 'production'
+          ? process.env.ATLAS_API_KEY
+          : process.env.STAGING_ATLAS_API_KEY;
 
       this.credentials = get_access_token(apiKey, environment);
     } else if (apiKey) {
@@ -252,7 +253,7 @@ export class AtlasUser {
     if (this._info !== undefined) {
       return this._info;
     }
-    const response = await this.apiCall("/v1/user/", "GET");
+    const response = await this.apiCall('/v1/user/', 'GET');
     const info = (await response.json()) as UserInfo;
     this._info = info;
     return info;
@@ -260,7 +261,7 @@ export class AtlasUser {
 
   async apiCall(
     endpoint: string,
-    method: "GET" | "POST" = "GET",
+    method: 'GET' | 'POST' = 'GET',
     payload: Atlas.Payload = null,
     headers: null | Record<string, string> = null
   ): Promise<Response> {
@@ -274,17 +275,17 @@ export class AtlasUser {
       }
     }
     const replacer = (key: any, value: any) =>
-      typeof value === "bigint" ? value.toString() : value;
+      typeof value === 'bigint' ? value.toString() : value;
 
-    let body: RequestInit["body"] = null;
+    let body: RequestInit['body'] = null;
     if (payload instanceof Uint8Array) {
-      headers["Content-Type"] = "application/octet-stream";
+      headers['Content-Type'] = 'application/octet-stream';
       body = payload;
     } else if (payload !== null) {
-      headers["Content-Type"] = "application/json";
+      headers['Content-Type'] = 'application/json';
       body = JSON.stringify(payload, replacer);
     } else {
-      headers["Content-Type"] = "application/json";
+      headers['Content-Type'] = 'application/json';
       body = null;
     }
 
