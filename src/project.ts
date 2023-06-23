@@ -10,43 +10,6 @@ export function load_project(options: Atlas.LoadProjectOptions): AtlasProject {
   throw new Error("Not implemented");
 }
 
-export async function create_project(
-  options: Atlas.ProjectInitOptions
-): Promise<AtlasProject> {
-  const user = get_env_user();
-  if (options.unique_id_field === undefined) {
-    throw new Error("unique_id_field is required");
-  }
-  if (options.project_name === undefined) {
-    throw new Error("Project name is required");
-  }
-  if (options.organization_name === undefined) {
-    options.organization_id = await user
-      .info()
-      .then((d) => d.organizations[0]["organization_id"]);
-    // Delete because this isn't allowed at the endpoint.
-    delete options.organization_name;
-  } else {
-    const info = await user.info();
-    options.organization_id = info["organizations"].find(
-      (d) => d.nickname === options.organization_name
-    )!["organization_id"];
-    delete options.organization_name;
-  }
-  options["modality"] = options["modality"] || "text";
-  const response = await user.apiCall(`/v1/project/create`, "POST", options);
-  if (response.status !== 201) {
-    throw new Error(
-      `Error ${response.status}, ${response.headers}, creating project: ${response.statusText}`
-    );
-  }
-  type CreateResponse = {
-    project_id: UUID;
-  };
-  const data = (await response.json()) as CreateResponse;
-  return new AtlasProject(data["project_id"], user);
-}
-
 type DataIngest = Record<string, string | number | Date> | Table;
 type SingleEmbedding = Array<number>;
 type EmbeddingMatrix = Array<SingleEmbedding>;

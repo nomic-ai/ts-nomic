@@ -1,38 +1,9 @@
 import { tableToIPC, tableFromJSON } from "apache-arrow";
-import { get_env_user } from "./user";
 import { AtlasIndex } from "./index";
 // get the API key from the node environment
 import { BaseAtlasClass } from "./general";
 export function load_project(options) {
     throw new Error("Not implemented");
-}
-export async function create_project(options) {
-    const user = get_env_user();
-    if (options.unique_id_field === undefined) {
-        throw new Error("unique_id_field is required");
-    }
-    if (options.project_name === undefined) {
-        throw new Error("Project name is required");
-    }
-    if (options.organization_name === undefined) {
-        options.organization_id = await user
-            .info()
-            .then((d) => d.organizations[0]["organization_id"]);
-        // Delete because this isn't allowed at the endpoint.
-        delete options.organization_name;
-    }
-    else {
-        const info = await user.info();
-        options.organization_id = info["organizations"].find((d) => d.nickname === options.organization_name)["organization_id"];
-        delete options.organization_name;
-    }
-    options["modality"] = options["modality"] || "text";
-    const response = await user.apiCall(`/v1/project/create`, "POST", options);
-    if (response.status !== 201) {
-        throw new Error(`Error ${response.status}, ${response.headers}, creating project: ${response.statusText}`);
-    }
-    const data = (await response.json());
-    return new AtlasProject(data["project_id"], user);
 }
 /**
  * An AtlasProject represents a single mutable dataset in Atlas. It provides an
