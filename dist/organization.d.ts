@@ -23,5 +23,6 @@ export declare class AtlasOrganization {
     constructor(id: UUID, user?: AtlasUser);
     info(): Promise<OrganizationInfo>;
     projects(): Promise<AtlasProject[]>;
+    create_project(options: ProjectInitOptions): Promise<AtlasProject>;
 }
 export {};
