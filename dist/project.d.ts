@@ -4,7 +4,6 @@ import { AtlasIndex } from "./index";
 import { BaseAtlasClass } from "./general";
 type UUID = string;
 export declare function load_project(options: Atlas.LoadProjectOptions): AtlasProject;
-export declare function create_project(options: Atlas.ProjectInitOptions): Promise<AtlasProject>;
 /**
  * An AtlasProject represents a single mutable dataset in Atlas. It provides an
  * interfaces to upload, update, and delete data, as well as create and delete
