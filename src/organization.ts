@@ -8,7 +8,7 @@ type OrganizationInfo = {
   projects: OrganizationProjectInfo[];
 };
 
-type OrganizationProjectInfo = {
+export type OrganizationProjectInfo = {
   id: UUID;
 };
 
