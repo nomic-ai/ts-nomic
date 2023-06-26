@@ -23,7 +23,7 @@ If running in an environment like Vercel or Heroku, you can set the environment 
 ### API key as argument
 Alternatively, pass the api key as a param to `AtlasUser`:
 ```js
-AtlasUser({apiKey: <your-api-key>})
+AtlasUser({apiKey: "your-api-key"})
 ```
 
 
