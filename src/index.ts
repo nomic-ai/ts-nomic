@@ -1,8 +1,8 @@
-import { BaseAtlasClass } from "./general";
-import type { AtlasUser } from "user";
-import { AtlasProjection } from "./projection";
-import { AtlasProject } from "./project";
-import { tableFromIPC } from "apache-arrow";
+import { BaseAtlasClass } from './general.js';
+import type { AtlasUser } from 'user.js';
+import { AtlasProjection } from './projection.js';
+import { AtlasProject } from './project.js';
+import { tableFromIPC } from 'apache-arrow';
 export class AtlasIndex extends BaseAtlasClass {
   id: Atlas.UUID;
   _projections?: AtlasProjection[] = undefined;
@@ -16,7 +16,7 @@ export class AtlasIndex extends BaseAtlasClass {
   ) {
     super(user);
     if (project_id === undefined && project === undefined) {
-      throw new Error("project_id or project is required");
+      throw new Error('project_id or project is required');
     }
     this.project = project || new AtlasProject(project_id!, user);
     this.id = id;
@@ -36,11 +36,11 @@ export class AtlasIndex extends BaseAtlasClass {
     };
     const responseJson = await this.apiCall(
       `/v1/project/atoms/get`,
-      "POST",
+      'POST',
       body
     ).then((d) => d.json());
 
-    const content = responseJson["atoms"];
+    const content = responseJson['atoms'];
     return content;
   }
 
@@ -82,10 +82,10 @@ export class AtlasIndex extends BaseAtlasClass {
   async nearest_neighbors(nn_options: Atlas.NNOptions) {
     const { datum_ids, atom_ids, k } = nn_options;
     if (datum_ids !== undefined && atom_ids !== undefined) {
-      throw new Error("datum_ids and atom_ids are mutually exclusive");
+      throw new Error('datum_ids and atom_ids are mutually exclusive');
     }
     if (datum_ids === undefined && atom_ids === undefined) {
-      throw new Error("datum_ids or atom_ids is required");
+      throw new Error('datum_ids or atom_ids is required');
     }
     let params = {};
     if (datum_ids !== undefined) {
@@ -95,7 +95,7 @@ export class AtlasIndex extends BaseAtlasClass {
     }
     const tb = await this.apiCall(
       `/v1/project/data/get/arrow/nearest_neighbors/by_id`,
-      "POST",
+      'POST',
       {
         atlas_index_id: this.id,
         ...params,

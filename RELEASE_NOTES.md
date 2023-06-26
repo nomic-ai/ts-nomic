@@ -1,3 +1,11 @@
+# 0.2.2
+
+- publication issues.
+
+# 0.2.1
+
+- use npmignore file
+
 # 0.2.0
 
 2023-06-23

@@ -1,5 +1,5 @@
-import { AtlasUser, get_env_user } from './user';
-import { AtlasProject } from './project';
+import { AtlasUser, get_env_user } from './user.js';
+import { AtlasProject } from './project.js';
 
 type UUID = string;
 
@@ -8,7 +8,7 @@ type OrganizationInfo = {
   projects: OrganizationProjectInfo[];
 };
 
-type OrganizationProjectInfo = {
+export type OrganizationProjectInfo = {
   id: UUID;
 };
 
