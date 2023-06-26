@@ -4,30 +4,39 @@ This library provides a TypeScript client for the Nomic API that
 allows you to create, upload to, and download from projects
 hosted at atlas.nomic.ai.
 
-## Setting API keys
+## Using API keys
 
 All operations require a nomic API key linked to your account.
-To generate an API key, visit [https://atlas.nomic.ai/cli-login] while
-logged in to your account.
+To generate an API key, visit https://atlas.nomic.ai/cli-login while logged in to your account.
 
-### In a file in yoiur project root directory
+### API key as env variable
 
-Create a file in project root directory called `.env`
+Once you have the API key, create a file in project root directory called `.env`
 In it, put the following line:
 
 ```
 ATLAS_API_KEY=your-api-key
 ```
 
-### As an environment variable
+If running in an environment like Vercel or Heroku, you can set the environment variable through the hosting environment.
 
-```bash
-export ATLAS_API_KEY=your-api-key
+### API key as argument
+Alternatively, pass the api key as a param to `AtlasUser`:
+```js
+AtlasUser({apiKey: "your-api-key"})
 ```
 
-### Through your hosting environment
 
-If running in an environment like Vercel or Heroku, you can set the environment variable through the hosting environment.
+## Setting the tenant environment
+
+By default, this will access the production version of Atlas. This is probably what you want.
+
+If you are using a custom tenant of Atlas, you will define the following additional variables:
+```
+ATLAS_FRONTEND_DOMAIN=your.frontend.domain
+ATLAS_API_DOMAIN=your.api.domain
+```
+
 
 # Design
 
