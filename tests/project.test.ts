@@ -33,8 +33,15 @@ test('Full project flow', async () => {
     indexed_field: 'text',
     colorable_fields: [],
   });
+  // wait for index to be ready
+  await project.wait_for_lock();
   // fetch index from project and index id
   const index = (await project.indices())[0];
+  const orig_projection = (await index.projections())[0];
+  // Re-instantiate with just the project; test if we properly infer the index.
+  const projection = new AtlasProjection(orig_projection.id, { project });
+  const inferred_index = await projection.index();
+  assert.is(inferred_index.id, index.id);
   // delete project
   await project.delete();
 });
