@@ -1,22 +1,20 @@
 import { AtlasProject } from './project';
 import { AtlasOrganization, OrganizationProjectInfo } from './organization';
 
-const tenants = {
-  staging: {
-    frontend_domain: 'staging-atlas.nomic.ai',
-    api_domain: 'staging-api-atlas.nomic.ai',
-  },
-  production: {
-    frontend_domain: 'atlas.nomic.ai',
-    api_domain: 'api-atlas.nomic.ai',
-  },
-} as const;
+type Tenant = {
+  'frontend_domain': string,
+  'api_domain': string,
+}
+
+const ATLAS_PROD: Tenant = {
+  frontend_domain: 'atlas.nomic.ai',
+  api_domain: 'api-atlas.nomic.ai',
+}
 
 type TokenRefreshResponse = any;
 interface Credentials {
   refresh_token: string | null;
   token: string;
-  tenant: string;
   expires: number;
 }
 
@@ -29,27 +27,33 @@ function validateApiHttpResponse(response: Response): Response {
   return response;
 }
 
-function getTenant(env: undefined | 'staging' | 'production' = undefined) {
-  if (![undefined, 'staging', 'production'].includes(env))
+function getTenantDomains(): Tenant {
+  const env_frontend_domain = process.env.ATLAS_FRONTEND_DOMAIN;
+  const env_api_domain = process.env.ATLAS_API_DOMAIN;
+  if (env_frontend_domain !== undefined && env_api_domain !== undefined) {
+    return {
+      'frontend_domain': env_frontend_domain,
+      'api_domain': env_api_domain,
+    };
+  }
+  if (env_frontend_domain !== undefined || env_api_domain !== undefined) {
     throw new Error(
-      'Invalid environment. Valid environments are [undefined, "staging", "production"]'
+      'env variables ATLAS_FRONTEND_DOMAIN and ATLAS_API_DOMAIN must both be set, or neither.'
     );
-  return (env ||
-    process.env.ATLAS_TENANT ||
-    'production') as keyof typeof tenants;
+  }
+  return ATLAS_PROD;
 }
 
 /**
  *
  * @param apiKey The Atlas user API key to use.
- * @param env The endpoint on which to log in. Values other than 'production' are extremely rare.
+ * @param tenant The tenant object to use. Contains the frontend and API domains.
  * @returns
  */
 async function get_access_token(
   apiKey: string | undefined,
-  env: keyof typeof tenants
+  tenant: Tenant,
 ): Promise<Credentials> {
-  const tenant = getTenant(env);
 
   if (apiKey === undefined) {
     throw new Error(
@@ -57,9 +61,8 @@ async function get_access_token(
     );
   }
 
-  const environment = tenants[tenant];
   const response = await fetch(
-    `https://${environment.api_domain}/v1/user/token/refresh/${apiKey}`
+    `https://${tenant.api_domain}/v1/user/token/refresh/${apiKey}`
   );
   const validatedResponse = validateApiHttpResponse(response);
 
@@ -82,7 +85,6 @@ async function get_access_token(
   const tokenInfo: Credentials = {
     refresh_token: apiKey,
     token: access_token,
-    tenant: tenant,
     expires: Date.now() + 80000,
   };
 
@@ -93,9 +95,7 @@ let user: AtlasUser | undefined = undefined;
 export function get_env_user(): AtlasUser {
   if (user === undefined) {
     console.warn('CREATING USER FROM ENV');
-    // if the env variable ATLAS_TENANT is set, use that tenant
-    // otherwise, use production
-    user = new AtlasUser({ environment: getTenant(), useEnvToken: true });
+    user = new AtlasUser({ useEnvToken: true });
   }
   return user;
 }
@@ -119,28 +119,24 @@ export type UserInfo = {
 };
 
 type Envlogin = {
-  environment: keyof typeof tenants;
   useEnvToken: true;
   apiKey?: never;
   bearerToken?: never;
 };
 
 type ApiKeyLogin = {
-  environment: keyof typeof tenants;
   useEnvToken?: never;
   apiKey: string;
   bearerToken?: never;
 };
 
 type BearerTokenLogin = {
-  environment: keyof typeof tenants;
   useEnvToken?: never;
   bearerToken: string;
   apiKey?: never;
 };
 
 type AnonUser = {
-  environment: keyof typeof tenants;
   useEnvToken?: never;
   bearerToken?: never;
   apiKey?: never;
@@ -155,7 +151,7 @@ export class AtlasUser {
   needed to make API calls.
   */
   private credentials: Promise<Credentials | null>;
-  apiEndpoint: string;
+  tenant: Tenant = getTenantDomains();
   private bearer_token: string | undefined = undefined;
   _info: UserInfo | undefined = undefined;
 
@@ -170,7 +166,6 @@ export class AtlasUser {
    *    BearerTokenLogin: Uses a bearer token
    *      must have `bearerToken: string`
    *    AnonUser: No credentials, used for anonymous users
-   *  All login methods must have `environment: "staging" | "production"`
    *
    */
 
@@ -179,26 +174,21 @@ export class AtlasUser {
   constructor(params: BearerTokenLogin);
   constructor(params: AnonUser);
   constructor(params: LoginParams) {
-    const { environment, useEnvToken, apiKey, bearerToken } = params;
-    this.apiEndpoint = tenants[environment].api_domain;
+    const { useEnvToken, apiKey, bearerToken } = params;
+    
 
     if (useEnvToken) {
       // using the token in the environment
-      const apiKey =
-        getTenant(environment) === 'production'
-          ? process.env.ATLAS_API_KEY
-          : process.env.STAGING_ATLAS_API_KEY;
-
-      this.credentials = get_access_token(apiKey, environment);
+      const apiKey = process.env.ATLAS_API_KEY;
+      this.credentials = get_access_token(apiKey, this.tenant);
     } else if (apiKey) {
       // using an api key
-      this.credentials = get_access_token(apiKey, environment);
+      this.credentials = get_access_token(apiKey, this.tenant);
     } else if (bearerToken) {
       // using a bearer token
       this.credentials = Promise.resolve({
         refresh_token: null,
         token: bearerToken,
-        tenant: getTenant(environment),
         expires: Date.now() + 80000,
       });
     } else {
@@ -258,7 +248,7 @@ export class AtlasUser {
       body = null;
     }
 
-    const url = `https://${this.apiEndpoint}${endpoint}`;
+    const url = `https://${this.tenant.api_domain}${endpoint}`;
     const params = {
       method,
       headers: {

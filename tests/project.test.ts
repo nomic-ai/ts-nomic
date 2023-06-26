@@ -10,7 +10,7 @@ import { AtlasOrganization } from '../src/organization';
 test('Full project flow', async () => {
   // get user
   console.log('getting user')
-  const user = new AtlasUser({ environment: 'staging', useEnvToken: true });
+  const user = new AtlasUser({ useEnvToken: true });
   // get organization for user
   console.log('getting organization')
   const organization = new AtlasOrganization(
