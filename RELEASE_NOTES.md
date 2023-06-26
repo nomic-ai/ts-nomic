@@ -1,3 +1,8 @@
+# 0.3.0
+
+- Refactoring of environment setting
+- Change to AtlasUser initialization
+
 # 0.2.0
 
 2023-06-23
