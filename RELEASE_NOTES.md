@@ -1,3 +1,7 @@
+# 0.2.3
+
+Expose organization list from AtlasUser object.
+
 # 0.2.2
 
 - publication issues.
