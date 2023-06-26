@@ -196,16 +196,31 @@ export class AtlasUser {
       this.credentials = Promise.resolve(null);
     }
   }
-
+  /**
+   *
+   * @returns All projects that the user has access to
+   */
   async projects() {
-    const organizations = (await this.info()).organizations;
     const all_projects: OrganizationProjectInfo[] = [];
-    for (const org of organizations) {
-      const orgInfo = new AtlasOrganization(org.organization_id, this);
-      const projects = await orgInfo.projects();
+    for (const org of await this.organizations()) {
+      const projects = await org.projects();
       all_projects.push(...projects);
     }
     return all_projects;
+  }
+  /**
+   *
+   * @param role return only organizations where the user has this role (default: null, return all organizations)
+   * @returns A list of organizations where the user has the specified role
+   */
+  async organizations(role: 'OWNER' | 'MEMBER' | null = null) {
+    let organizations = (await this.info()).organizations;
+    if (role !== null) {
+      organizations = organizations.filter((org) => org.access_role === role);
+    }
+    return organizations.map(
+      (org) => new AtlasOrganization(org.organization_id, this)
+    );
   }
 
   async info() {
