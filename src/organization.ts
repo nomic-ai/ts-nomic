@@ -1,5 +1,5 @@
-import { AtlasUser, get_env_user } from './user';
-import { AtlasProject } from './project';
+import { AtlasUser, get_env_user } from './user.js';
+import { AtlasProject } from './project.js';
 
 type UUID = string;
 

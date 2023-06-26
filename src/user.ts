@@ -1,15 +1,14 @@
-import { AtlasProject } from './project';
-import { AtlasOrganization, OrganizationProjectInfo } from './organization';
+import { AtlasOrganization, OrganizationProjectInfo } from './organization.js';
 
 type Tenant = {
-  'frontend_domain': string,
-  'api_domain': string,
-}
+  frontend_domain: string;
+  api_domain: string;
+};
 
 const ATLAS_PROD: Tenant = {
   frontend_domain: 'atlas.nomic.ai',
   api_domain: 'api-atlas.nomic.ai',
-}
+};
 
 type TokenRefreshResponse = any;
 interface Credentials {
@@ -32,8 +31,8 @@ function getTenantDomains(): Tenant {
   const env_api_domain = process.env.ATLAS_API_DOMAIN;
   if (env_frontend_domain !== undefined && env_api_domain !== undefined) {
     return {
-      'frontend_domain': env_frontend_domain,
-      'api_domain': env_api_domain,
+      frontend_domain: env_frontend_domain,
+      api_domain: env_api_domain,
     };
   }
   if (env_frontend_domain !== undefined || env_api_domain !== undefined) {
@@ -52,9 +51,8 @@ function getTenantDomains(): Tenant {
  */
 async function get_access_token(
   apiKey: string | undefined,
-  tenant: Tenant,
+  tenant: Tenant
 ): Promise<Credentials> {
-
   if (apiKey === undefined) {
     throw new Error(
       'Could not authorize you with Nomic. Please see the readme for instructions on setting ATLAS_API_KEY in your path.'
@@ -175,7 +173,6 @@ export class AtlasUser {
   constructor(params: AnonUser);
   constructor(params: LoginParams) {
     const { useEnvToken, apiKey, bearerToken } = params;
-    
 
     if (useEnvToken) {
       // using the token in the environment

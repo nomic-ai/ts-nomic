@@ -1,7 +1,7 @@
-import { BaseAtlasClass } from "./general";
-import type { AtlasUser } from "./user";
-import { AtlasProject } from "./project";
-import type { AtlasIndex } from "./index";
+import { BaseAtlasClass } from './general.js';
+import type { AtlasUser } from './user.js';
+import { AtlasProject } from './project.js';
+import type { AtlasIndex } from './index.js';
 type UUID = string;
 
 type ProjectionInitializationOptions = {
@@ -21,10 +21,10 @@ export class AtlasProjection extends BaseAtlasClass {
     super(user || project?.user);
 
     if (project_id === undefined && project === undefined) {
-      throw new Error("project_id or project is required");
+      throw new Error('project_id or project is required');
     }
     if (project_id !== undefined && project !== undefined) {
-      throw new Error("project_id and project are mutually exclusive");
+      throw new Error('project_id and project are mutually exclusive');
     }
 
     if (project_id !== undefined) {
@@ -59,7 +59,7 @@ export class AtlasProjection extends BaseAtlasClass {
         }
       }
     }
-    throw new Error("Could not find index for projection");
+    throw new Error('Could not find index for projection');
   }
   async atomInformation(ids: string[] | number[] | bigint[]) {
     const index = await this.index();
@@ -73,7 +73,7 @@ export class AtlasProjection extends BaseAtlasClass {
   async info() {
     const response = await this.apiCall(
       `/v1/project/${this.project_id}/projection/${this.id}`,
-      "GET"
+      'GET'
     );
     return response.json();
   }

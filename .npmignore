@@ -1,0 +1,5 @@
+.env
+node_modules
+src/openapi.d.ts
+etc/openapi.json
+private

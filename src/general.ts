@@ -1,8 +1,8 @@
-import { get_env_user } from "./user";
-import type { AtlasUser } from "./user";
+import { get_env_user } from './user.js';
+import type { AtlasUser } from './user.js';
 
 export const isNode =
-  typeof process !== "undefined" && process.versions && process.versions.node;
+  typeof process !== 'undefined' && process.versions && process.versions.node;
 
 export abstract class BaseAtlasClass {
   user: AtlasUser;
@@ -16,7 +16,7 @@ export abstract class BaseAtlasClass {
 
   async apiCall(
     endpoint: string,
-    method: "GET" | "POST",
+    method: 'GET' | 'POST',
     payload: Atlas.Payload = null,
     headers: null | Record<string, string> = null
   ) {
@@ -44,7 +44,7 @@ function isEmbeddingMatrix(value: any): value is Atlas.EmbeddingMatrix {
 function isRecordIngest(
   value: any
 ): value is Record<string, string | number | Date> {
-  return typeof value === "object" && value !== null;
+  return typeof value === 'object' && value !== null;
 }
 function isTextIndexOptions(value: any): value is Atlas.TextIndexOptions {
   return value.indexed_field !== undefined;
