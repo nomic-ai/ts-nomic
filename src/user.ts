@@ -1,5 +1,5 @@
 import { AtlasProject } from './project';
-import { AtlasOrganization, OrganizationUserInfo } from './organization';
+import { AtlasOrganization, OrganizationProjectInfo } from './organization';
 
 const tenants = {
   staging: {
@@ -209,7 +209,7 @@ export class AtlasUser {
 
   async projects() {
     const organizations = (await this.info()).organizations;
-    const all_projects: AtlasProject[] = [];
+    const all_projects: OrganizationProjectInfo[] = [];
     for (const org of organizations) {
       const orgInfo = new AtlasOrganization(org.organization_id, this);
       const projects = await orgInfo.projects();
