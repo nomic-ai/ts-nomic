@@ -1,3 +1,7 @@
+# 0.3.3
+
+- Re-added env variable for setting domain
+
 # 0.3.2
 
 - Bump code for commit.
