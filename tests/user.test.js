@@ -1,12 +1,12 @@
 import { test } from 'uvu';
 import * as assert from 'uvu/assert';
-import { AtlasUser } from '../src/user';
-import { AtlasOrganization } from '../src/organization';
+import { AtlasUser } from '../dist/user.js';
+import { AtlasOrganization } from '../dist/organization.js';
 
 // TODO - should have a dedicated test account here
 
 test('AtlasOrganization test', async () => {
-  const user = new AtlasUser({  useEnvToken: true });
+  const user = new AtlasUser({ useEnvToken: true });
   const info = await user.info();
   const organization = new AtlasOrganization(
     info.organizations[0].organization_id,
