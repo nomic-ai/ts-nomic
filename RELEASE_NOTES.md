@@ -1,3 +1,9 @@
+# 0.3.1
+
+- Move tests from typescript to javascript
+- Add '.js' suffix to all imports
+- Move remote URL model from struct called 'tenants' to a single 'apiLocation'.
+
 # 0.3.0
 
 - Refactoring of environment setting
