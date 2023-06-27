@@ -151,8 +151,12 @@ export class AtlasUser {
   constructor(params: LoginParams) {
     const { useEnvToken, apiKey, bearerToken, apiLocation } = params;
 
+    // If apiLocation is not specified, use the environment variable
+    // If the environment variable is not set, use the default
     if (apiLocation) {
       this.apiLocation = apiLocation;
+    } else if (process.env.ATLAS_API_DOMAIN) {
+      this.apiLocation = process.env.ATLAS_API_DOMAIN;
     } else {
       this.apiLocation = 'api-atlas.nomic.ai';
     }
