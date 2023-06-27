@@ -16,6 +16,8 @@ test('AtlasOrganization test', async () => {
 });
 
 test('AtlasUser from env variables', async () => {
+  // This is using the ATLAS_API_KEY env variable
+  // If this isn't found it will break
   const user = new AtlasUser({ useEnvToken: true });
   const info = await user.info();
   assert.type(info, 'object');

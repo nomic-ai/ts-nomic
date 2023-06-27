@@ -11,6 +11,7 @@ test('Full project flow', async () => {
   // get user
   console.log('getting user');
   const user = new AtlasUser({ useEnvToken: true });
+  console.log('THIS TEST IS RUNNING ON: ', user.apiLocation)
   // get organization for user
   console.log('getting organization');
   const organization = new AtlasOrganization(
