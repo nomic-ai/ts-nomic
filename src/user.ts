@@ -1,15 +1,5 @@
 import { AtlasOrganization, OrganizationProjectInfo } from './organization.js';
 
-type Tenant = {
-  frontend_domain: string;
-  api_domain: string;
-};
-
-const ATLAS_PROD: Tenant = {
-  frontend_domain: 'atlas.nomic.ai',
-  api_domain: 'api-atlas.nomic.ai',
-};
-
 type TokenRefreshResponse = any;
 interface Credentials {
   refresh_token: string | null;
@@ -26,32 +16,15 @@ function validateApiHttpResponse(response: Response): Response {
   return response;
 }
 
-function getTenantDomains(): Tenant {
-  const env_frontend_domain = process.env.ATLAS_FRONTEND_DOMAIN;
-  const env_api_domain = process.env.ATLAS_API_DOMAIN;
-  if (env_frontend_domain !== undefined && env_api_domain !== undefined) {
-    return {
-      frontend_domain: env_frontend_domain,
-      api_domain: env_api_domain,
-    };
-  }
-  if (env_frontend_domain !== undefined || env_api_domain !== undefined) {
-    throw new Error(
-      'env variables ATLAS_FRONTEND_DOMAIN and ATLAS_API_DOMAIN must both be set, or neither.'
-    );
-  }
-  return ATLAS_PROD;
-}
-
 /**
  *
  * @param apiKey The Atlas user API key to use.
- * @param tenant The tenant object to use. Contains the frontend and API domains.
+ * @param apiLocation The URL of the API to query.
  * @returns
  */
 async function get_access_token(
   apiKey: string | undefined,
-  tenant: Tenant
+  apiLocation: string = 'api-atlas.nomic.ai'
 ): Promise<Credentials> {
   if (apiKey === undefined) {
     throw new Error(
@@ -60,7 +33,7 @@ async function get_access_token(
   }
 
   const response = await fetch(
-    `https://${tenant.api_domain}/v1/user/token/refresh/${apiKey}`
+    `https://${apiLocation}/v1/user/token/refresh/${apiKey}`
   );
   const validatedResponse = validateApiHttpResponse(response);
 
@@ -118,12 +91,14 @@ export type UserInfo = {
 
 type Envlogin = {
   useEnvToken: true;
+  apiLocation?: never;
   apiKey?: never;
   bearerToken?: never;
 };
 
 type ApiKeyLogin = {
   useEnvToken?: never;
+  apiLocation?: string;
   apiKey: string;
   bearerToken?: never;
 };
@@ -131,12 +106,14 @@ type ApiKeyLogin = {
 type BearerTokenLogin = {
   useEnvToken?: never;
   bearerToken: string;
+  apiLocation?: string;
   apiKey?: never;
 };
 
 type AnonUser = {
   useEnvToken?: never;
   bearerToken?: never;
+  apiLocation?: string;
   apiKey?: never;
 };
 
@@ -149,8 +126,8 @@ export class AtlasUser {
   needed to make API calls.
   */
   private credentials: Promise<Credentials | null>;
-  tenant: Tenant = getTenantDomains();
   private bearer_token: string | undefined = undefined;
+  apiLocation: string;
   _info: UserInfo | undefined = undefined;
 
   /**
@@ -172,15 +149,21 @@ export class AtlasUser {
   constructor(params: BearerTokenLogin);
   constructor(params: AnonUser);
   constructor(params: LoginParams) {
-    const { useEnvToken, apiKey, bearerToken } = params;
+    const { useEnvToken, apiKey, bearerToken, apiLocation } = params;
+
+    if (apiLocation) {
+      this.apiLocation = apiLocation;
+    } else {
+      this.apiLocation = 'api-atlas.nomic.ai';
+    }
 
     if (useEnvToken) {
       // using the token in the environment
       const apiKey = process.env.ATLAS_API_KEY;
-      this.credentials = get_access_token(apiKey, this.tenant);
+      this.credentials = get_access_token(apiKey, this.apiLocation);
     } else if (apiKey) {
       // using an api key
-      this.credentials = get_access_token(apiKey, this.tenant);
+      this.credentials = get_access_token(apiKey, this.apiLocation);
     } else if (bearerToken) {
       // using a bearer token
       this.credentials = Promise.resolve({
@@ -260,7 +243,7 @@ export class AtlasUser {
       body = null;
     }
 
-    const url = `https://${this.tenant.api_domain}${endpoint}`;
+    const url = `https://${this.apiLocation}${endpoint}`;
     const params = {
       method,
       headers: {

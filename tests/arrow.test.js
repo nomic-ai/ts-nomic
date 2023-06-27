@@ -1,29 +1,31 @@
-import { test } from "uvu";
-import * as arrow from "apache-arrow";
+import { test } from 'uvu';
+import * as arrow from 'apache-arrow';
 
+/**
 type TestTableOptions = {
   length: number;
   modality: "text" | "embedding";
 };
+ */
 
 export function make_test_table({
   length = 32,
-  modality = "text",
-}: Partial<TestTableOptions> = {}) {
-  type columns = {
+  modality = 'text',
+} /*: Partial<TestTableOptions>*/ = {}) {
+  /*  type columns = {
     id: arrow.Data;
     text: arrow.Data;
     embedding?: arrow.Data;
     date: arrow.Data;
-  };
-  const cols: columns = {
+  }; */
+  const cols /*: columns*/ = {
     id: create_id_column(length),
     text: create_text_column(length),
     embedding: create_embedding_column(length),
     date: create_date_column(length),
   };
-  if (modality === "text") {
-    delete cols["embedding"];
+  if (modality === 'text') {
+    delete cols['embedding'];
   }
   const tb = new arrow.RecordBatch(cols);
   return new arrow.Table(tb);
@@ -31,7 +33,7 @@ export function make_test_table({
 
 function create_date_column(length = 32) {
   const f = new arrow.TimestampNanosecond();
-  const dates: Date[] = [];
+  const dates = [];
   for (let i = 0; i < length; i++) {
     const datum = new Date(2002, 2, i, 2, 2, 2, 2);
     dates.push(datum);
@@ -61,7 +63,7 @@ function create_id_column(length = 32) {
 function create_embedding_column(length = 32, dims = 16) {
   const f = new arrow.FixedSizeList(
     dims,
-    new arrow.Field("inner", new arrow.Float16())
+    new arrow.Field('inner', new arrow.Float16())
   );
 
   let builder = arrow.makeBuilder({
@@ -86,17 +88,17 @@ function create_embedding_column(length = 32, dims = 16) {
  */
 function create_sample_wordlist(length) {
   const sample_words = [
-    "lorem",
-    "ipsum",
-    "dolor",
-    "sit",
-    "amet",
-    "consectetur",
-    "adipiscing",
-    "elit",
-    "sed",
+    'lorem',
+    'ipsum',
+    'dolor',
+    'sit',
+    'amet',
+    'consectetur',
+    'adipiscing',
+    'elit',
+    'sed',
   ];
-  const words: string[] = [];
+  const words = [];
   for (let i = 0; i < length; i++) {
     words.push(sample_words[Math.floor(Math.random() * sample_words.length)]);
   }

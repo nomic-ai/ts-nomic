@@ -67,7 +67,8 @@ export class AtlasProjection extends BaseAtlasClass {
   }
 
   get quadtree_root(): string {
-    return `https://${this.user.tenant.api_domain}/v1/project/public/${this.project_id}/index/projection/${this.id}/quadtree`;
+    // TODO: don't hardcode `public` here.
+    return `https://${this.user.apiLocation}/v1/project/public/${this.project_id}/index/projection/${this.id}/quadtree`;
   }
 
   async info() {
