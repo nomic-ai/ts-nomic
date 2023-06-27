@@ -1,3 +1,7 @@
+# 0.3.2
+
+- Bump code for commit.
+
 # 0.3.1
 
 - Move tests from typescript to javascript
