@@ -1,3 +1,8 @@
+# 0.3.4
+
+- Added protocol switch for localhost development
+- Updated apache-arrow to 12.0.1
+
 # 0.3.3
 
 - Re-added env variable for setting domain
