@@ -17,6 +17,7 @@
     "build-types": "openapi-typescript etc/openapi.json > etc/openapi.d.ts",
     "build": "tsc",
     "build:watch": "tsc -w",
+    "prepublish": "npm run build",
     "precommit": "pretty-quick --staged",
     "prepare": "husky install .husky"
   },
