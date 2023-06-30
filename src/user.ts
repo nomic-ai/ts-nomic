@@ -32,8 +32,10 @@ async function get_access_token(
     );
   }
 
+  const protocol = apiLocation.startsWith('localhost') ? 'http' : 'https';
+
   const response = await fetch(
-    `https://${apiLocation}/v1/user/token/refresh/${apiKey}`
+    `${protocol}://${apiLocation}/v1/user/token/refresh/${apiKey}`
   );
   const validatedResponse = validateApiHttpResponse(response);
 
@@ -246,8 +248,10 @@ export class AtlasUser {
       headers['Content-Type'] = 'application/json';
       body = null;
     }
-
-    const url = `https://${this.apiLocation}${endpoint}`;
+    const protocol = this.apiLocation.startsWith('localhost')
+      ? 'http'
+      : 'https';
+    const url = `${protocol}://${this.apiLocation}${endpoint}`;
     const params = {
       method,
       headers: {
