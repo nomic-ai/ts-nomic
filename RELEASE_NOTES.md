@@ -1,3 +1,7 @@
+# 0.4.0
+
+- Refactored User.apiCall to deserialize JSON and Arrow before returning (breaking change)
+
 # 0.3.4
 
 - Added protocol switch for localhost development

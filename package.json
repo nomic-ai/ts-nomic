@@ -1,6 +1,6 @@
 {
   "name": "@nomic-ai/atlas",
-  "version": "0.3.4",
+  "version": "0.4.0",
   "type": "module",
   "files": [
     "dist"
@@ -13,6 +13,7 @@
     }
   },
   "scripts": {
+    "pretest": "npm run build",
     "test": "env-cmd --file .env uvu tests -r esbuild-register",
     "build-types": "openapi-typescript etc/openapi.json > etc/openapi.d.ts",
     "build": "tsc",

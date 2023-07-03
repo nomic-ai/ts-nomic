@@ -2,7 +2,7 @@ import { BaseAtlasClass } from './general.js';
 import type { AtlasUser } from 'user.js';
 import { AtlasProjection } from './projection.js';
 import { AtlasProject } from './project.js';
-import { tableFromIPC } from 'apache-arrow';
+import type { Table } from 'apache-arrow';
 export class AtlasIndex extends BaseAtlasClass {
   id: Atlas.UUID;
   _projections?: AtlasProjection[] = undefined;
@@ -34,11 +34,11 @@ export class AtlasIndex extends BaseAtlasClass {
       index_id: this.id,
       atom_ids: ids,
     };
-    const responseJson = await this.apiCall(
+    const responseJson = (await this.apiCall(
       `/v1/project/atoms/get`,
       'POST',
       body
-    ).then((d) => d.json());
+    )) as Record<string, any>;
 
     const content = responseJson['atoms'];
     return content;
@@ -77,9 +77,9 @@ export class AtlasIndex extends BaseAtlasClass {
    * @param datum_ids a list of datum ids to search for
    * @param atom_ids a list of atom ids to search for
    * @param k The number of neighbors to return for each one.
-   * @returns
+   * @returns A table containing the nearest neighbors for each atom.
    */
-  async nearest_neighbors(nn_options: Atlas.NNOptions) {
+  async nearest_neighbors(nn_options: Atlas.NNOptions): Promise<Table> {
     const { datum_ids, atom_ids, k } = nn_options;
     if (datum_ids !== undefined && atom_ids !== undefined) {
       throw new Error('datum_ids and atom_ids are mutually exclusive');
@@ -93,7 +93,7 @@ export class AtlasIndex extends BaseAtlasClass {
     } else {
       params = { atom_ids };
     }
-    const tb = await this.apiCall(
+    const tb = (await this.apiCall(
       `/v1/project/data/get/arrow/nearest_neighbors/by_id`,
       'POST',
       {
@@ -101,10 +101,7 @@ export class AtlasIndex extends BaseAtlasClass {
         ...params,
         k,
       }
-    )
-      .then((d) => d.arrayBuffer())
-      .then((d) => tableFromIPC(d));
-    console.log({ tb });
+    )) as Table;
     return tb;
   }
 }
