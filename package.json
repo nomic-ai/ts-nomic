@@ -13,6 +13,7 @@
     }
   },
   "scripts": {
+    "pretest": "npm run build",
     "test": "env-cmd --file .env uvu tests -r esbuild-register",
     "build-types": "openapi-typescript etc/openapi.json > etc/openapi.d.ts",
     "build": "tsc",
