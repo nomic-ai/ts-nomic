@@ -228,7 +228,7 @@ export class AtlasProject extends BaseAtlasClass {
     table.schema.metadata.set('project_id', this.id);
     table.schema.metadata.set('on_id_conflict_ignore', JSON.stringify(true));
     const data = tableToIPC(table, 'file');
-    this.apiCall(`/v1/project/data/add/arrow`, 'POST', data);
+    await this.apiCall(`/v1/project/data/add/arrow`, 'POST', data);
   }
 
   /*
