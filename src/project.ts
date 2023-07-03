@@ -4,6 +4,7 @@ import { AtlasUser, get_env_user } from './user.js';
 import { AtlasIndex } from './index.js';
 // get the API key from the node environment
 import { BaseAtlasClass } from './general.js';
+import { OrganizationProjectInfo } from 'organization.js';
 type UUID = string;
 
 export function load_project(options: Atlas.LoadProjectOptions): AtlasProject {
@@ -59,19 +60,14 @@ export class AtlasProject extends BaseAtlasClass {
     method: 'GET' | 'POST',
     payload: Atlas.Payload = null,
     headers: null | Record<string, string> = null
-  ): Promise<Response> {
+  ) {
     return this.user.apiCall(endpoint, method, payload, headers);
   }
 
-  async delete(): Promise<Response> {
+  async delete() {
     const value = await this.apiCall(`/v1/project/remove`, 'POST', {
       project_id: this.id,
     });
-    if (value.status !== 200) {
-      throw new Error(
-        `Error ${value.status}, ${value.headers}, deleting project: ${value.statusText}`
-      );
-    }
     return value;
   }
 
@@ -88,16 +84,8 @@ export class AtlasProject extends BaseAtlasClass {
   }
 
   private async project_info() {
-    return this.apiCall(`/v1/project/${this.id}`, 'GET').then(async (d) => {
-      if (d.status !== 200) {
-        const body = d.clone();
-        throw new Error(
-          `Error ${d.status}, ${d.headers}, fetching project info: ${d.statusText}`
-        );
-      }
-
-      const value = await d.json();
-      this._info = value;
+    return this.apiCall(`/v1/project/${this.id}`, 'GET').then(async (value) => {
+      this._info = value as Atlas.ProjectInfo;
       return value;
     });
   }
@@ -208,12 +196,7 @@ export class AtlasProject extends BaseAtlasClass {
       'POST',
       prefs
     );
-    if (response.status !== 200) {
-      throw new Error(
-        `Error ${response.status}, ${response.headers}, creating index: ${response.statusText}`
-      );
-    }
-    const id = (await response.json()) as string;
+    const id = response as string;
     return new AtlasIndex(id, this.user, this);
   }
 
@@ -245,17 +228,7 @@ export class AtlasProject extends BaseAtlasClass {
     table.schema.metadata.set('project_id', this.id);
     table.schema.metadata.set('on_id_conflict_ignore', JSON.stringify(true));
     const data = tableToIPC(table, 'file');
-    const response = await this.apiCall(
-      `/v1/project/data/add/arrow`,
-      'POST',
-      data
-    );
-
-    if (response.status !== 200) {
-      throw new Error(
-        `Error ${response.status}, ${response.headers}, uploading data: ${response.statusText}`
-      );
-    }
+    this.apiCall(`/v1/project/data/add/arrow`, 'POST', data);
   }
 
   /*

@@ -79,6 +79,6 @@ export class AtlasProjection extends BaseAtlasClass {
       `/v1/project/${this.project_id}/projection/${this.id}`,
       'GET'
     );
-    return response.json();
+    return response as Record<string, any>;
   }
 }

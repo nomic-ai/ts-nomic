@@ -36,7 +36,7 @@ export class AtlasOrganization {
       `/v1/organization/${this.id}`,
       'GET'
     );
-    const info = (await response.json()) as OrganizationInfo;
+    const info = (await response) as OrganizationInfo;
     this._info = info;
     return info;
   }
@@ -56,19 +56,15 @@ export class AtlasOrganization {
       throw new Error('Project name is required');
     }
     options['modality'] = options['modality'] || 'text';
-    const response = await user.apiCall(`/v1/project/create`, 'POST', {
-      ...options,
-      organization_id: this.id,
-    });
-    if (response.status !== 201) {
-      throw new Error(
-        `Error ${response.status}, ${response.headers}, creating project: ${response.statusText}`
-      );
-    }
     type CreateResponse = {
       project_id: UUID;
     };
-    const data = (await response.json()) as CreateResponse;
+    const response = (await user.apiCall(`/v1/project/create`, 'POST', {
+      ...options,
+      organization_id: this.id,
+    })) as CreateResponse;
+
+    const data = (await response) as CreateResponse;
     console.log('new project', data);
     return new AtlasProject(data['project_id'], user);
   }

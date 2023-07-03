@@ -1,4 +1,5 @@
 import { AtlasOrganization, OrganizationProjectInfo } from './organization.js';
+import { Table, tableFromIPC } from 'apache-arrow';
 
 type TokenRefreshResponse = any;
 interface Credentials {
@@ -213,18 +214,28 @@ export class AtlasUser {
     if (this._info !== undefined) {
       return this._info;
     }
-    const response = await this.apiCall('/v1/user/', 'GET');
-    const info = (await response.json()) as UserInfo;
+    const info = (await this.apiCall('/v1/user/', 'GET')) as UserInfo;
     this._info = info;
     return info;
   }
+
+  /**
+   * Call the API and return the results as deserialized JSON
+   * or Arrow.
+   *
+   * @param endpoint The nomic API endpoint to call. If it doesn't begin with a slash, it will be added.
+   * @param method POST or GET
+   * @param payload The binary or JSON payload sent with the request.
+   * @param headers Additional headers to send with the request
+   * @returns
+   */
 
   async apiCall(
     endpoint: string,
     method: 'GET' | 'POST' = 'GET',
     payload: Atlas.Payload = null,
     headers: null | Record<string, string> = null
-  ): Promise<Response> {
+  ): Promise<Record<string, any> | string | Array<any> | Table> {
     // make an API call
     if (headers === null) {
       const credentials = await this.credentials;
@@ -234,6 +245,9 @@ export class AtlasUser {
         headers = { Authorization: `Bearer ${credentials.token}` };
       }
     }
+
+    // Bigints are passed to the API
+    // which would break JSON.stringify.
     const replacer = (key: any, value: any) =>
       typeof value === 'bigint' ? value.toString() : value;
 
@@ -251,6 +265,11 @@ export class AtlasUser {
     const protocol = this.apiLocation.startsWith('localhost')
       ? 'http'
       : 'https';
+
+    if (!endpoint.startsWith('/')) {
+      endpoint = '/' + endpoint;
+    }
+
     const url = `${protocol}://${this.apiLocation}${endpoint}`;
     const params = {
       method,
@@ -269,6 +288,26 @@ export class AtlasUser {
         )}, fetching project info: ${response.statusText}, ${body}`
       );
     }
-    return response;
+    // Deserialize the response
+    let returnval;
+    if (response.headers.get('Content-Type') === 'application/json') {
+      const json = await response.json();
+      returnval = json;
+    } else if (
+      response.headers.get('Content-Type') === 'application/octet-stream'
+    ) {
+      const buffer = await response.arrayBuffer();
+      const view = new Uint8Array(buffer);
+      // Test that the first five bytes are the magic number
+      if (view.slice(0, 5).toString() === '65,82,82,79,87') {
+        // It's Arrow.
+        returnval = tableFromIPC(view);
+      }
+    } else {
+      throw new Error(
+        `Unknown response type: ${response.headers.get('Content-Type')}`
+      );
+    }
+    return returnval;
   }
 }
