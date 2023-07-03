@@ -1,3 +1,7 @@
+# 0.4.1
+
+- add boolean flag to identify unauthenticated users.
+
 # 0.4.0
 
 - Refactored User.apiCall to deserialize JSON and Arrow before returning (breaking change)
