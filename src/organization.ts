@@ -59,13 +59,10 @@ export class AtlasOrganization {
     type CreateResponse = {
       project_id: UUID;
     };
-    const response = (await user.apiCall(`/v1/project/create`, 'POST', {
+    const data = (await user.apiCall(`/v1/project/create`, 'POST', {
       ...options,
       organization_id: this.id,
     })) as CreateResponse;
-
-    const data = (await response) as CreateResponse;
-    console.log('new project', data);
     return new AtlasProject(data['project_id'], user);
   }
 }
