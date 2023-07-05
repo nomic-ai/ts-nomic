@@ -24,6 +24,7 @@ test('AtlasUser from env variables', async () => {
 });
 
 test('Null user rewrites', async () => {
+  // Oh my god guys this almost an actual honest-to-god unit test.
   const nullUser = new AtlasUser({});
   const user = new AtlasUser({ useEnvToken: true });
 
