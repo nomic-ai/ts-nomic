@@ -238,6 +238,7 @@ export class AtlasUser {
     headers: null | Record<string, string> = null
   ): Promise<Record<string, any> | string | Array<any> | Table> {
     // make an API call
+
     if (headers === null) {
       const credentials = await this.credentials;
       if (credentials === null) {
@@ -267,9 +268,7 @@ export class AtlasUser {
       ? 'http'
       : 'https';
 
-    if (!endpoint.startsWith('/')) {
-      endpoint = '/' + endpoint;
-    }
+    endpoint = this.fixEndpointURL(endpoint);
 
     const url = `${protocol}://${this.apiLocation}${endpoint}`;
     const params = {
@@ -310,5 +309,41 @@ export class AtlasUser {
       );
     }
     return returnval;
+  }
+  /**
+   *
+   * @param endpoint The site endpoint to hit.
+   * @returns
+   */
+  fixEndpointURL(endpoint: string): string {
+    // Don't mandate starting with a slash
+    if (!endpoint.startsWith('/')) {
+      endpoint = '/' + endpoint;
+    }
+    // All endpoints are v1 right now.
+    if (!endpoint.startsWith('/v1/')) {
+      endpoint = '/v1' + endpoint;
+    }
+
+    // use public endpoints if we're anonymous
+    if (this.anonymous) {
+      if (
+        // These are all the endpoints with public twins
+        // Quadtree tiles.
+        !!endpoint.match(/project.*index.projection.*quadtree.*/) ||
+        // Atom information.
+        endpoint == '/v1/project/atoms/get' ||
+        // Simple project endpoints
+        !!endpoint.match(/\/v1\/project\/[^\/]+/) ||
+        // Searches.
+        endpoint == '/v1/project/search'
+      ) {
+        if (!endpoint.startsWith('/v1/project/public')) {
+          endpoint = endpoint.replace('/v1/project/', '/v1/project/public/');
+        }
+      }
+    }
+
+    return endpoint;
   }
 }
