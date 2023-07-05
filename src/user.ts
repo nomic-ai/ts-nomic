@@ -129,7 +129,7 @@ export class AtlasUser {
   needed to make API calls.
   */
   private credentials: Promise<Credentials | null>;
-  private bearer_token: string | undefined = undefined;
+  public anonymous: boolean = false;
   apiLocation: string;
   _info: UserInfo | undefined = undefined;
 
@@ -180,6 +180,7 @@ export class AtlasUser {
       });
     } else {
       // no credentials
+      this.anonymous = true;
       this.credentials = Promise.resolve(null);
     }
   }
