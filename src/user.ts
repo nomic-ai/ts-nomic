@@ -238,6 +238,7 @@ export class AtlasUser {
     headers: null | Record<string, string> = null
   ): Promise<Record<string, any> | string | Array<any> | Table> {
     // make an API call
+
     if (headers === null) {
       const credentials = await this.credentials;
       if (credentials === null) {
@@ -266,10 +267,6 @@ export class AtlasUser {
     const protocol = this.apiLocation.startsWith('localhost')
       ? 'http'
       : 'https';
-
-    if (!endpoint.startsWith('/')) {
-      endpoint = '/' + endpoint;
-    }
 
     const url = `${protocol}://${this.apiLocation}${endpoint}`;
     const params = {
