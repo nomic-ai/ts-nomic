@@ -17,7 +17,7 @@ declare namespace Atlas {
     organization_name?: string;
     organization_id?: UUID;
     unique_id_field: string;
-    modality: "text" | "embedding";
+    modality: 'text' | 'embedding';
   };
   type ProjectionInfo = {
     id: UUID;
@@ -29,10 +29,10 @@ declare namespace Atlas {
   type IndexCreateOptions = {
     project_id: UUID;
     index_name: string;
-    index_type: "text" | "embedding";
+    index_type: 'text' | 'embedding';
     indexed_field: string;
   };
-  type GeometryStrategy = "document";
+  type GeometryStrategy = 'document';
   type CreateAtlasIndexRequest = {
     project_id: UUID;
     indexed_field: string;
@@ -45,8 +45,9 @@ declare namespace Atlas {
     project_id: UUID;
     project_name: string;
     organization_id: UUID;
+    is_public: boolean;
     organization_name: string;
-    modality: "text" | "embedding";
+    modality: 'text' | 'embedding';
     unique_id_field: string;
     insert_update_delete_lock: boolean;
     atlas_indices: IndexInfo[];

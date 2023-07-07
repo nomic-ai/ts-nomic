@@ -84,11 +84,16 @@ export class AtlasProject extends BaseAtlasClass {
   }
 
   private async project_info() {
-    return this.apiCall(`/v1/project/${this.id}`, 'GET').then(async (value) => {
-      this._info = value as Atlas.ProjectInfo;
-      return value;
-    });
+    // This call must be on the underlying user object, not the project object,
+    // because otherwise it will infinitely in some downstream calls.
+    return this.user
+      .apiCall(`/v1/project/${this.id}`, 'GET')
+      .then(async (value) => {
+        this._info = value as Atlas.ProjectInfo;
+        return value;
+      });
   }
+
   get info() {
     if (this._info !== undefined) {
       return this._info;
