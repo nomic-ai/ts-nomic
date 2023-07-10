@@ -304,7 +304,6 @@ export class AtlasUser {
       // Test that the first five bytes are the magic number 'ARROW'
       if (view.slice(0, 5).toString() === '65,82,82,79,87') {
         // It's Arrow.
-        console.log({ options });
         if (options.octetStreamAsUint8) {
           returnval = view;
         } else {
