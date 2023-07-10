@@ -1,6 +1,10 @@
 import { AtlasOrganization, OrganizationProjectInfo } from './organization.js';
 import { Table, tableFromIPC } from 'apache-arrow';
 
+export type ApiCallOptions = {
+  octetStreamAsUint8?: boolean;
+};
+
 type TokenRefreshResponse = any;
 interface Credentials {
   refresh_token: string | null;
@@ -235,8 +239,9 @@ export class AtlasUser {
     endpoint: string,
     method: 'GET' | 'POST' = 'GET',
     payload: Atlas.Payload = null,
-    headers: null | Record<string, string> = null
-  ): Promise<Record<string, any> | string | Array<any> | Table> {
+    headers: null | Record<string, string> = null,
+    options: ApiCallOptions = { octetStreamAsUint8: false }
+  ): Promise<Record<string, any> | string | Array<any> | Table | Uint8Array> {
     // make an API call
 
     if (headers === null) {
@@ -296,10 +301,15 @@ export class AtlasUser {
     ) {
       const buffer = await response.arrayBuffer();
       const view = new Uint8Array(buffer);
-      // Test that the first five bytes are the magic number
+      // Test that the first five bytes are the magic number 'ARROW'
       if (view.slice(0, 5).toString() === '65,82,82,79,87') {
         // It's Arrow.
-        returnval = tableFromIPC(view);
+        let returnval;
+        if (options.octetStreamAsUint8) {
+          returnval = view;
+        } else {
+          returnval = tableFromIPC(view);
+        }
       }
     } else {
       throw new Error(
