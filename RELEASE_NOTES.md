@@ -1,3 +1,15 @@
+# 0.4.4
+
+- Allow passing tables as Uint8Arrays rather than Arrow.Table objects.
+
+# 0.4.3
+
+- `Project.info` calls `User.apiCall()` instead of `Project.apiCall()` to avoid infinite recursion in certain cases.
+
+# 0.4.2
+
+- autocorrect requests
+
 # 0.4.1
 
 - add boolean flag to identify unauthenticated users.

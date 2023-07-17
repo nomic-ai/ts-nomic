@@ -1,4 +1,5 @@
 import type { Schema, Table } from 'apache-arrow';
+import type { ApiCallOptions } from './user.js';
 import { tableToIPC, tableFromJSON } from 'apache-arrow';
 import { AtlasUser, get_env_user } from './user.js';
 import { AtlasIndex } from './index.js';
@@ -59,9 +60,10 @@ export class AtlasProject extends BaseAtlasClass {
     endpoint: string,
     method: 'GET' | 'POST',
     payload: Atlas.Payload = null,
-    headers: null | Record<string, string> = null
+    headers: null | Record<string, string> = null,
+    options: ApiCallOptions = {}
   ) {
-    return this.user.apiCall(endpoint, method, payload, headers);
+    return this.user.apiCall(endpoint, method, payload, headers, options);
   }
 
   async delete() {
@@ -87,7 +89,10 @@ export class AtlasProject extends BaseAtlasClass {
     // This call must be on the underlying user object, not the project object,
     // because otherwise it will infinitely in some downstream calls.
     return this.user
-      .apiCall(`/v1/project/${this.id}`, 'GET')
+      .apiCall(`/v1/project/public/${this.id}`, 'GET')
+      .catch((error) => {
+        return this.user.apiCall(`/v1/project/${this.id}`, 'GET');
+      })
       .then(async (value) => {
         this._info = value as Atlas.ProjectInfo;
         return value;
