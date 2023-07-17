@@ -32,10 +32,10 @@ export class AtlasOrganization {
     if (this._info !== undefined) {
       return this._info;
     }
-    this._info = (await this.user.apiCall(
+    this._info = this.user.apiCall(
       `/v1/organization/${this.id}`,
       'GET'
-    )) as Promise<OrganizationInfo>;
+    ) as Promise<OrganizationInfo>;
     return this._info;
   }
 
