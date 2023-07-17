@@ -21,7 +21,7 @@ type ProjectInitOptions = {
 export class AtlasOrganization {
   id: UUID;
   user: AtlasUser;
-  _info: OrganizationInfo | undefined = undefined;
+  private _info: Promise<OrganizationInfo> | undefined = undefined;
 
   constructor(id: UUID, user?: AtlasUser) {
     this.id = id;
@@ -32,13 +32,11 @@ export class AtlasOrganization {
     if (this._info !== undefined) {
       return this._info;
     }
-    const response = await this.user.apiCall(
+    this._info = (await this.user.apiCall(
       `/v1/organization/${this.id}`,
       'GET'
-    );
-    const info = (await response) as OrganizationInfo;
-    this._info = info;
-    return info;
+    )) as Promise<OrganizationInfo>;
+    return this._info;
   }
 
   async projects() {

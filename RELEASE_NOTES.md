@@ -1,3 +1,11 @@
+# 0.5.0
+
+- Switch to more consistent constructor patter of `new AtlasProject(id, user, options)
+- Switch to more consistent `info()` pattern as promise.
+- Bundle `info()` as a promise to avoid multiple dispatch at once.
+- Add `AtlasProject.clear()` to clear cache, and call at the end of the `waitForProjectLock` method.
+- Have `AtlasProject` use `AtlasUser` for its `info()` method to allow private method.
+
 # 0.4.4
 
 - Allow passing tables as Uint8Arrays rather than Arrow.Table objects.

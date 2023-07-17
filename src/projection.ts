@@ -15,9 +15,14 @@ export class AtlasProjection extends BaseAtlasClass {
   _project?: AtlasProject;
   project_id: UUID;
   _index?: AtlasIndex;
+  private _info?: Promise<Record<string, any>>;
 
-  constructor(public id: UUID, options: ProjectionInitializationOptions) {
-    const { project, project_id, user } = options;
+  constructor(
+    public id: UUID,
+    user?: AtlasUser,
+    options: ProjectionInitializationOptions = {}
+  ) {
+    const { project, project_id } = options;
     super(user || project?.user);
 
     if (project_id === undefined && project === undefined) {
@@ -49,9 +54,7 @@ export class AtlasProjection extends BaseAtlasClass {
       return this._index;
     }
     const indices = await this.project().then((d) => d.indices());
-    console.log({ indices });
     for (let index of indices) {
-      console.log({ index });
       for (let projection of await index.projections()) {
         if (projection.id === this.id) {
           this._index = index;
@@ -61,24 +64,27 @@ export class AtlasProjection extends BaseAtlasClass {
     }
     throw new Error('Could not find index for projection');
   }
+
   async atomInformation(ids: string[] | number[] | bigint[]) {
     const index = await this.index();
     return index.atomInformation(ids);
   }
 
   get quadtree_root(): string {
-    // TODO: don't hardcode `public` here.
     const protocol = this.user.apiLocation.startsWith('localhost')
       ? 'http'
       : 'https';
-    return `${protocol}://${this.user.apiLocation}/v1/project/public/${this.project_id}/index/projection/${this.id}/quadtree`;
+    return `${protocol}://${this.user.apiLocation}/v1/project/${this.project_id}/index/projection/${this.id}/quadtree`;
   }
 
   async info() {
-    const response = await this.apiCall(
+    if (this._info !== undefined) {
+      return this._info;
+    }
+    this._info = this.apiCall(
       `/v1/project/${this.project_id}/projection/${this.id}`,
       'GET'
-    );
-    return response as Record<string, any>;
+    ) as Promise<Record<string, any>>;
+    return this._info;
   }
 }

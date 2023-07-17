@@ -135,7 +135,7 @@ export class AtlasUser {
   private credentials: Promise<Credentials | null>;
   public anonymous: boolean = false;
   apiLocation: string;
-  _info: UserInfo | undefined = undefined;
+  _info: Promise<UserInfo> | undefined = undefined;
 
   /**
    *
@@ -190,7 +190,7 @@ export class AtlasUser {
   }
   /**
    *
-   * @returns All projects that the user has access to
+   * @returns All projects that the user has access to.
    */
   async projects() {
     const all_projects: OrganizationProjectInfo[] = [];
@@ -219,9 +219,8 @@ export class AtlasUser {
     if (this._info !== undefined) {
       return this._info;
     }
-    const info = (await this.apiCall('/v1/user/', 'GET')) as UserInfo;
-    this._info = info;
-    return info;
+    this._info = (await this.apiCall('/v1/user/', 'GET')) as Promise<UserInfo>;
+    return this._info;
   }
 
   /**

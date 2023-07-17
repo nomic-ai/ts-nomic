@@ -21,22 +21,23 @@ ATLAS_API_KEY=your-api-key
 If running in an environment like Vercel or Heroku, you can set the environment variable through the hosting environment.
 
 ### API key as argument
-Alternatively, pass the api key as a param to `AtlasUser`:
-```js
-AtlasUser({apiKey: "your-api-key"})
-```
 
+Alternatively, pass the api key as a param to `AtlasUser`:
+
+```js
+AtlasUser({ apiKey: 'your-api-key' });
+```
 
 ## Setting the tenant environment
 
 By default, this will access the production version of Atlas. This is probably what you want.
 
 If you are using a custom tenant of Atlas, you will define the following additional variables:
+
 ```
 ATLAS_FRONTEND_DOMAIN=your.frontend.domain
 ATLAS_API_DOMAIN=your.api.domain
 ```
-
 
 # Design
 
