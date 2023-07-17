@@ -28,7 +28,7 @@ export class AtlasOrganization {
     this.user = user || get_env_user();
   }
 
-  async info() {
+  info() {
     if (this._info !== undefined) {
       return this._info;
     }

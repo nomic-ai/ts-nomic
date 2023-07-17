@@ -4,16 +4,21 @@ import { AtlasProjection } from './projection.js';
 import { AtlasProject } from './project.js';
 import type { Table } from 'apache-arrow';
 
-type ProjectCreate = {
+type IndexInitializationOptions = {
   project_id?: Atlas.UUID;
   project?: AtlasProject;
 };
+
 export class AtlasIndex extends BaseAtlasClass {
   id: Atlas.UUID;
   _projections?: AtlasProjection[] = undefined;
   project: AtlasProject;
 
-  constructor(id: Atlas.UUID, user?: AtlasUser, options: ProjectCreate = {}) {
+  constructor(
+    id: Atlas.UUID,
+    user?: AtlasUser,
+    options: IndexInitializationOptions = {}
+  ) {
     super(user);
     if (options === undefined) {
       throw new Error('project_id or project is required');
@@ -60,14 +65,12 @@ export class AtlasIndex extends BaseAtlasClass {
    */
   async projections(): Promise<AtlasProjection[]> {
     if (this._projections) {
-      console.log('RETURNING CREATED', this._projections);
       return this._projections;
     } else {
       const project_info = (await this.project.info()) as Atlas.ProjectInfo;
       const projections =
         project_info.atlas_indices?.find((d) => d.id === this.id)
           ?.projections || [];
-      console.log({ projections });
       this._projections = projections.map(
         (d) =>
           new AtlasProjection(d.id as string, this.user, {

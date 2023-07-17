@@ -97,7 +97,7 @@ export class AtlasProject extends BaseAtlasClass {
     throw new Error(`This method is deprecated. Use info() instead.`);
   }
 
-  async info() {
+  info() {
     if (this._info !== undefined) {
       return this._info;
     }
@@ -111,16 +111,14 @@ export class AtlasProject extends BaseAtlasClass {
       .catch((error) => {
         // Fall back to the private route.
         return this.user.apiCall(`/v1/project/${this.id}`, 'GET');
-      })
-      .then(async (value) => {
-        return value as Atlas.ProjectInfo;
-      });
+      }) as Promise<Atlas.ProjectInfo>;
     return this._info;
   }
 
   async _fixEndpointURL(endpoint: string): Promise<string> {
     // Don't mandate starting with a slash
     if (!endpoint.startsWith('/')) {
+      console.warn(`DANGER: endpoint ${endpoint} doesn't start with a slash`);
       endpoint = '/' + endpoint;
     }
     const { is_public } = await this.info();

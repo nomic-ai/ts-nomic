@@ -70,6 +70,10 @@ export class AtlasProjection extends BaseAtlasClass {
     return index.atomInformation(ids);
   }
 
+  /**
+   * @returns the URL for the quadtree root for this projection.
+   * 'public' may be be added in fetching.
+   */
   get quadtree_root(): string {
     const protocol = this.user.apiLocation.startsWith('localhost')
       ? 'http'
