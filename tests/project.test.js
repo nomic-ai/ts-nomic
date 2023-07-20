@@ -11,7 +11,7 @@ test('Full project flow', async () => {
   // get user
   console.log('getting user');
   const user = new AtlasUser({ useEnvToken: true });
-  console.log('THIS TEST IS RUNNING ON: ', user.apiLocation)
+  console.log('THIS TEST IS RUNNING ON: ', user.apiLocation);
   // get organization for user
   console.log('getting organization');
   const organization = new AtlasOrganization(
@@ -50,7 +50,7 @@ test('Full project flow', async () => {
   const orig_projection = (await index.projections())[0];
   // Re-instantiate with just the project; test if we properly infer the index.
   console.log('re-instantiating projection');
-  const projection = new AtlasProjection(orig_projection.id, { project });
+  const projection = new AtlasProjection(orig_projection.id, user, { project });
   const inferred_index = await projection.index();
   assert.is(inferred_index.id, index.id);
   // delete project
