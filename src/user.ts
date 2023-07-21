@@ -288,7 +288,7 @@ export class AtlasUser {
       throw new Error(
         `Error ${response.status}, ${JSON.stringify(
           response.headers
-        )}, fetching project info: ${response.statusText}, ${body}`
+        )}, fetching project info: ${response.statusText}, ${await body.text()}`
       );
     }
     // Deserialize the response
