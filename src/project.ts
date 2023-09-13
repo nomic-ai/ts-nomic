@@ -29,12 +29,10 @@ interface AddDataOptions {
  * indices which handle specific views.
  */
 export class AtlasProject extends BaseAtlasClass {
-  //options: ProjectInitOptions;
   _indices: AtlasIndex[] = [];
   _schema?: Schema | null;
-  _info?: Atlas.ProjectInfo;
+  private _info?: Promise<Atlas.ProjectInfo>;
   id: UUID;
-  //info: Project;
 
   /**
    *
@@ -44,7 +42,6 @@ export class AtlasProject extends BaseAtlasClass {
    *
    * @returns An AtlasProject object.
    */
-
   constructor(id: UUID, user?: AtlasUser) {
     super(user);
     // check if id is a valid UUID
@@ -56,14 +53,15 @@ export class AtlasProject extends BaseAtlasClass {
     this.id = id;
   }
 
-  apiCall(
+  async apiCall(
     endpoint: string,
     method: 'GET' | 'POST',
     payload: Atlas.Payload = null,
     headers: null | Record<string, string> = null,
     options: ApiCallOptions = {}
   ) {
-    return this.user.apiCall(endpoint, method, payload, headers, options);
+    const fixedEndpoint = await this._fixEndpointURL(endpoint);
+    return this.user.apiCall(fixedEndpoint, method, payload, headers, options);
   }
 
   async delete() {
@@ -73,52 +71,100 @@ export class AtlasProject extends BaseAtlasClass {
     return value;
   }
 
+  private clear() {
+    this._info = undefined;
+    this._schema = undefined;
+    this._indices = [];
+  }
+
   async wait_for_lock(): Promise<void> {
     return new Promise((resolve, reject) => {
       const interval = setInterval(async () => {
-        const info = (await this.project_info()) as Atlas.ProjectInfo;
+        // Create a new project to clear the cache.
+        const renewed = new AtlasProject(this.id, this.user);
+        const info = (await renewed.info()) as Atlas.ProjectInfo;
         if (info.insert_update_delete_lock === false) {
           clearInterval(interval);
+          // Clear the cache.
+          this.clear();
           resolve();
         }
-      }, 1000);
+      }, 2000);
     });
   }
 
-  private async project_info() {
-    // This call must be on the underlying user object, not the project object,
-    // because otherwise it will infinitely in some downstream calls.
-    return this.user
-      .apiCall(`/v1/project/public/${this.id}`, 'GET')
-      .catch((error) => {
-        return this.user.apiCall(`/v1/project/${this.id}`, 'GET');
-      })
-      .then(async (value) => {
-        this._info = value as Atlas.ProjectInfo;
-        return value;
-      });
+  project_info() {
+    throw new Error(`This method is deprecated. Use info() instead.`);
   }
 
-  get info() {
+  info() {
     if (this._info !== undefined) {
       return this._info;
     }
-    return this.project_info();
+    // This call must be on the underlying user object, not the project object,
+    // because otherwise it will infinitely in some downstream calls.
+
+    // stored as a promise so that we don't make multiple calls to the server
+    this._info = this.user
+      // Try the public route first
+      .apiCall(`/v1/project/public/${this.id}`, 'GET')
+      .catch((error) => {
+        // Fall back to the private route.
+        return this.user.apiCall(`/v1/project/${this.id}`, 'GET');
+      }) as Promise<Atlas.ProjectInfo>;
+    return this._info;
   }
+
+  async _fixEndpointURL(endpoint: string): Promise<string> {
+    // Don't mandate starting with a slash
+    if (!endpoint.startsWith('/')) {
+      console.warn(`DANGER: endpoint ${endpoint} doesn't start with a slash`);
+      endpoint = '/' + endpoint;
+    }
+    const { is_public } = await this.info();
+    // use public endpoints if we're anonymous
+    if (is_public || this.user.anonymous) {
+      if (
+        // These are all the endpoints with public twins
+        // Quadtree tiles.
+        !!endpoint.match(/project.*index.projection.*quadtree.*/) ||
+        // Atom information.
+        endpoint == '/v1/project/atoms/get' ||
+        // Simple project endpoints
+        !!endpoint.match(/\/v1\/project\/[^\/]+$/) ||
+        // Searches.
+        endpoint == '/v1/project/search'
+      ) {
+        if (!endpoint.startsWith('/v1/project/public')) {
+          endpoint = endpoint.replace('/v1/project/', '/v1/project/public/');
+        }
+      }
+    }
+
+    return endpoint;
+  }
+
   async indices(): Promise<AtlasIndex[]> {
     if (this._indices.length > 0) {
       return this._indices;
     }
-    const { atlas_indices } = (await this.info) as Atlas.ProjectInfo;
+    const { atlas_indices } = (await this.info()) as Atlas.ProjectInfo;
+    console.log(await this.info(), atlas_indices, 'INFO');
     if (atlas_indices === undefined) {
       return [];
     }
+    const options = { project: this };
     this._indices = atlas_indices.map(
-      (d) => new AtlasIndex(d['id'], this.user, this)
+      (d) => new AtlasIndex(d['id'], this.user, options)
     );
     return this._indices;
   }
 
+  /**
+   * Updates all indices associated with a project.
+   *
+   * @param rebuild_topic_models If true, rebuilds topic models for all indices.
+   */
   async update_indices(rebuild_topic_models: boolean = false): Promise<void> {
     await this.apiCall(`/v1/project/update_indices`, 'POST', {
       project_id: this.id,
@@ -207,7 +253,7 @@ export class AtlasProject extends BaseAtlasClass {
       prefs
     );
     const id = response as string;
-    return new AtlasIndex(id, this.user, this);
+    return new AtlasIndex(id, this.user, { project: this });
   }
 
   async delete_data(ids: string[]): Promise<void> {
