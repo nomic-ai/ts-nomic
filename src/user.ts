@@ -1,6 +1,27 @@
 import { AtlasOrganization, OrganizationProjectInfo } from './organization.js';
 import { Table, tableFromIPC } from 'apache-arrow';
 
+export class APIError extends Error {
+  status: number;
+  statusText: string;
+  headers: any;
+  responseBody: string | null;
+
+  constructor(
+    status: number,
+    statusText: string,
+    headers: any,
+    responseBody?: string
+  ) {
+    super(`Error ${status}: ${statusText}`);
+    this.status = status;
+    this.statusText = statusText;
+    this.headers = headers;
+    this.responseBody = responseBody || null;
+    Object.setPrototypeOf(this, APIError.prototype);
+  }
+}
+
 export type ApiCallOptions = {
   octetStreamAsUint8?: boolean;
 };
@@ -283,13 +304,15 @@ export class AtlasUser {
     const response = await fetch(url, params);
 
     if (response.status < 200 || response.status > 299) {
-      const body = await response.clone();
-      throw new Error(
-        `Error ${response.status}, ${JSON.stringify(
-          response.headers
-        )}, fetching project info: ${response.statusText}, ${body}`
+      const responseBody = await response.text();
+      throw new APIError(
+        response.status,
+        response.statusText,
+        response.headers,
+        responseBody
       );
     }
+
     // Deserialize the response
     let returnval;
     if (response.headers.get('Content-Type') === 'application/json') {

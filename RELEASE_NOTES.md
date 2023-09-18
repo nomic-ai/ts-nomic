@@ -1,3 +1,7 @@
+# 0.5.1
+
+- Improved handling of API Errors with APIError class
+
 # 0.5.0
 
 - Switch to more consistent constructor patter of `new AtlasProject(id, user, options)
