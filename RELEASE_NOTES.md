@@ -1,3 +1,7 @@
+# 0.6.0
+
+- Remove all use of `/public` endpoints.
+
 # 0.5.1
 
 - Improved handling of API Errors with APIError class

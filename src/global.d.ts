@@ -51,6 +51,7 @@ declare namespace Atlas {
     unique_id_field: string;
     insert_update_delete_lock: boolean;
     atlas_indices: IndexInfo[];
+    access_role: 'VIEWER' | 'ADMIN' | 'OWNER' | 'NONE';
   };
   type Payload = Record<string, any> | Uint8Array | null;
   type AtlasUser = {};

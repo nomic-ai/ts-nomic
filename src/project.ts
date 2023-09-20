@@ -107,11 +107,7 @@ export class AtlasProject extends BaseAtlasClass {
     // stored as a promise so that we don't make multiple calls to the server
     this._info = this.user
       // Try the public route first
-      .apiCall(`/v1/project/public/${this.id}`, 'GET')
-      .catch((error) => {
-        // Fall back to the private route.
-        return this.user.apiCall(`/v1/project/${this.id}`, 'GET');
-      }) as Promise<Atlas.ProjectInfo>;
+      .apiCall(`/v1/project/${this.id}`, 'GET') as Promise<Atlas.ProjectInfo>;
     return this._info;
   }
 
@@ -121,26 +117,6 @@ export class AtlasProject extends BaseAtlasClass {
       console.warn(`DANGER: endpoint ${endpoint} doesn't start with a slash`);
       endpoint = '/' + endpoint;
     }
-    const { is_public } = await this.info();
-    // use public endpoints if we're anonymous
-    if (is_public || this.user.anonymous) {
-      if (
-        // These are all the endpoints with public twins
-        // Quadtree tiles.
-        !!endpoint.match(/project.*index.projection.*quadtree.*/) ||
-        // Atom information.
-        endpoint == '/v1/project/atoms/get' ||
-        // Simple project endpoints
-        !!endpoint.match(/\/v1\/project\/[^\/]+$/) ||
-        // Searches.
-        endpoint == '/v1/project/search'
-      ) {
-        if (!endpoint.startsWith('/v1/project/public')) {
-          endpoint = endpoint.replace('/v1/project/', '/v1/project/public/');
-        }
-      }
-    }
-
     return endpoint;
   }
 
