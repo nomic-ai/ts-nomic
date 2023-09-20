@@ -1,3 +1,8 @@
+# 0.6.1
+
+- Export APIError for external usage
+- uploadArrow now accepts a serialized arrow IPC file in addition to an arrow table
+
 # 0.6.0
 
 - Remove all use of `/public` endpoints.
