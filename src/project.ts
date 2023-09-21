@@ -1,6 +1,6 @@
-import type { Schema, Table } from 'apache-arrow';
+import { RecordBatch, Schema, Table } from 'apache-arrow';
 import type { ApiCallOptions } from './user.js';
-import { tableToIPC, tableFromJSON } from 'apache-arrow';
+import { tableToIPC, tableFromJSON, tableFromIPC } from 'apache-arrow';
 import { AtlasUser, get_env_user } from './user.js';
 import { AtlasIndex } from './index.js';
 // get the API key from the node environment
@@ -171,7 +171,7 @@ export class AtlasProject extends BaseAtlasClass {
   ): Promise<AtlasIndex> {
     let defaults = {
       project_id: this.id,
-      index_name: 'New index',
+      index_name: 'Newz index',
       colorable_fields: [],
       nearest_neighbor_index: 'HNSWIndex',
       nearest_neighbor_index_hyperparameters: JSON.stringify({
@@ -183,7 +183,7 @@ export class AtlasProject extends BaseAtlasClass {
       projection_hyperparameters: JSON.stringify({
         n_neighbors: 64,
         n_epochs: 64,
-        spread: 1,
+        spread: 3,
       }),
       topic_model_hyperparameters: JSON.stringify({ build_topic_model: false }),
     } as Record<string, any>;
@@ -256,11 +256,48 @@ export class AtlasProject extends BaseAtlasClass {
     return this._schema;
   }
 
-  async uploadArrow(table: Table): Promise<void> {
-    table.schema.metadata.set('project_id', this.id);
-    table.schema.metadata.set('on_id_conflict_ignore', JSON.stringify(true));
-    const data = tableToIPC(table, 'file');
-    await this.apiCall(`/v1/project/data/add/arrow`, 'POST', data);
+  async uploadArrow(
+    table: Table | Uint8Array,
+    progressCallback: (successful: number, total: number) => any = (a, b) =>
+      undefined
+  ): Promise<void> {
+    // if it's a Uint8Array, deserialize.
+    if (table instanceof Uint8Array) {
+      table = tableFromIPC(table);
+    }
+
+    const uploadBatch = async (batch: RecordBatch): Promise<any> => {
+      const tb = new Table([batch]);
+      console.log(tb.numRows, 'rows');
+      tb.schema.metadata.set('project_id', this.id);
+      tb.schema.metadata.set('on_id_conflict_ignore', JSON.stringify(true));
+      const data = tableToIPC(tb, 'file');
+      return this.apiCall(`/v1/project/data/add/arrow`, 'POST', data);
+    };
+
+    const MAX_CONCURRENT_UPLOADS = 8;
+    let batches = [...table.batches];
+    let activeUploads: Promise<any>[] = [];
+
+    const total = batches.length;
+    let complete = 0;
+    while (batches.length || activeUploads.length) {
+      while (activeUploads.length < MAX_CONCURRENT_UPLOADS && batches.length) {
+        const batch = batches.shift();
+        if (batch) {
+          activeUploads.push(uploadBatch(batch));
+        }
+      }
+
+      const finishedUploadIndex = await findIndexOfResolvedPromise(
+        activeUploads
+      );
+      if (typeof finishedUploadIndex !== 'undefined') {
+        activeUploads.splice(finishedUploadIndex, 1);
+        complete++;
+        progressCallback(complete, total);
+      }
+    }
   }
 
   /*
@@ -281,4 +318,12 @@ export class AtlasProject extends BaseAtlasClass {
     }
   }
   */
+}
+
+async function findIndexOfResolvedPromise(
+  promises: Promise<any>[]
+): Promise<number> {
+  const indexedPromises = promises.map((p, index) => p.then(() => index));
+  const finishedIndex = await Promise.race(indexedPromises);
+  return finishedIndex;
 }

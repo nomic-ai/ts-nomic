@@ -11,6 +11,7 @@ type TestTableOptions = {
 export function make_test_table({
   length = 32,
   modality = 'text',
+  batches = 2,
 } /*: Partial<TestTableOptions>*/ = {}) {
   /*  type columns = {
     id: arrow.Data;
@@ -18,17 +19,20 @@ export function make_test_table({
     embedding?: arrow.Data;
     date: arrow.Data;
   }; */
-  const cols /*: columns*/ = {
-    id: create_id_column(length),
-    text: create_text_column(length),
-    embedding: create_embedding_column(length),
-    date: create_date_column(length),
-  };
-  if (modality === 'text') {
-    delete cols['embedding'];
+  const batch_list = [];
+  for (let i = 0; i < batches; i++) {
+    const cols /*: columns*/ = {
+      id: create_id_column(length / batches),
+      text: create_text_column(length / batches),
+      embedding: create_embedding_column(length / batches),
+      date: create_date_column(length / batches),
+    };
+    if (modality === 'text') {
+      delete cols['embedding'];
+    }
+    batch_list.push(new arrow.RecordBatch(cols));
   }
-  const tb = new arrow.RecordBatch(cols);
-  return new arrow.Table(tb);
+  return new arrow.Table(batch_list);
 }
 
 function create_date_column(length = 32) {
