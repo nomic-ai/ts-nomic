@@ -1,6 +1,6 @@
 import type { Schema, Table } from 'apache-arrow';
 import type { ApiCallOptions } from './user.js';
-import { tableToIPC, tableFromJSON } from 'apache-arrow';
+import { tableToIPC, tableFromJSON, tableFromIPC } from 'apache-arrow';
 import { AtlasUser, get_env_user } from './user.js';
 import { AtlasIndex } from './index.js';
 // get the API key from the node environment
@@ -256,7 +256,10 @@ export class AtlasProject extends BaseAtlasClass {
     return this._schema;
   }
 
-  async uploadArrow(table: Table): Promise<void> {
+  async uploadArrow(table: Table | Uint8Array): Promise<void> {
+    if (table instanceof Uint8Array) {
+      table = tableFromIPC(table);
+    }
     table.schema.metadata.set('project_id', this.id);
     table.schema.metadata.set('on_id_conflict_ignore', JSON.stringify(true));
     const data = tableToIPC(table, 'file');
