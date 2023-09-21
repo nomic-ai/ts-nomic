@@ -86,7 +86,7 @@ export class AtlasProjection extends BaseAtlasClass {
       return this._info;
     }
     this._info = this.apiCall(
-      `/v1/project/${this.project_id}/projection/${this.id}`,
+      `/v1/project/${this.project_id}/index/projection/${this.id}`,
       'GET'
     ) as Promise<Record<string, any>>;
     return this._info;
