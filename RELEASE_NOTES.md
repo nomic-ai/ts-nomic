@@ -1,3 +1,7 @@
+# 0.6.2
+
+- Improve typing of index creation function
+
 # 0.6.1
 
 - Export APIError for external usage
