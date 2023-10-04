@@ -23,6 +23,40 @@ interface AddDataOptions {
   embeddings?: EmbeddingType;
 }
 
+type IndexCreateOptions = {
+  project_id: UUID;
+  index_name: string;
+  indexed_field?: string;
+  colorable_fields?: string[];
+  multilingual?: boolean;
+  build_topic_model?: boolean;
+  topic_label_field?: string;
+  duplicate_detection?: boolean;
+};
+
+type GeometryStrategy = 'document';
+type AtomizerStrategy = 'document' | 'charchunk';
+type Model = 'NomicEmbed' | 'NomicEmbedMultilingual';
+type NNIndex = 'HNSWIndex';
+type ProjectionType = 'NomicProject';
+
+type CreateAtlasIndexRequest = {
+  project_id: UUID;
+  index_name: string;
+  indexed_field: string | null;
+  colorable_fields: string[];
+  atomizer_strategies: AtomizerStrategy[] | null;
+  geometry_strategies: GeometryStrategy[][] | null;
+  model: Model | null;
+  model_hyperparameters: string | null;
+  nearest_neighbor_index: NNIndex;
+  nearest_neighbor_index_hyperparameters: string;
+  projection: ProjectionType;
+  projection_hyperparameters: string;
+  topic_model_hyperparameters: string;
+  duplicate_detection_hyperparameters: string | null;
+};
+
 /**
  * An AtlasProject represents a single mutable dataset in Atlas. It provides an
  * interfaces to upload, update, and delete data, as well as create and delete
@@ -167,12 +201,31 @@ export class AtlasProject extends BaseAtlasClass {
   }
 
   async createIndex(
-    options: Omit<Atlas.IndexCreateOptions, 'project_id'>
+    options: Omit<IndexCreateOptions, 'project_id'>
   ): Promise<AtlasIndex> {
-    let defaults = {
+    const info = await this.info();
+    const isText = info.modality === 'text';
+    // TODO: Python version has a number of asserts here - should we replicate?
+    const fields: CreateAtlasIndexRequest = {
       project_id: this.id,
-      index_name: 'New index',
-      colorable_fields: [],
+      index_name: options.index_name ?? 'New index',
+      indexed_field: options.indexed_field ?? null,
+      colorable_fields: options.colorable_fields ?? [],
+      atomizer_strategies: isText ? ['document', 'charchunk'] : null,
+      geometry_strategies: isText ? [['document']] : null,
+      model: isText
+        ? options.multilingual
+          ? 'NomicEmbedMultilingual'
+          : 'NomicEmbed'
+        : null,
+      model_hyperparameters: isText
+        ? JSON.stringify({
+            dataset_buffer_size: 1000,
+            batch_size: 20,
+            polymerize_by: 'charchunk',
+            norm: 'both',
+          })
+        : null,
       nearest_neighbor_index: 'HNSWIndex',
       nearest_neighbor_index_hyperparameters: JSON.stringify({
         space: 'l2',
@@ -185,48 +238,24 @@ export class AtlasProject extends BaseAtlasClass {
         n_epochs: 64,
         spread: 1,
       }),
-      topic_model_hyperparameters: JSON.stringify({ build_topic_model: false }),
-    } as Record<string, any>;
-
-    const text_defaults = {
-      indexed_field: 'text',
-      geometry_strategies: [['document']],
-      atomizer_strategies: ['document', 'charchunk'],
-      model_hyperparameters: JSON.stringify({
-        dataset_buffer_size: 1000,
-        batch_size: 20,
-        polymerize_by: 'charchunk',
-        norm: 'both',
+      topic_model_hyperparameters: JSON.stringify({
+        build_topic_model: options.build_topic_model ?? false,
+        community_description_target_field: options.topic_label_field ?? null,
+        cluster_method: 'fast',
+        enforce_topic_hierarchy: false,
       }),
-      model: 'NomicEmbed', // options?.multilingual === true ? 'NomicEmbedMultilingual' : 'NomicEmbed',
+      duplicate_detection_hyperparameters: isText
+        ? JSON.stringify({
+            duplicate_detection: options.duplicate_detection ?? false,
+            duplicate_threshold: 0.1,
+          })
+        : null,
     };
-
-    const embedding_defaults = {
-      model: null,
-      atomizer_strategies: null,
-      indexed_field: null,
-    };
-    if (options['indexed_field'] !== undefined) {
-      defaults = {
-        ...defaults,
-        ...text_defaults,
-      };
-    } else {
-      defaults = {
-        ...defaults,
-        ...embedding_defaults,
-      };
-    }
-
-    const prefs = {
-      ...defaults,
-      ...options,
-    } as unknown as Atlas.CreateAtlasIndexRequest;
 
     const response = await this.apiCall(
       '/v1/project/index/create',
       'POST',
-      prefs
+      fields
     );
     const id = response as string;
     return new AtlasIndex(id, this.user, { project: this });

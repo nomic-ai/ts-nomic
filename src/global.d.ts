@@ -3,9 +3,6 @@ declare namespace Atlas {
   type LoadProjectOptions = {
     project_id: UUID;
   };
-  type TextIndexOptions = {
-    indexed_field: string;
-  };
   type NNOptions = {
     datum_ids?: string[];
     atom_ids?: string[];
@@ -25,21 +22,6 @@ declare namespace Atlas {
   type IndexInfo = {
     id: UUID;
     projections: ProjectionInfo[];
-  };
-  type IndexCreateOptions = {
-    project_id: UUID;
-    index_name: string;
-    index_type: 'text' | 'embedding';
-    indexed_field: string;
-  };
-  type GeometryStrategy = 'document';
-  type CreateAtlasIndexRequest = {
-    project_id: UUID;
-    indexed_field: string;
-    geometry_strategies: GeometryStrategy[];
-    atomizer_strategies: string[];
-    model_hyperparameters: string;
-    model: string;
   };
   type ProjectInfo = {
     project_id: UUID;
