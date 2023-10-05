@@ -46,6 +46,3 @@ function isRecordIngest(
 ): value is Record<string, string | number | Date> {
   return typeof value === 'object' && value !== null;
 }
-function isTextIndexOptions(value: any): value is Atlas.TextIndexOptions {
-  return value.indexed_field !== undefined;
-}
