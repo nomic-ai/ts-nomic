@@ -1,3 +1,9 @@
+# 0.7.0
+
+- Methods for creating, updating, deleting tags and tag masks
+- Tests for tagging methods
+- Adding default organization to user info so tests get run in tester's organization
+
 # 0.6.2
 
 - Improve typing of index creation function
