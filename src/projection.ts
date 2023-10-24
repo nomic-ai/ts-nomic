@@ -72,9 +72,11 @@ export class AtlasProjection extends BaseAtlasClass {
       projection_id: this.id,
     };
 
-    const response = await this.apiCall(endpoint, 'POST', data);
-    const tag_id = response as string;
-    return tag_id;
+    const response = (await this.apiCall(endpoint, 'POST', data)) as Record<
+      string,
+      any
+    >;
+    return response['tag_id'] as string;
   }
 
   async updateTag(options: TagRequestOptions): Promise<void> {

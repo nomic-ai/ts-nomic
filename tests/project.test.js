@@ -11,13 +11,18 @@ test('Full project flow', async () => {
   // get user
   console.log('getting user');
   const user = new AtlasUser({ useEnvToken: true });
+
   console.log('THIS TEST IS RUNNING ON: ', user.apiLocation);
   // get organization for user
   console.log('getting organization');
-  const organization = new AtlasOrganization(
-    (await user.info()).organizations[0].organization_id,
-    user
-  );
+  const user_info = await user.info();
+  let organization_id = null;
+  if (user_info.default_organization === undefined) {
+    organization_id = user_info.organizations[0].organization_id;
+  } else {
+    organization_id = user_info.default_organization;
+  }
+  const organization = new AtlasOrganization(organization_id, user);
   // create project in organization
   console.log('creating project');
   const project = await organization.create_project({
@@ -75,7 +80,7 @@ test('Full project flow', async () => {
       [false, false],
     ],
   });
-  await projection.upsertBitmask(bitmask, { tag_id });
+  await projection.upsertTagMask(bitmask, { tag_id });
   // Delete tag
   await projection.deleteTag({ tag_id });
   // delete project
