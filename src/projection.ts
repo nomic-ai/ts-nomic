@@ -1,3 +1,5 @@
+import type { Dictionary, Table } from 'apache-arrow';
+import { tableToIPC } from 'apache-arrow';
 import { BaseAtlasClass } from './general.js';
 import type { AtlasUser } from './user.js';
 import { AtlasProject } from './project.js';
@@ -9,6 +11,12 @@ type ProjectionInitializationOptions = {
   index?: AtlasIndex;
   project_id?: UUID;
   user?: AtlasUser;
+};
+
+type TagRequestOptions = {
+  tag_name?: string;
+  dsl_rule?: JSON;
+  tag_id?: UUID;
 };
 
 export class AtlasProjection extends BaseAtlasClass {
@@ -42,6 +50,81 @@ export class AtlasProjection extends BaseAtlasClass {
       this._index = options.index;
     }
   }
+
+  async createTag(options: TagRequestOptions): Promise<UUID> {
+    const endpoint = '/v1/project/projection/tags/create';
+    const { tag_name, dsl_rule } = options;
+
+    if (tag_name === undefined) {
+      throw new Error('tag_name is required');
+    }
+
+    const data = {
+      project_id: this.project_id,
+      tag_name,
+      dsl_rule,
+      projection_id: this.id,
+    };
+
+    const response = await this.apiCall(endpoint, 'POST', data);
+    const tag_id = response as string;
+    return tag_id;
+  }
+
+  async updateTag(options: TagRequestOptions): Promise<void> {
+    const endpoint = '/v1/project/projection/tags/update';
+    const { tag_name, dsl_rule, tag_id } = options;
+    if (tag_id === undefined) {
+      throw new Error('tag_id is required');
+    }
+    const data = {
+      project_id: this.project_id,
+      tag_id,
+      tag_name,
+      dsl_rule,
+    };
+    await this.apiCall(endpoint, 'POST', data);
+  }
+
+  async deleteTag(options: TagRequestOptions): Promise<void> {
+    const endpoint = '/v1/project/projection/tags/delete';
+    const { tag_id } = options;
+    if (tag_id === undefined) {
+      throw new Error('tag_id is required');
+    }
+    const data = {
+      project_id: this.project_id,
+      tag_id,
+    };
+    await this.apiCall(endpoint, 'POST', data);
+  }
+
+  async getTags(): Promise<Array<Dictionary>> {
+    const endpoint = '/v1/project/projection/tags/get/all';
+    const params = new URLSearchParams({
+      project_id: this.project_id,
+      projection_id: this.id,
+    }).toString();
+    const response = await this.apiCall(`${endpoint}?${params}`, 'GET');
+    return response as Array<Dictionary>;
+  }
+
+  async upsertTagMask(
+    bitmask: Table,
+    options: TagRequestOptions
+  ): Promise<void> {
+    const endpoint = '/v1/project/projection/tags/update/mask';
+    const { tag_id } = options;
+
+    bitmask.schema.metadata.set('tag_id', tag_id as string);
+    bitmask.schema.metadata.set('project_id', this.project_id);
+    // Hard code upsert operation for now as it's the only one allowed
+    bitmask.schema.metadata.set('operation', 'upsert');
+
+    const serialized = tableToIPC(bitmask, 'file');
+    await this.apiCall(endpoint, 'POST', serialized);
+  }
+
   async project(): Promise<AtlasProject> {
     if (this._project === undefined) {
       this._project = new AtlasProject(this.project_id, this.user);

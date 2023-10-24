@@ -53,6 +53,31 @@ test('Full project flow', async () => {
   const projection = new AtlasProjection(orig_projection.id, user, { project });
   const inferred_index = await projection.index();
   assert.is(inferred_index.id, index.id);
+  // Create a tag
+  console.log('Creating tag');
+  const tag_id = await projection.createTag({ tag_name: 'test_tag' });
+  // Update a tag
+  console.log('Updating tag');
+  await projection.updateTag({ tag_id, tag_name: 'test_tag2' });
+  // Get tags
+  console.log('Getting tags');
+  const tags = await projection.getTags();
+  assert.is(tags[0]['tag_name'], 'test_tag2');
+  // Upsert a bitmask
+  console.log('Updating tag');
+  tile_key = arrow.vectorFromArray(['0/0/0', '0/0/1'], new arrow.Utf8(), {
+    nullable: true,
+  });
+  bitmask = arrow.tableFromArrays({
+    tile_key: tile_key,
+    bitmask: [
+      [true, true],
+      [false, false],
+    ],
+  });
+  await projection.upsertBitmask(bitmask, { tag_id });
+  // Delete tag
+  await projection.deleteTag({ tag_id });
   // delete project
   console.log('deleting project');
   await project.delete();
