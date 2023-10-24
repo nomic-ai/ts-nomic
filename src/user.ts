@@ -114,6 +114,7 @@ export type UserInfo = {
   name: string;
   picture: string;
   updated_at: string;
+  default_organization?: UUID;
   organizations: OrganizationUserInfo[];
 };
 
