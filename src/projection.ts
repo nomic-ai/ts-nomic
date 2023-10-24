@@ -1,4 +1,4 @@
-import type { Dictionary, Table } from 'apache-arrow';
+import type { Table } from 'apache-arrow';
 import { tableToIPC } from 'apache-arrow';
 import { BaseAtlasClass } from './general.js';
 import type { AtlasUser } from './user.js';
@@ -11,6 +11,12 @@ type ProjectionInitializationOptions = {
   index?: AtlasIndex;
   project_id?: UUID;
   user?: AtlasUser;
+};
+
+type TagResponse = {
+  tag_id: UUID;
+  tag_name: string;
+  user_id: string;
 };
 
 type TagRequestOptions = {
@@ -99,14 +105,14 @@ export class AtlasProjection extends BaseAtlasClass {
     await this.apiCall(endpoint, 'POST', data);
   }
 
-  async getTags(): Promise<Array<Dictionary>> {
+  async getTags(): Promise<Array<TagResponse>> {
     const endpoint = '/v1/project/projection/tags/get/all';
     const params = new URLSearchParams({
       project_id: this.project_id,
       projection_id: this.id,
     }).toString();
     const response = await this.apiCall(`${endpoint}?${params}`, 'GET');
-    return response as Array<Dictionary>;
+    return response as Array<TagResponse>;
   }
 
   async upsertTagMask(
