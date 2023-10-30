@@ -1,5 +1,5 @@
 import type { Table } from 'apache-arrow';
-import { tableToIPC } from 'apache-arrow';
+import { tableFromIPC, tableToIPC } from 'apache-arrow';
 import { BaseAtlasClass } from './general.js';
 import type { AtlasUser } from './user.js';
 import { AtlasProject } from './project.js';
@@ -118,11 +118,14 @@ export class AtlasProjection extends BaseAtlasClass {
   }
 
   async upsertTagMask(
-    bitmask: Table,
+    bitmask_bytes: Uint8Array,
     options: TagRequestOptions
   ): Promise<void> {
     const endpoint = '/v1/project/projection/tags/update/mask';
     const { tag_id } = options;
+
+    // deserialize the bitmask
+    const bitmask = tableFromIPC(bitmask_bytes);
 
     bitmask.schema.metadata.set('tag_id', tag_id as string);
     bitmask.schema.metadata.set('project_id', this.project_id);
