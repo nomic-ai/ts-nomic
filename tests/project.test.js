@@ -80,7 +80,8 @@ test('Full project flow', async () => {
       [false, false],
     ],
   });
-  await projection.upsertTagMask(bitmask, { tag_id });
+  const serialized = arrow.tableToIPC(bitmask, 'file');
+  await projection.upsertTagMask(serialized, { tag_id });
   // Delete tag
   await projection.deleteTag({ tag_id });
   // delete project
