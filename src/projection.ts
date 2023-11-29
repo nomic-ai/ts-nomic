@@ -24,13 +24,21 @@ type TagResponse = {
 type TagComponent = Record<string, any>;
 
 type TagComposition =
-  | ['OR' | 'AND' | 'NOT' | 'ANY' | 'ALL', ...TagComposition]
-  | TagComponent;
+  | TagComponent
+  | ['OR' | 'AND' | 'NOT' | 'ANY' | 'ALL', ...TagComposition[]];
 
 type TagRequestOptions = {
   tag_name?: string;
   dsl_rule?: TagComposition;
   tag_id?: UUID;
+};
+
+type TagMaskRequestOptions = {
+  tag_name?: string;
+  dsl_rule?: TagComposition;
+  tag_id?: UUID;
+  tag_definition_id?: string;
+  operation?: 'upsert' | 'noop';
 };
 
 export class AtlasProjection extends BaseAtlasClass {
@@ -65,7 +73,7 @@ export class AtlasProjection extends BaseAtlasClass {
     }
   }
 
-  private _generate_tag_definition_id(dsl_rule: JSON): string {
+  private _generate_tag_definition_id(dsl_rule: TagComposition): string {
     const json_string = JSON.stringify(dsl_rule);
     return createHash('md5').update(json_string).digest('hex');
   }
@@ -78,11 +86,19 @@ export class AtlasProjection extends BaseAtlasClass {
       throw new Error('tag_name is required');
     }
 
+    let tag_definition_id: undefined | string = undefined;
+    if (dsl_rule !== null) {
+      tag_definition_id = this._generate_tag_definition_id(
+        dsl_rule as TagComposition
+      );
+    }
+
     const data = {
       project_id: this.project_id,
       tag_name,
       dsl_rule,
       projection_id: this.id,
+      tag_definition_id,
     };
 
     const response = (await this.apiCall(endpoint, 'POST', data)) as Record<
@@ -138,20 +154,43 @@ export class AtlasProjection extends BaseAtlasClass {
     return response as Array<TagResponse>;
   }
 
-  async upsertTagMask(
+  async updateTagMask(
     bitmask_bytes: Uint8Array,
-    options: TagRequestOptions
+    options: TagMaskRequestOptions
   ): Promise<void> {
     const endpoint = '/v1/project/projection/tags/update/mask';
-    const { tag_id } = options;
+    const { tag_id, dsl_rule, tag_definition_id, operation } = options;
 
-    // deserialize the bitmask
+    // Upsert tag mask with tag definition id
+    let post_tag_definition_id = tag_definition_id;
+
+    if (tag_definition_id === undefined) {
+      if (dsl_rule !== undefined) {
+        post_tag_definition_id = this._generate_tag_definition_id(
+          dsl_rule as TagComposition
+        );
+      } else {
+        throw new Error('tag_definition_id or dsl_rule is required');
+      }
+    }
+
+    // Deserialize the bitmask
     const bitmask = tableFromIPC(bitmask_bytes);
 
     bitmask.schema.metadata.set('tag_id', tag_id as string);
     bitmask.schema.metadata.set('project_id', this.project_id);
-    // Hard code upsert operation for now as it's the only one allowed
-    bitmask.schema.metadata.set('operation', 'upsert');
+
+    // Default to upsert operation
+    if (operation === undefined) {
+      bitmask.schema.metadata.set('operation', 'upsert');
+    } else {
+      bitmask.schema.metadata.set('operation', operation);
+    }
+
+    bitmask.schema.metadata.set(
+      'tag_definition_id',
+      post_tag_definition_id as string
+    );
 
     const serialized = tableToIPC(bitmask, 'file');
     await this.apiCall(endpoint, 'POST', serialized);

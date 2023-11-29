@@ -60,7 +60,10 @@ test('Full project flow', async () => {
   assert.is(inferred_index.id, index.id);
   // Create a tag
   console.log('Creating tag');
-  const tag_id = await projection.createTag({ tag_name: 'test_tag' });
+  const tag_id = await projection.createTag({
+    tag_name: 'test_tag',
+    dsl_rule: {},
+  });
   // Update a tag
   console.log('Updating tag');
   await projection.updateTag({ tag_id, tag_name: 'test_tag2' });
@@ -81,7 +84,7 @@ test('Full project flow', async () => {
     ],
   });
   const serialized = arrow.tableToIPC(bitmask, 'file');
-  await projection.upsertTagMask(serialized, { tag_id });
+  await projection.upsertTagMask(serialized, { tag_id, dsl_rule });
   // Delete tag
   await projection.deleteTag({ tag_id });
   // delete project
