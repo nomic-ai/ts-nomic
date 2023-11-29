@@ -4,6 +4,8 @@ import { BaseAtlasClass } from './general.js';
 import type { AtlasUser } from './user.js';
 import { AtlasProject } from './project.js';
 import type { AtlasIndex } from './index.js';
+import { createHash } from 'node:crypto';
+
 type UUID = string;
 
 type ProjectionInitializationOptions = {
@@ -19,9 +21,15 @@ type TagResponse = {
   user_id: string;
 };
 
+type TagComponent = Record<string, any>;
+
+type TagComposition =
+  | ['OR' | 'AND' | 'NOT' | 'ANY' | 'ALL', ...TagComposition]
+  | TagComponent;
+
 type TagRequestOptions = {
   tag_name?: string;
-  dsl_rule?: JSON;
+  dsl_rule?: TagComposition;
   tag_id?: UUID;
 };
 
@@ -57,6 +65,11 @@ export class AtlasProjection extends BaseAtlasClass {
     }
   }
 
+  private _generate_tag_definition_id(dsl_rule: JSON): string {
+    const json_string = JSON.stringify(dsl_rule);
+    return createHash('md5').update(json_string).digest('hex');
+  }
+
   async createTag(options: TagRequestOptions): Promise<UUID> {
     const endpoint = '/v1/project/projection/tags/create';
     const { tag_name, dsl_rule } = options;
@@ -85,11 +98,19 @@ export class AtlasProjection extends BaseAtlasClass {
     if (tag_id === undefined) {
       throw new Error('tag_id is required');
     }
+    let tag_definition_id: undefined | string = undefined;
+    if (dsl_rule !== null) {
+      tag_definition_id = this._generate_tag_definition_id(
+        dsl_rule as TagComposition
+      );
+    }
+
     const data = {
       project_id: this.project_id,
       tag_id,
       tag_name,
       dsl_rule,
+      tag_definition_id,
     };
     await this.apiCall(endpoint, 'POST', data);
   }
