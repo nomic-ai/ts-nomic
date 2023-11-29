@@ -38,7 +38,7 @@ type TagMaskRequestOptions = {
   dsl_rule?: TagComposition;
   tag_id?: UUID;
   tag_definition_id?: string;
-  operation?: 'upsert' | 'noop';
+  operation: 'upsert' | 'noop';
 };
 
 export class AtlasProjection extends BaseAtlasClass {
@@ -181,11 +181,7 @@ export class AtlasProjection extends BaseAtlasClass {
     bitmask.schema.metadata.set('project_id', this.project_id);
 
     // Default to upsert operation
-    if (operation === undefined) {
-      bitmask.schema.metadata.set('operation', 'upsert');
-    } else {
-      bitmask.schema.metadata.set('operation', operation);
-    }
+    bitmask.schema.metadata.set('operation', operation);
 
     bitmask.schema.metadata.set(
       'tag_definition_id',
