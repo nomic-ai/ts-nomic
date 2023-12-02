@@ -38,7 +38,6 @@ type TagMaskRequestOptions = {
   dsl_rule?: TagComposition;
   tag_id?: UUID;
   tag_definition_id?: string;
-  operation: 'upsert' | 'noop';
 };
 
 export class AtlasProjection extends BaseAtlasClass {
@@ -159,7 +158,7 @@ export class AtlasProjection extends BaseAtlasClass {
     options: TagMaskRequestOptions
   ): Promise<void> {
     const endpoint = '/v1/project/projection/tags/update/mask';
-    const { tag_id, dsl_rule, tag_definition_id, operation } = options;
+    const { tag_id, dsl_rule, tag_definition_id } = options;
 
     // Upsert tag mask with tag definition id
     let post_tag_definition_id = tag_definition_id;
@@ -176,18 +175,15 @@ export class AtlasProjection extends BaseAtlasClass {
 
     // Deserialize the bitmask
     const bitmask = tableFromIPC(bitmask_bytes);
+    // TODO: may have to enforce schema here?
 
     bitmask.schema.metadata.set('tag_id', tag_id as string);
     bitmask.schema.metadata.set('project_id', this.project_id);
-
-    // Default to upsert operation
-    bitmask.schema.metadata.set('operation', operation);
 
     bitmask.schema.metadata.set(
       'tag_definition_id',
       post_tag_definition_id as string
     );
-
     const serialized = tableToIPC(bitmask, 'file');
     await this.apiCall(endpoint, 'POST', serialized);
   }
