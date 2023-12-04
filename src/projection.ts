@@ -17,8 +17,9 @@ type ProjectionInitializationOptions = {
 
 type TagResponse = {
   tag_id: UUID;
-  tag_name: string;
-  user_id: string;
+  tag_definition_id: string;
+  tag_name?: string;
+  user_id?: string;
 };
 
 type TagComponent = Record<string, any>;
@@ -77,7 +78,7 @@ export class AtlasProjection extends BaseAtlasClass {
     return createHash('md5').update(json_string).digest('hex');
   }
 
-  async createTag(options: TagRequestOptions): Promise<UUID> {
+  async createTag(options: TagRequestOptions): Promise<TagResponse> {
     const endpoint = '/v1/project/projection/tags/create';
     const { tag_name, dsl_rule } = options;
 
@@ -100,14 +101,15 @@ export class AtlasProjection extends BaseAtlasClass {
       tag_definition_id,
     };
 
-    const response = (await this.apiCall(endpoint, 'POST', data)) as Record<
-      string,
-      any
-    >;
-    return response['tag_id'] as string;
+    const response = (await this.apiCall(
+      endpoint,
+      'POST',
+      data
+    )) as TagResponse;
+    return response;
   }
 
-  async updateTag(options: TagRequestOptions): Promise<void> {
+  async updateTag(options: TagRequestOptions): Promise<TagResponse> {
     const endpoint = '/v1/project/projection/tags/update';
     const { tag_name, dsl_rule, tag_id } = options;
     if (tag_id === undefined) {
@@ -127,7 +129,12 @@ export class AtlasProjection extends BaseAtlasClass {
       dsl_rule,
       tag_definition_id,
     };
-    await this.apiCall(endpoint, 'POST', data);
+    const response = (await this.apiCall(
+      endpoint,
+      'POST',
+      data
+    )) as TagResponse;
+    return response;
   }
 
   async deleteTag(options: TagRequestOptions): Promise<void> {
