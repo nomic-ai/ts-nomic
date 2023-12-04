@@ -1,5 +1,5 @@
 import type { Table } from 'apache-arrow';
-import { tableFromIPC, tableToIPC } from 'apache-arrow';
+import { Type, tableFromIPC, tableToIPC } from 'apache-arrow';
 import { BaseAtlasClass } from './general.js';
 import type { AtlasUser } from './user.js';
 import { AtlasProject } from './project.js';
@@ -191,6 +191,17 @@ export class AtlasProjection extends BaseAtlasClass {
       'tag_definition_id',
       post_tag_definition_id as string
     );
+    const fields = bitmask.schema.fields;
+
+    const bitmask_column = fields.find((f) => f.name === 'bitmask');
+    if (!bitmask_column || bitmask_column.type.id === Type.List) {
+      throw new Error('bitmask column of type list not found');
+    }
+
+    if (bitmask_column.type.children[0].typeId !== Type.Bool) {
+      throw new Error('bitmask column of type list<bool> not found');
+    }
+
     const serialized = tableToIPC(bitmask, 'file');
     await this.apiCall(endpoint, 'POST', serialized);
   }
