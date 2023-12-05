@@ -126,7 +126,7 @@ export class AtlasProjection extends BaseAtlasClass {
     let tag_definition_id: undefined | string = undefined;
     let dsl_json: undefined | string = undefined;
 
-    if (dsl_rule !== null) {
+    if (dsl_rule !== undefined) {
       let tag_definition = this._generate_tag_definition_id(
         dsl_rule as TagComposition
       );
@@ -141,6 +141,7 @@ export class AtlasProjection extends BaseAtlasClass {
       dsl_rule: dsl_json,
       tag_definition_id,
     };
+
     const response = (await this.apiCall(
       endpoint,
       'POST',
@@ -195,7 +196,6 @@ export class AtlasProjection extends BaseAtlasClass {
 
     // Deserialize the bitmask
     const bitmask = tableFromIPC(bitmask_bytes);
-    // TODO: may have to enforce schema here?
 
     bitmask.schema.metadata.set('tag_id', tag_id as string);
     bitmask.schema.metadata.set('project_id', this.project_id);

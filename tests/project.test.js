@@ -36,7 +36,7 @@ test('Full project flow', async () => {
   assert.is(project2.id, project.id);
   // upload arrow table to project
   console.log('uploading arrow');
-  const tb = make_test_table({ length: 32, modality: 'text' });
+  const tb = make_test_table({ length: 50, modality: 'text' });
   await project.uploadArrow(tb);
   // create index on project
   console.log('creating index');
@@ -60,19 +60,19 @@ test('Full project flow', async () => {
   assert.is(inferred_index.id, index.id);
   // Create a tag
   console.log('Creating tag');
-  const tag_id = await projection.createTag({
+  const results = await projection.createTag({
     tag_name: 'test_tag',
     dsl_rule: {},
   });
   // Update a tag
   console.log('Updating tag');
-  await projection.updateTag({ tag_id, tag_name: 'test_tag2' });
+  await projection.updateTag({ tag_id: results.tag_id, tag_name: 'test_tag2' });
   // Get tags
   console.log('Getting tags');
   const tags = await projection.getTags();
   assert.is(tags[0]['tag_name'], 'test_tag2');
   // Upsert a bitmask
-  console.log('Updating tag');
+  console.log('Adding tag mask');
   tile_key = arrow.vectorFromArray(['0/0/0', '0/0/1'], new arrow.Utf8(), {
     nullable: true,
   });
@@ -86,11 +86,11 @@ test('Full project flow', async () => {
   });
   const serialized = arrow.tableToIPC(bitmask, 'file');
   await projection.updateTagMask(serialized, {
-    tag_id,
-    dsl_rule,
+    tag_id: results.tag_id,
+    dsl_rule: {},
   });
   // Delete tag
-  await projection.deleteTag({ tag_id });
+  await projection.deleteTag({ tag_id: results.tag_id });
   // delete project
   console.log('deleting project');
   await project.delete();
