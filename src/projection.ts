@@ -141,12 +141,11 @@ export class AtlasProjection extends BaseAtlasClass {
       tag_definition_id,
     };
 
-    const response = (await this.apiCall(
+    return this.apiCall(
       endpoint,
       'POST',
       data
-    )) as TagResponse;
-    return response;
+    )) as Promise<TagResponse>;
   }
 
   async deleteTag(options: TagRequestOptions): Promise<void> {
