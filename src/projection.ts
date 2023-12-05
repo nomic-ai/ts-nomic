@@ -1,9 +1,10 @@
-import type { Table } from 'apache-arrow';
-import { tableFromIPC, tableToIPC } from 'apache-arrow';
+import { Md5 } from 'ts-md5';
+import { Type, tableFromIPC, tableToIPC } from 'apache-arrow';
 import { BaseAtlasClass } from './general.js';
 import type { AtlasUser } from './user.js';
 import { AtlasProject } from './project.js';
 import type { AtlasIndex } from './index.js';
+
 type UUID = string;
 
 type ProjectionInitializationOptions = {
@@ -15,14 +16,33 @@ type ProjectionInitializationOptions = {
 
 type TagResponse = {
   tag_id: UUID;
-  tag_name: string;
-  user_id: string;
+  tag_definition_id: string;
+  tag_name?: string;
+  user_id?: string;
 };
+
+type TagComponent = Record<string, any>;
+
+type TagComposition =
+  | TagComponent
+  | ['OR' | 'AND' | 'NOT' | 'ANY' | 'ALL', ...TagComposition[]];
 
 type TagRequestOptions = {
   tag_name?: string;
-  dsl_rule?: JSON;
+  dsl_rule?: TagComposition;
   tag_id?: UUID;
+};
+
+type TagMaskRequestOptions = {
+  tag_name?: string;
+  dsl_rule?: TagComposition;
+  tag_id?: UUID;
+  tag_definition_id?: string;
+};
+
+type TagDefinition = {
+  tag_definition_id: string;
+  dsl_json: string;
 };
 
 export class AtlasProjection extends BaseAtlasClass {
@@ -57,7 +77,13 @@ export class AtlasProjection extends BaseAtlasClass {
     }
   }
 
-  async createTag(options: TagRequestOptions): Promise<UUID> {
+  private _generate_tag_definition_id(dsl_rule: TagComposition): TagDefinition {
+    const dsl_json = JSON.stringify(dsl_rule);
+    const tag_definition_id = Md5.hashStr(dsl_json);
+    return { tag_definition_id, dsl_json };
+  }
+
+  async createTag(options: TagRequestOptions): Promise<TagResponse> {
     const endpoint = '/v1/project/projection/tags/create';
     const { tag_name, dsl_rule } = options;
 
@@ -65,33 +91,61 @@ export class AtlasProjection extends BaseAtlasClass {
       throw new Error('tag_name is required');
     }
 
+    if (dsl_rule === undefined) {
+      throw new Error('dsl_rule is required');
+    }
+
+    const { tag_definition_id, dsl_json } = this._generate_tag_definition_id(
+      dsl_rule as TagComposition
+    );
+
     const data = {
       project_id: this.project_id,
       tag_name,
-      dsl_rule,
+      dsl_rule: dsl_json,
       projection_id: this.id,
+      tag_definition_id,
     };
 
-    const response = (await this.apiCall(endpoint, 'POST', data)) as Record<
-      string,
-      any
-    >;
-    return response['tag_id'] as string;
+    const response = (await this.apiCall(
+      endpoint,
+      'POST',
+      data
+    )) as TagResponse;
+    return response;
   }
 
-  async updateTag(options: TagRequestOptions): Promise<void> {
+  async updateTag(options: TagRequestOptions): Promise<TagResponse> {
     const endpoint = '/v1/project/projection/tags/update';
     const { tag_name, dsl_rule, tag_id } = options;
     if (tag_id === undefined) {
       throw new Error('tag_id is required');
     }
+
+    let tag_definition_id: undefined | string = undefined;
+    let dsl_json: undefined | string = undefined;
+
+    if (dsl_rule !== undefined) {
+      let tag_definition = this._generate_tag_definition_id(
+        dsl_rule as TagComposition
+      );
+      tag_definition_id = tag_definition.tag_definition_id;
+      dsl_json = tag_definition.dsl_json;
+    }
+
     const data = {
       project_id: this.project_id,
       tag_id,
       tag_name,
-      dsl_rule,
+      dsl_rule: dsl_json,
+      tag_definition_id,
     };
-    await this.apiCall(endpoint, 'POST', data);
+
+    return this.apiCall(
+      endpoint,
+      'POST',
+      data
+    )) as Promise<TagResponse>;
   }
 
   async deleteTag(options: TagRequestOptions): Promise<void> {
@@ -117,20 +171,47 @@ export class AtlasProjection extends BaseAtlasClass {
     return response as Array<TagResponse>;
   }
 
-  async upsertTagMask(
+  async updateTagMask(
     bitmask_bytes: Uint8Array,
-    options: TagRequestOptions
+    options: TagMaskRequestOptions
   ): Promise<void> {
     const endpoint = '/v1/project/projection/tags/update/mask';
-    const { tag_id } = options;
+    const { tag_id, dsl_rule, tag_definition_id } = options;
 
-    // deserialize the bitmask
+    // Upsert tag mask with tag definition id
+    let post_tag_definition_id = tag_definition_id;
+
+    if (tag_definition_id === undefined) {
+      if (dsl_rule !== undefined) {
+        let tag_definition = this._generate_tag_definition_id(
+          dsl_rule as TagComposition
+        );
+        post_tag_definition_id = tag_definition.tag_definition_id;
+      } else {
+        throw new Error('tag_definition_id or dsl_rule is required');
+      }
+    }
+
+    // Deserialize the bitmask
     const bitmask = tableFromIPC(bitmask_bytes);
 
     bitmask.schema.metadata.set('tag_id', tag_id as string);
     bitmask.schema.metadata.set('project_id', this.project_id);
-    // Hard code upsert operation for now as it's the only one allowed
-    bitmask.schema.metadata.set('operation', 'upsert');
+
+    bitmask.schema.metadata.set(
+      'tag_definition_id',
+      post_tag_definition_id as string
+    );
+    const fields = bitmask.schema.fields;
+
+    const bitmask_column = fields.find((f) => f.name === 'bitmask');
+    if (!bitmask_column || bitmask_column.type.id === Type.List) {
+      throw new Error('bitmask column of type list not found');
+    }
+
+    if (bitmask_column.type.children[0].typeId !== Type.Bool) {
+      throw new Error('bitmask column of type list<bool> not found');
+    }
 
     const serialized = tableToIPC(bitmask, 'file');
     await this.apiCall(endpoint, 'POST', serialized);
