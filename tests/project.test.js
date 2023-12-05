@@ -76,6 +76,7 @@ test('Full project flow', async () => {
   tile_key = arrow.vectorFromArray(['0/0/0', '0/0/1'], new arrow.Utf8(), {
     nullable: true,
   });
+  // warning: bitmask length in this test != number of points in tile
   bitmask = arrow.tableFromArrays({
     tile_key: tile_key,
     bitmask: [
