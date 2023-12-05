@@ -41,6 +41,11 @@ type TagMaskRequestOptions = {
   tag_definition_id?: string;
 };
 
+type TagDefinition = {
+  tag_definition_id: string;
+  dsl_json: string;
+};
+
 export class AtlasProjection extends BaseAtlasClass {
   _project?: AtlasProject;
   project_id: UUID;
@@ -73,9 +78,10 @@ export class AtlasProjection extends BaseAtlasClass {
     }
   }
 
-  private _generate_tag_definition_id(dsl_rule: TagComposition): string {
-    const json_string = JSON.stringify(dsl_rule);
-    return createHash('md5').update(json_string).digest('hex');
+  private _generate_tag_definition_id(dsl_rule: TagComposition): TagDefinition {
+    const dsl_json = JSON.stringify(dsl_rule);
+    const tag_definition_id = createHash('md5').update(dsl_json).digest('hex');
+    return { tag_definition_id, dsl_json };
   }
 
   async createTag(options: TagRequestOptions): Promise<TagResponse> {
@@ -86,17 +92,18 @@ export class AtlasProjection extends BaseAtlasClass {
       throw new Error('tag_name is required');
     }
 
-    let tag_definition_id: undefined | string = undefined;
-    if (dsl_rule !== null) {
-      tag_definition_id = this._generate_tag_definition_id(
-        dsl_rule as TagComposition
-      );
+    if (dsl_rule === undefined) {
+      throw new Error('dsl_rule is required');
     }
+
+    const { tag_definition_id, dsl_json } = this._generate_tag_definition_id(
+      dsl_rule as TagComposition
+    );
 
     const data = {
       project_id: this.project_id,
       tag_name,
-      dsl_rule,
+      dsl_rule: dsl_json,
       projection_id: this.id,
       tag_definition_id,
     };
@@ -115,18 +122,23 @@ export class AtlasProjection extends BaseAtlasClass {
     if (tag_id === undefined) {
       throw new Error('tag_id is required');
     }
+
     let tag_definition_id: undefined | string = undefined;
+    let dsl_json: undefined | string = undefined;
+
     if (dsl_rule !== null) {
-      tag_definition_id = this._generate_tag_definition_id(
+      let tag_definition = this._generate_tag_definition_id(
         dsl_rule as TagComposition
       );
+      tag_definition_id = tag_definition.tag_definition_id;
+      dsl_json = tag_definition.dsl_json;
     }
 
     const data = {
       project_id: this.project_id,
       tag_id,
       tag_name,
-      dsl_rule,
+      dsl_rule: dsl_json,
       tag_definition_id,
     };
     const response = (await this.apiCall(
@@ -172,9 +184,10 @@ export class AtlasProjection extends BaseAtlasClass {
 
     if (tag_definition_id === undefined) {
       if (dsl_rule !== undefined) {
-        post_tag_definition_id = this._generate_tag_definition_id(
+        let tag_definition = this._generate_tag_definition_id(
           dsl_rule as TagComposition
         );
+        post_tag_definition_id = tag_definition.tag_definition_id;
       } else {
         throw new Error('tag_definition_id or dsl_rule is required');
       }
