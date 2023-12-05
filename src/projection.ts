@@ -1,10 +1,9 @@
-import type { Table } from 'apache-arrow';
+import { Md5 } from 'ts-md5';
 import { Type, tableFromIPC, tableToIPC } from 'apache-arrow';
 import { BaseAtlasClass } from './general.js';
 import type { AtlasUser } from './user.js';
 import { AtlasProject } from './project.js';
 import type { AtlasIndex } from './index.js';
-import { createHash } from 'node:crypto';
 
 type UUID = string;
 
@@ -80,7 +79,7 @@ export class AtlasProjection extends BaseAtlasClass {
 
   private _generate_tag_definition_id(dsl_rule: TagComposition): TagDefinition {
     const dsl_json = JSON.stringify(dsl_rule);
-    const tag_definition_id = createHash('md5').update(dsl_json).digest('hex');
+    const tag_definition_id = Md5.hashStr(dsl_json);
     return { tag_definition_id, dsl_json };
   }
 
