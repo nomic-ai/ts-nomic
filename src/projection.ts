@@ -46,6 +46,10 @@ type TagDefinition = {
   dsl_json: string;
 };
 
+type TagStatus = {
+  is_complete: boolean;
+};
+
 export class AtlasProjection extends BaseAtlasClass {
   _project?: AtlasProject;
   project_id: UUID;
@@ -164,8 +168,22 @@ export class AtlasProjection extends BaseAtlasClass {
       project_id: this.project_id,
       projection_id: this.id,
     }).toString();
-    const response = await this.apiCall(`${endpoint}?${params}`, 'GET');
-    return response as Array<TagResponse>;
+    return (await this.apiCall(`${endpoint}?${params}`, 'GET')) as Promise<
+      Array<TagResponse>
+    >;
+  }
+
+  async getTagStatus(options: TagRequestOptions): Promise<TagStatus> {
+    const { tag_id } = options;
+    if (tag_id === undefined) {
+      throw new Error('tag_id is required');
+    }
+    const endpoint = '/v1/project/projection/tags/status';
+    const params = new URLSearchParams({
+      project_id: this.project_id,
+      tag_id,
+    }).toString();
+    return this.apiCall(`${endpoint}?${params}`, 'GET') as Promise<TagStatus>;
   }
 
   async updateTagMask(

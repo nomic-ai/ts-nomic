@@ -91,6 +91,9 @@ test('Full project flow', async () => {
     dsl_rule: {},
     complete: true,
   });
+  // assert tag is complete
+  const tag_status = await projection.getTagStatus({ tag_id: results.tag_id });
+  assert.is(tag_status.is_complete, true);
   // Delete tag
   await projection.deleteTag({ tag_id: results.tag_id });
   // delete project
