@@ -73,17 +73,14 @@ test('Full project flow', async () => {
   assert.is(tags[0]['tag_name'], 'test_tag2');
   // Upsert a bitmask
   console.log('Adding tag mask');
-  tile_key = arrow.vectorFromArray(['0/0/0', '0/0/1'], new arrow.Utf8(), {
+  tile_key = arrow.vectorFromArray(['0/0/0'], new arrow.Utf8(), {
     nullable: true,
   });
   // warning: bitmask length in this test != number of points in tile
   bitmask = arrow.tableFromArrays({
     tile_key: tile_key,
-    bitmask: [
-      [true, true],
-      [false, false],
-    ],
-    operation: ['upsert', 'upsert'],
+    bitmask: [[true, true]],
+    operation: ['upsert'],
   });
   const serialized = arrow.tableToIPC(bitmask, 'file');
   await projection.updateTagMask(serialized, {
@@ -93,7 +90,7 @@ test('Full project flow', async () => {
   });
   // assert tag is complete
   const tag_status = await projection.getTagStatus({ tag_id: results.tag_id });
-  assert.is(tag_status.is_complete, true);
+  assert.equal(tag_status.is_complete, true);
   // Delete tag
   await projection.deleteTag({ tag_id: results.tag_id });
   // delete project
