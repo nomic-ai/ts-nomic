@@ -38,6 +38,7 @@ type TagMaskRequestOptions = {
   dsl_rule?: TagComposition;
   tag_id?: UUID;
   tag_definition_id?: string;
+  complete?: boolean;
 };
 
 type TagDefinition = {
@@ -172,7 +173,7 @@ export class AtlasProjection extends BaseAtlasClass {
     options: TagMaskRequestOptions
   ): Promise<void> {
     const endpoint = '/v1/project/projection/tags/update/mask';
-    const { tag_id, dsl_rule, tag_definition_id } = options;
+    const { tag_id, dsl_rule, tag_definition_id, complete } = options;
 
     // Upsert tag mask with tag definition id
     let post_tag_definition_id = tag_definition_id;
@@ -188,16 +189,23 @@ export class AtlasProjection extends BaseAtlasClass {
       }
     }
 
+    let complete_str: string;
+    if (complete === undefined || complete === false) {
+      complete_str = 'false';
+    } else {
+      complete_str = 'true';
+    }
+
     // Deserialize the bitmask
     const bitmask = tableFromIPC(bitmask_bytes);
 
     bitmask.schema.metadata.set('tag_id', tag_id as string);
     bitmask.schema.metadata.set('project_id', this.project_id);
-
     bitmask.schema.metadata.set(
       'tag_definition_id',
       post_tag_definition_id as string
     );
+    bitmask.schema.metadata.set('complete', complete_str);
     const fields = bitmask.schema.fields;
 
     const bitmask_column = fields.find((f) => f.name === 'bitmask');

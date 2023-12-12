@@ -89,6 +89,7 @@ test('Full project flow', async () => {
   await projection.updateTagMask(serialized, {
     tag_id: results.tag_id,
     dsl_rule: {},
+    complete: true,
   });
   // Delete tag
   await projection.deleteTag({ tag_id: results.tag_id });
