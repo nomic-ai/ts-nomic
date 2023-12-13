@@ -168,7 +168,7 @@ export class AtlasProjection extends BaseAtlasClass {
       project_id: this.project_id,
       projection_id: this.id,
     }).toString();
-    return (await this.apiCall(`${endpoint}?${params}`, 'GET')) as Promise<
+    return this.apiCall(`${endpoint}?${params}`, 'GET') as Promise<
       Array<TagResponse>
     >;
   }
@@ -207,13 +207,6 @@ export class AtlasProjection extends BaseAtlasClass {
       }
     }
 
-    let complete_str: string;
-    if (complete === undefined || complete === false) {
-      complete_str = 'false';
-    } else {
-      complete_str = 'true';
-    }
-
     // Deserialize the bitmask
     const bitmask = tableFromIPC(bitmask_bytes);
 
@@ -223,7 +216,7 @@ export class AtlasProjection extends BaseAtlasClass {
       'tag_definition_id',
       post_tag_definition_id as string
     );
-    bitmask.schema.metadata.set('complete', complete_str);
+    bitmask.schema.metadata.set('complete', JSON.stringify(!!complete));
     const fields = bitmask.schema.fields;
 
     const bitmask_column = fields.find((f) => f.name === 'bitmask');
