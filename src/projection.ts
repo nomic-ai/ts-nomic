@@ -19,6 +19,7 @@ type TagResponse = {
   tag_definition_id: string;
   tag_name?: string;
   user_id?: string;
+  dsl_rule?: string;
 };
 
 type TagComponent = Record<string, any>;
