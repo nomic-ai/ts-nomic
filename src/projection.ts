@@ -38,11 +38,16 @@ type TagMaskRequestOptions = {
   dsl_rule?: TagComposition;
   tag_id?: UUID;
   tag_definition_id?: string;
+  complete?: boolean;
 };
 
 type TagDefinition = {
   tag_definition_id: string;
   dsl_json: string;
+};
+
+type TagStatus = {
+  is_complete: boolean;
 };
 
 export class AtlasProjection extends BaseAtlasClass {
@@ -141,11 +146,7 @@ export class AtlasProjection extends BaseAtlasClass {
       tag_definition_id,
     };
 
-    return this.apiCall(
-      endpoint,
-      'POST',
-      data
-    )) as Promise<TagResponse>;
+    return this.apiCall(endpoint, 'POST', data) as Promise<TagResponse>;
   }
 
   async deleteTag(options: TagRequestOptions): Promise<void> {
@@ -167,8 +168,22 @@ export class AtlasProjection extends BaseAtlasClass {
       project_id: this.project_id,
       projection_id: this.id,
     }).toString();
-    const response = await this.apiCall(`${endpoint}?${params}`, 'GET');
-    return response as Array<TagResponse>;
+    return this.apiCall(`${endpoint}?${params}`, 'GET') as Promise<
+      Array<TagResponse>
+    >;
+  }
+
+  async getTagStatus(options: TagRequestOptions): Promise<TagStatus> {
+    const { tag_id } = options;
+    if (tag_id === undefined) {
+      throw new Error('tag_id is required');
+    }
+    const endpoint = '/v1/project/projection/tags/status';
+    const params = new URLSearchParams({
+      project_id: this.project_id,
+      tag_id,
+    }).toString();
+    return this.apiCall(`${endpoint}?${params}`, 'GET') as Promise<TagStatus>;
   }
 
   async updateTagMask(
@@ -176,7 +191,7 @@ export class AtlasProjection extends BaseAtlasClass {
     options: TagMaskRequestOptions
   ): Promise<void> {
     const endpoint = '/v1/project/projection/tags/update/mask';
-    const { tag_id, dsl_rule, tag_definition_id } = options;
+    const { tag_id, dsl_rule, tag_definition_id, complete } = options;
 
     // Upsert tag mask with tag definition id
     let post_tag_definition_id = tag_definition_id;
@@ -197,11 +212,11 @@ export class AtlasProjection extends BaseAtlasClass {
 
     bitmask.schema.metadata.set('tag_id', tag_id as string);
     bitmask.schema.metadata.set('project_id', this.project_id);
-
     bitmask.schema.metadata.set(
       'tag_definition_id',
       post_tag_definition_id as string
     );
+    bitmask.schema.metadata.set('complete', JSON.stringify(!!complete));
     const fields = bitmask.schema.fields;
 
     const bitmask_column = fields.find((f) => f.name === 'bitmask');
