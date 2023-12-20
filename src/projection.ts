@@ -1,5 +1,5 @@
 import { Md5 } from 'ts-md5';
-import { Type, tableFromIPC, tableToIPC } from 'apache-arrow';
+import { Schema, Type, tableFromIPC, tableToIPC } from 'apache-arrow';
 import { BaseAtlasClass } from './general.js';
 import type { AtlasUser } from './user.js';
 import { AtlasProject } from './project.js';
@@ -231,6 +231,20 @@ export class AtlasProjection extends BaseAtlasClass {
 
     const serialized = tableToIPC(bitmask, 'file');
     await this.apiCall(endpoint, 'POST', serialized);
+  }
+  _schema: Uint8Array | null = null;
+
+  async schema(): Promise<Uint8Array> {
+    // Returns a uint8 view of
+    if (this._schema !== null) {
+      return this._schema;
+    }
+    const schema = await this.apiCall(
+      `/v1/project/projection/${this.id}/schema`,
+      'GET'
+    );
+    this._schema = schema as Uint8Array;
+    return this._schema;
   }
 
   async project(): Promise<AtlasProject> {

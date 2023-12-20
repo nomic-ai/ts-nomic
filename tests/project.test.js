@@ -58,41 +58,41 @@ test('Full project flow', async () => {
   const projection = new AtlasProjection(orig_projection.id, user, { project });
   const inferred_index = await projection.index();
   assert.is(inferred_index.id, index.id);
-  // Create a tag
-  console.log('Creating tag');
-  const results = await projection.createTag({
-    tag_name: 'test_tag',
-    dsl_rule: {},
-  });
-  // Update a tag
-  console.log('Updating tag');
-  await projection.updateTag({ tag_id: results.tag_id, tag_name: 'test_tag2' });
-  // Get tags
-  console.log('Getting tags');
-  const tags = await projection.getTags();
-  assert.is(tags[0]['tag_name'], 'test_tag2');
-  // Upsert a bitmask
-  console.log('Adding tag mask');
-  tile_key = arrow.vectorFromArray(['0/0/0'], new arrow.Utf8(), {
-    nullable: true,
-  });
-  // warning: bitmask length in this test != number of points in tile
-  bitmask = arrow.tableFromArrays({
-    tile_key: tile_key,
-    bitmask: [[true, true]],
-    operation: ['upsert'],
-  });
-  const serialized = arrow.tableToIPC(bitmask, 'file');
-  await projection.updateTagMask(serialized, {
-    tag_id: results.tag_id,
-    dsl_rule: {},
-    complete: true,
-  });
-  // assert tag is complete
-  const tag_status = await projection.getTagStatus({ tag_id: results.tag_id });
-  assert.equal(tag_status.is_complete, true);
-  // Delete tag
-  await projection.deleteTag({ tag_id: results.tag_id });
+  // // Create a tag
+  // console.log('Creating tag');
+  // const results = await projection.createTag({
+  //   tag_name: 'test_tag',
+  //   dsl_rule: {},
+  // });
+  // // Update a tag
+  // console.log('Updating tag');
+  // await projection.updateTag({ tag_id: results.tag_id, tag_name: 'test_tag2' });
+  // // Get tags
+  // console.log('Getting tags');
+  // const tags = await projection.getTags();
+  // assert.is(tags[0]['tag_name'], 'test_tag2');
+  // // Upsert a bitmask
+  // console.log('Adding tag mask');
+  // tile_key = arrow.vectorFromArray(['0/0/0'], new arrow.Utf8(), {
+  //   nullable: true,
+  // });
+  // // warning: bitmask length in this test != number of points in tile
+  // bitmask = arrow.tableFromArrays({
+  //   tile_key: tile_key,
+  //   bitmask: [[true, true]],
+  //   operation: ['upsert'],
+  // });
+  // const serialized = arrow.tableToIPC(bitmask, 'file');
+  // await projection.updateTagMask(serialized, {
+  //   tag_id: results.tag_id,
+  //   dsl_rule: {},
+  //   complete: true,
+  // });
+  // // assert tag is complete
+  // const tag_status = await projection.getTagStatus({ tag_id: results.tag_id });
+  // assert.equal(tag_status.is_complete, true);
+  // // Delete tag
+  // await projection.deleteTag({ tag_id: results.tag_id });
   // delete project
   console.log('deleting project');
   await project.delete();

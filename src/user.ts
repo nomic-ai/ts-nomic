@@ -332,6 +332,9 @@ export class AtlasUser {
         } else {
           returnval = tableFromIPC(view);
         }
+      } else {
+        // It's not Arrow.
+        returnval = view;
       }
     } else {
       throw new Error(

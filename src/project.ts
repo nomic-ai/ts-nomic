@@ -76,15 +76,41 @@ export class AtlasProject extends BaseAtlasClass {
    *
    * @returns An AtlasProject object.
    */
-  constructor(id: UUID, user?: AtlasUser) {
+  constructor(id: UUID | string, user?: AtlasUser) {
     super(user);
     // check if id is a valid UUID
-    const uuid =
+
+    const uuidPattern =
       /[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}/;
-    if (!id.toLowerCase().match(uuid)) {
-      throw new Error(`${id} is not a valid UUID.`);
-    }
     this.id = id;
+    if (!id.toLowerCase().match(uuidPattern)) {
+      // throw new Error(`${id} is not a valid UUID.`);
+      this.id = id;
+      this.info().then((i) => (this.id = i.project_id));
+    }
+  }
+
+  public async projectionSummaries() {
+    // Returns a list of projection summaries, sorted so that the first is
+    // the most useable (defined as ready and newest)
+    const projections = [];
+    const info = await this.info();
+    for (const index of info.atlas_indices) {
+      for (const projection of index.projections) {
+        projections.push(projection);
+      }
+    }
+    // sort from newest to oldest
+    // Put ready projections first
+    projections.sort((a, b) => {
+      if (a.ready && !b.ready) return -1;
+      if (!a.ready && b.ready) return 1;
+      return (
+        new Date(b.created_timestamp).getTime() -
+        new Date(a.created_timestamp).getTime()
+      );
+    });
+    return projections;
   }
 
   async apiCall(
