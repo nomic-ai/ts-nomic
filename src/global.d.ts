@@ -18,6 +18,8 @@ declare namespace Atlas {
   };
   type ProjectionInfo = {
     id: UUID;
+    ready: boolean;
+    created_timestamp: string;
   };
   type IndexInfo = {
     id: UUID;
