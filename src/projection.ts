@@ -14,7 +14,7 @@ type ProjectionInitializationOptions = {
   user?: AtlasUser;
 };
 
-type TagResponse = {
+export type TagResponse = {
   tag_id: UUID;
   tag_definition_id: string;
   tag_name?: string;
@@ -22,19 +22,19 @@ type TagResponse = {
   dsl_rule?: string;
 };
 
-type TagComponent = Record<string, any>;
+export type TagComponent = Record<string, any>;
 
-type TagComposition =
+export type TagComposition =
   | TagComponent
   | ['OR' | 'AND' | 'NOT' | 'ANY' | 'ALL', ...TagComposition[]];
 
-type TagRequestOptions = {
+export type TagRequestOptions = {
   tag_name?: string;
   dsl_rule?: TagComposition;
   tag_id?: UUID;
 };
 
-type TagMaskRequestOptions = {
+export type TagMaskRequestOptions = {
   tag_name?: string;
   dsl_rule?: TagComposition;
   tag_id?: UUID;
@@ -42,12 +42,16 @@ type TagMaskRequestOptions = {
   complete?: boolean;
 };
 
-type TagDefinition = {
+export type GetTagsOptions = {
+  include_dsl?: boolean;
+};
+
+export type TagDefinition = {
   tag_definition_id: string;
   dsl_json: string;
 };
 
-type TagStatus = {
+export type TagStatus = {
   is_complete: boolean;
 };
 
@@ -163,11 +167,15 @@ export class AtlasProjection extends BaseAtlasClass {
     await this.apiCall(endpoint, 'POST', data);
   }
 
-  async getTags(): Promise<Array<TagResponse>> {
+  async getTags(options: GetTagsOptions): Promise<Array<TagResponse>> {
     const endpoint = '/v1/project/projection/tags/get/all';
+    const { include_dsl } = options;
     const params = new URLSearchParams({
       project_id: this.project_id,
       projection_id: this.id,
+      include_dsl: JSON.stringify(
+        include_dsl === undefined ? true : include_dsl
+      ),
     }).toString();
     return this.apiCall(`${endpoint}?${params}`, 'GET') as Promise<
       Array<TagResponse>
