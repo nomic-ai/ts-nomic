@@ -34,7 +34,7 @@ type TagRequestOptions = {
   tag_id: UUID;
 };
 
-type UpdateTagOptions =
+export type UpdateTagOptions =
   | {
       tag_id: UUID;
       dsl_rule: TagComposition;
@@ -48,6 +48,11 @@ type UpdateTagOptions =
       dsl_rule: never;
     };
 
+export type UpdateTagMaskOptions = {
+  tag_id: UUID;
+  tag_definition_id: string;
+  complete: boolean | undefined;
+};
 type CreateTagOptions = {
   tag_name: string;
   dsl_rule: TagComposition;
@@ -192,23 +197,16 @@ export class AtlasProjection extends BaseAtlasClass {
 
   async updateTagMask(
     bitmask_bytes: Uint8Array,
-    options: TagMaskRequestOptions
+    options: UpdateTagMaskOptions
   ): Promise<void> {
     const endpoint = '/v1/project/projection/tags/update/mask';
-    const { tag_id, dsl_rule, tag_definition_id, complete } = options;
+    const { tag_id, tag_definition_id, complete } = options;
 
     // Upsert tag mask with tag definition id
     let post_tag_definition_id = tag_definition_id;
 
     if (tag_definition_id === undefined) {
-      if (dsl_rule !== undefined) {
-        let tag_definition = this._generate_tag_definition_id(
-          dsl_rule as TagComposition
-        );
-        post_tag_definition_id = tag_definition.tag_definition_id;
-      } else {
-        throw new Error('tag_definition_id or dsl_rule is required');
-      }
+      throw new Error('tag_definition_id or dsl_rule is required');
     }
 
     // Deserialize the bitmask
@@ -222,7 +220,6 @@ export class AtlasProjection extends BaseAtlasClass {
     );
     bitmask.schema.metadata.set('complete', JSON.stringify(!!complete));
     const fields = bitmask.schema.fields;
-
     const bitmask_column = fields.find((f) => f.name === 'bitmask');
     if (!bitmask_column || bitmask_column.type.id === Type.List) {
       throw new Error('bitmask column of type list not found');
