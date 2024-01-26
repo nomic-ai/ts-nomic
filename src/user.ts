@@ -58,6 +58,14 @@ async function get_access_token(
     );
   }
 
+  if (apiKey.startsWith('nk-')) {
+    const tokenInfo: Credentials = {
+      token: apiKey,
+      refresh_token: null,
+      expires: Date.now() + 80000,
+    };
+    return tokenInfo;
+  }
   const protocol = apiLocation.startsWith('localhost') ? 'http' : 'https';
 
   const response = await fetch(
