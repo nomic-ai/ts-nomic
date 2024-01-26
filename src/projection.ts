@@ -58,15 +58,6 @@ type CreateTagOptions = {
   dsl_rule: TagComposition;
   tag_definition_id: string;
 };
-//
-type TagMaskRequestOptions = {
-  tag_name: string;
-  dsl_rule: TagComposition;
-  tag_id: UUID;
-  tag_definition_id: string;
-  // Does this post indicate completion of the tag?
-  complete?: boolean;
-};
 
 type TagDefinition = {
   tag_definition_id: string;
