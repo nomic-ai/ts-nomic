@@ -1,3 +1,8 @@
+# 0.8.0
+
+- Support new Nomic API keys for requests.
+- Improved support of tagging.
+
 # 0.7.0
 
 - Methods for creating, updating, deleting tags and tag masks

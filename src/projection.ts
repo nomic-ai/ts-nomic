@@ -29,16 +29,37 @@ type TagComposition =
   | ['OR' | 'AND' | 'NOT' | 'ANY' | 'ALL', ...TagComposition[]];
 
 type TagRequestOptions = {
-  tag_name?: string;
-  dsl_rule?: TagComposition;
-  tag_id?: UUID;
+  tag_name: string;
+  dsl_rule: TagComposition;
+  tag_id: UUID;
 };
 
+type UpdateTagOptions =
+  | {
+      tag_id: UUID;
+      dsl_rule: TagComposition;
+      tag_definition_id: string;
+      tag_name: never;
+    }
+  | {
+      tag_id: UUID;
+      tag_name: string;
+      tag_definition_id: never;
+      dsl_rule: never;
+    };
+
+type CreateTagOptions = {
+  tag_name: string;
+  dsl_rule: TagComposition;
+  tag_definition_id: string;
+};
+//
 type TagMaskRequestOptions = {
-  tag_name?: string;
-  dsl_rule?: TagComposition;
-  tag_id?: UUID;
-  tag_definition_id?: string;
+  tag_name: string;
+  dsl_rule: TagComposition;
+  tag_id: UUID;
+  tag_definition_id: string;
+  // Does this post indicate completion of the tag?
   complete?: boolean;
 };
 
@@ -83,15 +104,9 @@ export class AtlasProjection extends BaseAtlasClass {
     }
   }
 
-  private _generate_tag_definition_id(dsl_rule: TagComposition): TagDefinition {
-    const dsl_json = JSON.stringify(dsl_rule);
-    const tag_definition_id = Md5.hashStr(dsl_json);
-    return { tag_definition_id, dsl_json };
-  }
-
-  async createTag(options: TagRequestOptions): Promise<TagResponse> {
+  async createTag(options: CreateTagOptions): Promise<TagResponse> {
     const endpoint = '/v1/project/projection/tags/create';
-    const { tag_name, dsl_rule } = options;
+    const { tag_name, dsl_rule, tag_definition_id } = options;
 
     if (tag_name === undefined) {
       throw new Error('tag_name is required');
@@ -101,14 +116,10 @@ export class AtlasProjection extends BaseAtlasClass {
       throw new Error('dsl_rule is required');
     }
 
-    const { tag_definition_id, dsl_json } = this._generate_tag_definition_id(
-      dsl_rule as TagComposition
-    );
-
     const data = {
       project_id: this.project_id,
       tag_name,
-      dsl_rule: dsl_json,
+      dsl_rule: JSON.stringify(dsl_rule),
       projection_id: this.id,
       tag_definition_id,
     };
@@ -121,33 +132,25 @@ export class AtlasProjection extends BaseAtlasClass {
     return response;
   }
 
-  async updateTag(options: TagRequestOptions): Promise<TagResponse> {
+  async updateTag(options: UpdateTagOptions): Promise<TagResponse> {
     const endpoint = '/v1/project/projection/tags/update';
-    const { tag_name, dsl_rule, tag_id } = options;
+    const { tag_name, dsl_rule, tag_id, tag_definition_id } = options;
     if (tag_id === undefined) {
       throw new Error('tag_id is required');
     }
 
-    let tag_definition_id: undefined | string = undefined;
-    let dsl_json: undefined | string = undefined;
+    const dsl_json =
+      dsl_rule === undefined ? undefined : JSON.stringify(dsl_rule);
 
-    if (dsl_rule !== undefined) {
-      let tag_definition = this._generate_tag_definition_id(
-        dsl_rule as TagComposition
-      );
-      tag_definition_id = tag_definition.tag_definition_id;
-      dsl_json = tag_definition.dsl_json;
-    }
-
-    const data = {
-      project_id: this.project_id,
+    const request = {
       tag_id,
       tag_name,
       dsl_rule: dsl_json,
       tag_definition_id,
+      projection_id: this.id,
     };
 
-    return this.apiCall(endpoint, 'POST', data) as Promise<TagResponse>;
+    return this.apiCall(endpoint, 'POST', request) as Promise<TagResponse>;
   }
 
   async deleteTag(options: TagRequestOptions): Promise<void> {
