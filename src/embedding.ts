@@ -83,12 +83,14 @@ export async function embed(
  * }
  * ```
  */
+
 export class Embedder extends BaseAtlasClass {
   model: EmbeddingModel;
   embedQueue: [string, (embedding: number[]) => void, (error: any) => void][] =
     [];
   tokensUsed = 0;
-  nextScheduledYield: number = Date.now();
+  // Track how many times we've failed recently and use it to schedule backoff.
+  private consecutiveFailures: number = 0;
   nextScheduledFlush: null | unknown; // `Timeout` is a little weird to simultaneously type in node and browser, so I'm just calling it unknown
 
   // A wrapper around embedding API calls that handles authentication
