@@ -147,7 +147,6 @@ export class AtlasProjection extends BaseAtlasClass {
       tag_name,
       dsl_rule: dsl_json,
       tag_definition_id,
-      projection_id: this.id,
     };
 
     return this.apiCall(endpoint, 'POST', request) as Promise<TagResponse>;
