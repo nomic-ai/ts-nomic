@@ -270,7 +270,9 @@ export class AtlasUser {
     payload: Atlas.Payload = null,
     headers: null | Record<string, string> = null,
     options: ApiCallOptions = { octetStreamAsUint8: false }
-  ): Promise<Record<string, any> | string | Array<any> | Table | Uint8Array> {
+  ): Promise<
+    Record<string, any> | string | Array<any> | Table | Uint8Array | null
+  > {
     // make an API call
 
     if (headers === null) {
@@ -344,6 +346,9 @@ export class AtlasUser {
         // It's not Arrow.
         returnval = view;
       }
+    } else if (response.headers.get('Content-Type') === null) {
+      // Successful deletion attempts return this.
+      return null;
     } else {
       throw new Error(
         `Unknown response type: ${response.headers.get('Content-Type')}`
