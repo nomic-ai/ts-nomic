@@ -1,5 +1,29 @@
-import { AtlasOrganization, OrganizationProjectInfo } from './organization.js';
+import type { OrganizationProjectInfo } from './organization.js';
 import { Table, tableFromIPC } from 'apache-arrow';
+
+export const isNode =
+  typeof process !== 'undefined' && process.versions && process.versions.node;
+
+export abstract class BaseAtlasClass {
+  user: AtlasUser;
+  constructor(user?: AtlasUser) {
+    if (user === undefined) {
+      this.user = get_env_user();
+    } else {
+      this.user = user;
+    }
+  }
+
+  async apiCall(
+    endpoint: string,
+    method: 'GET' | 'POST',
+    payload: Atlas.Payload = null,
+    headers: null | Record<string, string> = null
+  ) {
+    // make an API call
+    return this.user.apiCall(endpoint, method, payload, headers);
+  }
+}
 
 export class APIError extends Error {
   status: number;
@@ -240,6 +264,9 @@ export class AtlasUser {
     if (role !== null) {
       organizations = organizations.filter((org) => org.access_role === role);
     }
+    const AtlasOrganization = await import('./organization.js').then(
+      (d) => d.AtlasOrganization
+    );
     return organizations.map(
       (org) => new AtlasOrganization(org.organization_id, this)
     );

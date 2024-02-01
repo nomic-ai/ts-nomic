@@ -1,10 +1,9 @@
 import type { Schema, Table } from 'apache-arrow';
 import type { ApiCallOptions } from './user.js';
 import { tableToIPC, tableFromJSON, tableFromIPC } from 'apache-arrow';
-import { AtlasUser, get_env_user } from './user.js';
+import { AtlasUser, get_env_user, BaseAtlasClass } from './user.js';
 import { AtlasIndex } from './index.js';
 // get the API key from the node environment
-import { BaseAtlasClass } from './general.js';
 import { OrganizationProjectInfo } from 'organization.js';
 type UUID = string;
 

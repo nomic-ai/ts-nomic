@@ -1,10 +1,16 @@
-import { BaseAtlasClass } from 'general';
-import { AtlasUser } from 'user';
+import { BaseAtlasClass, AtlasUser } from './user.js';
 
 type EmbedderOptions = {
   // The embedding endpoint
   model?: 'nomic-embed-text-v1';
   maxTokens?: number;
+  // The prompt prefix to include in the request.
+  prefix?: string;
+  taskType?:
+    | 'search_document'
+    | 'search_query'
+    | 'clustering'
+    | 'classification';
 };
 
 type EmbeddingModel = 'nomic-embed-text-v1';
@@ -20,28 +26,9 @@ type NomicEmbedResponse = {
   model: EmbeddingModel;
 };
 
-const BATCH_SIZE = 128;
-
-export async function embed(value: string, apiKey: string): Promise<number[]>;
-export async function embed(
-  values: string[],
-  apiKey: string
-): Promise<number[][]>;
-
-export async function embed(
-  value: string | string[],
-  apiKey: string
-): Promise<number[] | number[][]> {
-  const machine = new Embedder(apiKey, {});
-
-  if (typeof value === 'string') {
-    // Handle the case where value is a single string
-    return machine.embed([value]).then((arrays) => arrays[0]);
-  } else {
-    // Handle the case where value is an array of strings
-    return machine.embed(value);
-  }
-}
+// Aaron says that it gets chopped up maybe even smaller than this,
+// so requests.
+const BATCH_SIZE = 32;
 
 /**
  * A class that pools and runs requests to the Nomic embedding API.
@@ -90,8 +77,10 @@ export class Embedder extends BaseAtlasClass {
     [];
   tokensUsed = 0;
   // Track how many times we've failed recently and use it to schedule backoff.
-  private consecutiveFailures: number = 0;
-  nextScheduledFlush: null | unknown; // `Timeout` is a little weird to simultaneously type in node and browser, so I'm just calling it unknown
+  private backoff: number | null = null;
+  private backoffScheduled = new Date();
+  private epitaph?: Error;
+  private nextScheduledFlush: null | unknown = null; // `Timeout` is a little weird to simultaneously type in node and browser, so I'm just calling it unknown
 
   // A wrapper around embedding API calls that handles authentication
   // and pools requests in a way that is likely to succeed.
@@ -102,8 +91,8 @@ export class Embedder extends BaseAtlasClass {
    * @param user (Optionally)
    * @param options
    */
-  constructor(apiKey: string, options: EmbedderOptions | undefined);
-  constructor(user: AtlasUser, options: EmbedderOptions | undefined);
+  constructor(apiKey: string, options: EmbedderOptions);
+  constructor(user: AtlasUser, options: EmbedderOptions);
   constructor(input: string | AtlasUser, options: EmbedderOptions = {}) {
     let { model, maxTokens } = options;
 
@@ -134,14 +123,6 @@ export class Embedder extends BaseAtlasClass {
     return this.apiCall('/v1/embedding/text', 'POST', {
       model: this.model,
       texts: values,
-    }).catch((error) => {
-      if (('' + error).match(/500/) && tryNumber < 5) {
-        return new Promise((resolve) => {
-          // backoff of [1s, 2s, 4s, 8s] before permanent failure.
-          setTimeout(resolve, 2 ** tryNumber * 1000);
-        }).then(() => this._embed(values, tryNumber + 1));
-      }
-      throw error;
     }) as Promise<NomicEmbedResponse>;
   }
 
@@ -150,18 +131,44 @@ export class Embedder extends BaseAtlasClass {
     if (this.embedQueue.length === 0) {
       return;
     }
+
     // Batch into groups of 128 and send them into the cloud.
     for (let i = 0; i < this.embedQueue.length; i += BATCH_SIZE) {
       const toEmbed = this.embedQueue.slice(i, i + BATCH_SIZE);
-      this._embed(toEmbed.map((d) => d[0])).then(({ embeddings, usage }) => {
-        // iterate over the returned embeddings for the batch and resolve the
-        // associated promises.
-        for (let i = 0; i < embeddings.length; i++) {
-          // Resolve all the associated promises.
-          toEmbed[i][1](embeddings[i]);
-        }
-        this.tokensUsed += usage.total_tokens;
-      });
+      this._embed(toEmbed.map((d) => d[0]))
+        .then(({ embeddings, usage }) => {
+          // iterate over the returned embeddings for the batch and resolve the
+          // associated promises.
+          for (let i = 0; i < embeddings.length; i++) {
+            // Resolve all the associated promises.
+            toEmbed[i][1](embeddings[i]);
+          }
+          this.tokensUsed += usage.total_tokens;
+        })
+        .catch((err) => {
+          // TODO: -- not the right way to test the error type!
+          if (('' + err).match(/50[0-9]/)) {
+            this.embedQueue = [...toEmbed, ...this.embedQueue];
+            if (this.backoff && this.backoff > 8000) {
+              this.epitaph = new Error(
+                'Too many requests have failed, disabling embedder. Please try again later.'
+              );
+            }
+            this.backoff = this.backoff ? this.backoff * 2 : 1000;
+          } else {
+            // Propagate the error to the user for each text.
+            for (let [text, resolve, reject] of toEmbed) {
+              const failure = new Error(
+                `Embedding call for string ${text.slice(
+                  0,
+                  30
+                )}... failed with error ${err}`
+              );
+              reject(failure);
+            }
+          }
+          // Put them back onto the front of the queue.
+        });
     }
     this.embedQueue.length = 0;
   }
@@ -192,7 +199,11 @@ export class Embedder extends BaseAtlasClass {
   async embed(value: string | string[]): Promise<number[] | number[][]> {
     // Determine if the input is a single string or an array of strings
     const isSingleString = typeof value === 'string';
-
+    if (this.epitaph) {
+      throw new Error(
+        `This embedder has permanently failed with error ${this.epitaph} `
+      );
+    }
     // If it's a single string, wrap it in an array for consistent processing
     const values = isSingleString ? [value] : value;
 
@@ -203,9 +214,11 @@ export class Embedder extends BaseAtlasClass {
     });
 
     this.periodicallyFlushCache();
-
     // Wait for all promises to resolve
-    const results = await Promise.all(promises);
+    const results = await Promise.all(promises).catch((err) => {
+      console.warn(err);
+      return [[1]];
+    });
 
     // If the input was a single string, return the first element of the results
     if (isSingleString) {
@@ -214,5 +227,36 @@ export class Embedder extends BaseAtlasClass {
 
     // Otherwise, return the full array of results
     return results;
+  }
+}
+
+export async function embed(
+  value: string,
+  options: EmbedderOptions,
+  apiKey: string | undefined
+): Promise<number[]>;
+
+export async function embed(
+  values: string[],
+  options: EmbedderOptions,
+  apiKey: string | undefined
+): Promise<number[][]>;
+
+export async function embed(
+  value: string | string[],
+  options: EmbedderOptions = {},
+  apiKey: string | undefined
+): Promise<number[] | number[][]> {
+  const machine =
+    apiKey === undefined
+      ? new Embedder(new AtlasUser({ useEnvToken: true }), {})
+      : new Embedder(apiKey, {});
+
+  if (typeof value === 'string') {
+    // Handle the case where value is a single string
+    return machine.embed([value]).then((arrays) => arrays[0]);
+  } else {
+    // Handle the case where value is an array of strings
+    return machine.embed(value);
   }
 }
