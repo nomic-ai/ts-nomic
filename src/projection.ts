@@ -34,6 +34,10 @@ type TagRequestOptions = {
   tag_id: UUID;
 };
 
+type RoboTagOptions = {
+  tag_id: UUID;
+};
+
 export type UpdateTagOptions =
   | {
       tag_id: UUID;
@@ -143,7 +147,6 @@ export class AtlasProjection extends BaseAtlasClass {
       tag_name,
       dsl_rule: dsl_json,
       tag_definition_id,
-      projection_id: this.id,
     };
 
     return this.apiCall(endpoint, 'POST', request) as Promise<TagResponse>;
@@ -223,6 +226,17 @@ export class AtlasProjection extends BaseAtlasClass {
     const serialized = tableToIPC(bitmask, 'file');
     await this.apiCall(endpoint, 'POST', serialized);
   }
+
+  async roboTag(options: RoboTagOptions): Promise<void> {
+    const { tag_id } = options;
+    const request = {
+      tag_id,
+      project_id: this.project_id,
+    };
+    const endpoint = '/v1/project/projection/tags/robotag';
+    await this.apiCall(endpoint, 'POST', request);
+  }
+
   _schema: Uint8Array | null = null;
 
   async schema(): Promise<Uint8Array> {
