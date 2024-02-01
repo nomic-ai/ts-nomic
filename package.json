@@ -5,6 +5,7 @@
   "files": [
     "dist"
   ],
+  "license": "MIT",
   "module": "./dist/main.js",
   "types": "./dist/main.d.ts",
   "exports": {
