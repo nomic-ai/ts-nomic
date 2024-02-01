@@ -15,10 +15,10 @@ type EmbedderOptions = {
 
 type EmbeddingModel = 'nomic-embed-text-v1';
 
-type Embedding = number[][];
+type Embedding = number[];
 
 type NomicEmbedResponse = {
-  embeddings: Embedding;
+  embeddings: Embedding[];
   usage: {
     prompt_tokens: number;
     total_tokens: number;
@@ -73,7 +73,7 @@ const BATCH_SIZE = 32;
 
 export class Embedder extends BaseAtlasClass {
   model: EmbeddingModel;
-  embedQueue: [string, (embedding: number[]) => void, (error: any) => void][] =
+  embedQueue: [string, (embedding: Embedding) => void, (error: any) => void][] =
     [];
   tokensUsed = 0;
   // Track how many times we've failed recently and use it to schedule backoff.
@@ -94,7 +94,7 @@ export class Embedder extends BaseAtlasClass {
   constructor(apiKey: string, options: EmbedderOptions);
   constructor(user: AtlasUser, options: EmbedderOptions);
   constructor(input: string | AtlasUser, options: EmbedderOptions = {}) {
-    let { model, maxTokens } = options;
+    let { model } = options;
 
     if (model === undefined) {
       model = 'nomic-embed-text-v1';
@@ -116,10 +116,7 @@ export class Embedder extends BaseAtlasClass {
     this.model = model;
   }
 
-  private async _embed(
-    values: string[],
-    tryNumber: number = 1
-  ): Promise<NomicEmbedResponse> {
+  private async _embed(values: string[]): Promise<NomicEmbedResponse> {
     return this.apiCall('/v1/embedding/text', 'POST', {
       model: this.model,
       texts: values,
@@ -193,10 +190,10 @@ export class Embedder extends BaseAtlasClass {
     }
   }
 
-  async embed(value: string): Promise<number[]>;
-  async embed(value: string[]): Promise<number[][]>;
+  async embed(value: string): Promise<Embedding>;
+  async embed(value: string[]): Promise<Embedding[]>;
 
-  async embed(value: string | string[]): Promise<number[] | number[][]> {
+  async embed(value: string | string[]): Promise<Embedding | Embedding[]> {
     // Determine if the input is a single string or an array of strings
     const isSingleString = typeof value === 'string';
     if (this.epitaph) {
@@ -208,7 +205,7 @@ export class Embedder extends BaseAtlasClass {
     const values = isSingleString ? [value] : value;
 
     const promises = values.map((string) => {
-      return new Promise<number[]>((resolve, reject) => {
+      return new Promise<Embedding>((resolve, reject) => {
         this.embedQueue.push([string, resolve, reject]);
       });
     });
@@ -234,19 +231,19 @@ export async function embed(
   value: string,
   options: EmbedderOptions,
   apiKey: string | undefined
-): Promise<number[]>;
+): Promise<Embedding>;
 
 export async function embed(
   values: string[],
   options: EmbedderOptions,
   apiKey: string | undefined
-): Promise<number[][]>;
+): Promise<Embedding[]>;
 
 export async function embed(
   value: string | string[],
   options: EmbedderOptions = {},
   apiKey: string | undefined
-): Promise<number[] | number[][]> {
+): Promise<Embedding | Embedding[]> {
   const machine =
     apiKey === undefined
       ? new Embedder(new AtlasUser({ useEnvToken: true }), {})
