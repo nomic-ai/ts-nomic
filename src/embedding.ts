@@ -70,15 +70,18 @@ const BATCH_SIZE = 32;
  * }
  * ```
  */
-
 export class Embedder extends BaseAtlasClass {
   model: EmbeddingModel;
-  embedQueue: [string, (embedding: Embedding) => void, (error: any) => void][] =
-    [];
+  // A container of strings and their promise rejections/resolutions. It serves to pool requests
+  // together.
+  private embedQueue: [
+    string,
+    (embedding: Embedding) => void,
+    (error: any) => void
+  ][] = [];
   tokensUsed = 0;
   // Track how many times we've failed recently and use it to schedule backoff.
   private backoff: number | null = null;
-  private backoffScheduled = new Date();
   private epitaph?: Error;
   private nextScheduledFlush: null | unknown = null; // `Timeout` is a little weird to simultaneously type in node and browser, so I'm just calling it unknown
 
@@ -246,8 +249,8 @@ export async function embed(
 ): Promise<Embedding | Embedding[]> {
   const machine =
     apiKey === undefined
-      ? new Embedder(new AtlasUser({ useEnvToken: true }), {})
-      : new Embedder(apiKey, {});
+      ? new Embedder(new AtlasUser({ useEnvToken: true }), options)
+      : new Embedder(apiKey, options);
 
   if (typeof value === 'string') {
     // Handle the case where value is a single string
