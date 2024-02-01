@@ -10,18 +10,22 @@ Quick start:
 ```js
 import { embed } from '@nomic-ai/atlas';
 
-embed(
-  [
-    'so much depends upon',
-    'a red wheel barrow',
-    'glazed with rain water',
-    'beside the white chickens',
-  ],
-  `nk-123456789`
-).then((embeddings) => console.log({ embeddings }));
+embed(['so much depends upon', 'a red wheel barrow'], `nk-123456789`).then(
+  (embeddings) => console.log({ embeddings })
+);
 ```
 
-## Using API keys
+or if your key is already in an environment variable at ATLAS_API_KEY:
+
+```js
+import { embed } from '@nomic-ai/atlas';
+
+embed(['glazed with rain water', 'beside the white chickens']).then(
+  (embeddings) => console.log({ embeddings })
+);
+```
+
+## Managing API keys
 
 All operations require a nomic API key linked to your account.
 To generate an API key, visit https://atlas.nomic.ai/ while logged in to your account and click on the API key tab under the organization.
