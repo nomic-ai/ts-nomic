@@ -1,3 +1,7 @@
+# 1.0.0
+
+- Full support of embedding endpoints with API keys.
+
 # 0.8.0
 
 - Support new Nomic API keys for requests.

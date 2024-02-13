@@ -1,5 +1,5 @@
-import { BaseAtlasClass } from './general.js';
-import type { AtlasUser } from 'user.js';
+import { BaseAtlasClass } from './user.js';
+import type { AtlasUser } from './user.js';
 import { AtlasProjection } from './projection.js';
 import { AtlasProject } from './project.js';
 import type { Table } from 'apache-arrow';

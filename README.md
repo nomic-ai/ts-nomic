@@ -1,13 +1,34 @@
 # Nomic-ts
 
 This library provides a TypeScript client for the Nomic API that
-allows you to create, upload to, and download from projects
-hosted at atlas.nomic.ai.
+allows you to work with datasets and embedding models hosted at atlas.nomic.ai.
 
-## Using API keys
+## Quick Start
+
+Quick start:
+
+```js
+import { embed } from '@nomic-ai/atlas';
+
+embed(['so much depends upon', 'a red wheel barrow'], `nk-123456789`).then(
+  (embeddings) => console.log({ embeddings })
+);
+```
+
+or if your key is already in an environment variable at ATLAS_API_KEY:
+
+```js
+import { embed } from '@nomic-ai/atlas';
+
+embed(['glazed with rain water', 'beside the white chickens']).then(
+  (embeddings) => console.log({ embeddings })
+);
+```
+
+## Managing API keys
 
 All operations require a nomic API key linked to your account.
-To generate an API key, visit https://atlas.nomic.ai/cli-login while logged in to your account.
+To generate an API key, visit https://atlas.nomic.ai/ while logged in to your account and click on the API key tab under the organization.
 
 ### API key as env variable
 

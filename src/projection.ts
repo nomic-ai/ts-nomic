@@ -1,6 +1,5 @@
-import { Md5 } from 'ts-md5';
 import { Schema, Type, tableFromIPC, tableToIPC } from 'apache-arrow';
-import { BaseAtlasClass } from './general.js';
+import { BaseAtlasClass } from './user.js';
 import type { AtlasUser } from './user.js';
 import { AtlasProject } from './project.js';
 import type { AtlasIndex } from './index.js';
