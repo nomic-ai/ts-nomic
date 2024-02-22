@@ -6,6 +6,9 @@ import type { AtlasIndex } from './index.js';
 
 type UUID = string;
 
+export type DeleteTagRequest = {
+  tag_id: UUID;
+};
 type ProjectionInitializationOptions = {
   project?: AtlasProject;
   index?: AtlasIndex;
@@ -22,6 +25,13 @@ type TagResponse = {
 };
 
 type TagComponent = Record<string, any>;
+export type TagMaskOperation =
+  | 'OR'
+  | 'AND'
+  | 'UPSERT'
+  | 'NOOP'
+  | 'ALLSET_TRUE'
+  | 'ALLSET_FALSE';
 
 type TagComposition =
   | TagComponent
@@ -151,7 +161,7 @@ export class AtlasProjection extends BaseAtlasClass {
     return this.apiCall(endpoint, 'POST', request) as Promise<TagResponse>;
   }
 
-  async deleteTag(options: TagRequestOptions): Promise<void> {
+  async deleteTag(options: DeleteTagRequest): Promise<void> {
     const endpoint = '/v1/project/projection/tags/delete';
     const { tag_id } = options;
     if (tag_id === undefined) {
