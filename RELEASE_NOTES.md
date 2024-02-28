@@ -1,4 +1,13 @@
-# 1.0.0
+# 0.9.2
+
+- Support for different embedding tasks
+- Support for nomic-embed-text-v1.5
+
+# 0.9.1
+
+- Minor patch
+
+# 0.9.0
 
 - Full support of embedding endpoints with API keys.
 

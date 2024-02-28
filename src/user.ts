@@ -378,7 +378,7 @@ export class AtlasUser {
       return null;
     } else {
       throw new Error(
-        `Unknown response type: ${response.headers.get('Content-Type')}`
+        `Unknown unhandled type: ${response.headers.get('Content-Type')}`
       );
     }
     return returnval;

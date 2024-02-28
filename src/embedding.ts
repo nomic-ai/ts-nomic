@@ -1,19 +1,20 @@
 import { BaseAtlasClass, AtlasUser } from './user.js';
 
+type TaskType =
+  | 'search_document'
+  | 'search_query'
+  | 'clustering'
+  | 'classification';
 type EmbedderOptions = {
   // The embedding endpoint
-  model?: 'nomic-embed-text-v1';
+  model?: EmbeddingModel;
   maxTokens?: number;
   // The prompt prefix to include in the request.
-  prefix?: string;
-  taskType?:
-    | 'search_document'
-    | 'search_query'
-    | 'clustering'
-    | 'classification';
+  // prefix?: string;
+  taskType?: TaskType;
 };
 
-type EmbeddingModel = 'nomic-embed-text-v1';
+type EmbeddingModel = 'nomic-embed-text-v1' | 'nomic-embed-text-v1.5';
 
 type Embedding = number[];
 
@@ -26,8 +27,8 @@ type NomicEmbedResponse = {
   model: EmbeddingModel;
 };
 
-// Aaron says that it gets chopped up maybe even smaller than this,
-// so requests.
+// Uploads on the server may be batched even smaller than this, so there
+// are probably not advantages to making this number larger.
 const BATCH_SIZE = 32;
 
 /**
@@ -80,6 +81,7 @@ export class Embedder extends BaseAtlasClass {
     (error: any) => void
   ][] = [];
   tokensUsed = 0;
+  taskType: TaskType;
   // Track how many times we've failed recently and use it to schedule backoff.
   private backoff: number | null = null;
   private epitaph?: Error;
@@ -97,15 +99,12 @@ export class Embedder extends BaseAtlasClass {
   constructor(apiKey: string, options: EmbedderOptions);
   constructor(user: AtlasUser, options: EmbedderOptions);
   constructor(input: string | AtlasUser, options: EmbedderOptions = {}) {
-    let { model } = options;
-
-    if (model === undefined) {
-      model = 'nomic-embed-text-v1';
-    }
-    if (model !== 'nomic-embed-text-v1') {
-      throw new Error('unsupported model');
-    }
-
+    const { model, taskType } = {
+      // Defaults
+      model: 'nomic-embed-text-v1.5' as EmbeddingModel,
+      taskType: 'search_document' as TaskType,
+      ...options,
+    };
     let user: AtlasUser;
     if (typeof input === 'string') {
       user = new AtlasUser({
@@ -117,11 +116,13 @@ export class Embedder extends BaseAtlasClass {
     // Handle authentication the normal way.
     super(user);
     this.model = model;
+    this.taskType = taskType;
   }
 
   private async _embed(values: string[]): Promise<NomicEmbedResponse> {
     return this.apiCall('/v1/embedding/text', 'POST', {
       model: this.model,
+      task_type: this.taskType,
       texts: values,
     }) as Promise<NomicEmbedResponse>;
   }
