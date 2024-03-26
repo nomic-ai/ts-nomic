@@ -1,3 +1,7 @@
+# 0.9.3
+
+- Change default projection hyperparameters.
+
 # 0.9.2
 
 - Support for different embedding tasks

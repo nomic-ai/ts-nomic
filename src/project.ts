@@ -259,8 +259,8 @@ export class AtlasProject extends BaseAtlasClass {
       }),
       projection: 'NomicProject',
       projection_hyperparameters: JSON.stringify({
-        n_neighbors: 64,
-        n_epochs: 64,
+        n_neighbors: 15,
+        n_epochs: 50,
         spread: 1,
       }),
       topic_model_hyperparameters: JSON.stringify({
