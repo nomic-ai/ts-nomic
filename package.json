@@ -23,7 +23,8 @@
     "build:watch": "tsc -w",
     "prepublish": "npm run build",
     "precommit": "pretty-quick --staged",
-    "prepare": "husky install .husky"
+    "prepare": "husky install .husky",
+    "build-api-types": "curl -o ./src/types/api/openapi.json https://staging-api-atlas.nomic.ai/v1/api-reference/openapi.json && npx openapi-typescript ./src/types/api/openapi.json -o ./src/types/api/api-raw-types.d.ts  --empty-objects-unknown"
   },
   "devDependencies": {
     "@auth0/auth0-react": "^2.1.1",

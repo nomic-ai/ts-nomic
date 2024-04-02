@@ -22,17 +22,6 @@ interface AddDataOptions {
   embeddings?: EmbeddingType;
 }
 
-type IndexCreateOptions = {
-  project_id: UUID;
-  index_name: string;
-  indexed_field?: string;
-  colorable_fields?: string[];
-  multilingual?: boolean;
-  build_topic_model?: boolean;
-  topic_label_field?: string;
-  duplicate_detection?: boolean;
-};
-
 type GeometryStrategy = 'document';
 type AtomizerStrategy = 'document' | 'charchunk';
 type Model = 'NomicEmbed' | 'NomicEmbedMultilingual';
@@ -201,10 +190,9 @@ export class AtlasProject extends BaseAtlasClass {
    * @param rebuild_topic_models If true, rebuilds topic models for all indices.
    */
   async update_indices(rebuild_topic_models: boolean = false): Promise<void> {
-    await this.apiCall(`/v1/project/update_indices`, 'POST', {
-      project_id: this.id,
-      rebuild_topic_models: rebuild_topic_models,
-    });
+    throw new Error(
+      'Update_indices has been deprecated: please run `create_index` on an existing project instead.'
+    );
   }
 
   async add_text(records: Record<string, string>[]): Promise<void> {
@@ -230,6 +218,8 @@ export class AtlasProject extends BaseAtlasClass {
   ): Promise<AtlasIndex> {
     const info = await this.info();
     const isText = info.modality === 'text';
+
+    const hyperparameters: Partial<NomicProjectHyperparameters> = {};
     // TODO: Python version has a number of asserts here - should we replicate?
     const fields: CreateAtlasIndexRequest = {
       project_id: this.id,
@@ -339,3 +329,15 @@ export class AtlasProject extends BaseAtlasClass {
   }
   */
 }
+
+type NomicProjectHyperparameters = {
+  index_n_neighbors: number; // = 15  // number of neighbors to search and create affinity matrix in case of nomic-project-v2
+  n_neighbors: number; // = 15  // actually used during optimization process
+  n_epochs: number; // = 50;
+  spread: number; // = 1.0;
+  n_noise: number; // | undefined; // = None
+  min_dist: number; // = 0.4;
+  n_init_epochs: number; // = 20;
+  model: 'nomic-project-v1' | 'nomic-project-v2'; // = "nomic-project-v1";
+  rho: number; // = 0.0;
+};
