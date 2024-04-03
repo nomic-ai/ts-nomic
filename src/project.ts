@@ -201,10 +201,9 @@ export class AtlasProject extends BaseAtlasClass {
    * @param rebuild_topic_models If true, rebuilds topic models for all indices.
    */
   async update_indices(rebuild_topic_models: boolean = false): Promise<void> {
-    await this.apiCall(`/v1/project/update_indices`, 'POST', {
-      project_id: this.id,
-      rebuild_topic_models: rebuild_topic_models,
-    });
+    throw new Error(
+      'Update_indices has been deprecated: please run `createIndex` on an existing project instead.'
+    );
   }
 
   async add_text(records: Record<string, string>[]): Promise<void> {
