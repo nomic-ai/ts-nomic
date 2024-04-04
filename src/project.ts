@@ -270,8 +270,8 @@ export class AtlasProject extends BaseAtlasClass {
       }),
       duplicate_detection_hyperparameters: isText
         ? JSON.stringify({
-            duplicate_detection: options.duplicate_detection ?? false,
-            duplicate_threshold: 0.1,
+            tag_duplicates: options.duplicate_detection ?? false,
+            duplicate_cutoff: 0.1,
           })
         : null,
     };
