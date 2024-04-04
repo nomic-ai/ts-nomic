@@ -1,3 +1,11 @@
+# 0.9.5
+
+- Fixed issue with duplicate detection parameters
+
+# 0.9.4
+
+- Deprecated 'update_indices' method
+
 # 0.9.3
 
 - Change default projection hyperparameters.
