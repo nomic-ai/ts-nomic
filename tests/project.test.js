@@ -1,7 +1,7 @@
 import { test } from 'uvu';
 import * as arrow from 'apache-arrow';
 import * as assert from 'uvu/assert';
-import { AtlasProject } from '../dist/project.js';
+import { AtlasDataset } from '../dist/project.js';
 import { make_test_table } from './arrow.test.js';
 import { AtlasProjection } from '../dist/projection.js';
 import { AtlasUser } from '../dist/user.js';
@@ -32,7 +32,7 @@ test('Full project flow', async () => {
   });
   // fetch project from user and project id
   console.log('fetching project');
-  const project2 = new AtlasProject(project.id, user);
+  const project2 = new AtlasDataset(project.id, user);
   assert.is(project2.id, project.id);
   // upload arrow table to project
   console.log('uploading arrow');

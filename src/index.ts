@@ -1,18 +1,18 @@
 import { BaseAtlasClass } from './user.js';
 import type { AtlasUser } from './user.js';
 import { AtlasProjection } from './projection.js';
-import { AtlasProject } from './project.js';
+import { AtlasDataset as AtlasDataset } from './project.js';
 import type { Table } from 'apache-arrow';
 
 type IndexInitializationOptions = {
   project_id?: Atlas.UUID;
-  project?: AtlasProject;
+  project?: AtlasDataset;
 };
 
 export class AtlasIndex extends BaseAtlasClass {
   id: Atlas.UUID;
   _projections?: AtlasProjection[] = undefined;
-  project: AtlasProject;
+  project: AtlasDataset;
 
   constructor(
     id: Atlas.UUID,
@@ -27,7 +27,7 @@ export class AtlasIndex extends BaseAtlasClass {
       throw new Error('project_id or project is required');
     }
     this.project =
-      options.project || new AtlasProject(options.project_id as string, user);
+      options.project || new AtlasDataset(options.project_id as string, user);
     this.id = id;
   }
   /**

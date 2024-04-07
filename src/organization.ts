@@ -1,5 +1,5 @@
 import { AtlasUser, get_env_user } from './user.js';
-import { AtlasProject } from './project.js';
+import { AtlasDataset } from './project.js';
 
 type UUID = string;
 
@@ -44,7 +44,7 @@ export class AtlasOrganization {
     return info.projects;
   }
 
-  async create_project(options: ProjectInitOptions): Promise<AtlasProject> {
+  async create_project(options: ProjectInitOptions): Promise<AtlasDataset> {
     const info = (await this.info()) as OrganizationInfo;
     const user = this.user;
     if (options.unique_id_field === undefined) {
@@ -61,6 +61,6 @@ export class AtlasOrganization {
       ...options,
       organization_id: this.id,
     })) as CreateResponse;
-    return new AtlasProject(data['project_id'], user);
+    return new AtlasDataset(data['project_id'], user);
   }
 }

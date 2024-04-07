@@ -1,7 +1,7 @@
 import { Schema, Type, tableFromIPC, tableToIPC } from 'apache-arrow';
 import { BaseAtlasClass } from './user.js';
 import type { AtlasUser } from './user.js';
-import { AtlasProject } from './project.js';
+import { AtlasDataset } from './project.js';
 import type { AtlasIndex } from './index.js';
 
 type UUID = string;
@@ -10,7 +10,7 @@ export type DeleteTagRequest = {
   tag_id: UUID;
 };
 type ProjectionInitializationOptions = {
-  project?: AtlasProject;
+  project?: AtlasDataset;
   index?: AtlasIndex;
   project_id?: UUID;
   user?: AtlasUser;
@@ -82,7 +82,7 @@ type TagStatus = {
 };
 
 export class AtlasProjection extends BaseAtlasClass {
-  _project?: AtlasProject;
+  _project?: AtlasDataset;
   project_id: UUID;
   _index?: AtlasIndex;
   private _info?: Promise<Record<string, any>>;
@@ -261,9 +261,9 @@ export class AtlasProjection extends BaseAtlasClass {
     return this._schema;
   }
 
-  async project(): Promise<AtlasProject> {
+  async project(): Promise<AtlasDataset> {
     if (this._project === undefined) {
-      this._project = new AtlasProject(this.project_id, this.user);
+      this._project = new AtlasDataset(this.project_id, this.user);
     }
     return this._project;
   }

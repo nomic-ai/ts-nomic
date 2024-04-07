@@ -7,7 +7,7 @@ import { AtlasIndex } from './index.js';
 import { OrganizationProjectInfo } from 'organization.js';
 type UUID = string;
 
-export function load_project(options: Atlas.LoadProjectOptions): AtlasProject {
+export function load_project(options: Atlas.LoadProjectOptions): AtlasDataset {
   throw new Error('Not implemented');
 }
 
@@ -57,11 +57,11 @@ type CreateAtlasIndexRequest = {
 };
 
 /**
- * An AtlasProject represents a single mutable dataset in Atlas. It provides an
+ * An AtlasDataset represents a single mutable dataset in Atlas. It provides an
  * interfaces to upload, update, and delete data, as well as create and delete
  * indices which handle specific views.
  */
-export class AtlasProject extends BaseAtlasClass {
+export class AtlasDataset extends BaseAtlasClass {
   _indices: AtlasIndex[] = [];
   _schema?: Schema | null;
   private _info?: Promise<Atlas.ProjectInfo>;
@@ -73,7 +73,7 @@ export class AtlasProject extends BaseAtlasClass {
    * an existing project, use the create_project or load_project functions.
    * @param user An existing AtlasUser object. If not provided, a new one will be created.
    *
-   * @returns An AtlasProject object.
+   * @returns An AtlasDataset object.
    */
   constructor(id: UUID | string, user?: AtlasUser) {
     super(user);
@@ -140,7 +140,7 @@ export class AtlasProject extends BaseAtlasClass {
     return new Promise((resolve, reject) => {
       const interval = setInterval(async () => {
         // Create a new project to clear the cache.
-        const renewed = new AtlasProject(this.id, this.user);
+        const renewed = new AtlasDataset(this.id, this.user);
         const info = (await renewed.info()) as Atlas.ProjectInfo;
         if (info.insert_update_delete_lock === false) {
           clearInterval(interval);
