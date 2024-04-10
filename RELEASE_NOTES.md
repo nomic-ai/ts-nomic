@@ -1,3 +1,7 @@
+# 0.9.6
+
+- Rename "AtlasProject" to "AtlasDataset" with backwards compatible alias.
+
 # 0.9.5
 
 - Fixed issue with duplicate detection parameters

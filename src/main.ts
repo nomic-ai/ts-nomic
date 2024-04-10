@@ -1,4 +1,5 @@
-export { AtlasProject } from './project.js';
+export { AtlasDataset as AtlasProject } from './project.js';
+export { AtlasDataset } from './project.js';
 export { AtlasUser, APIError } from './user.js';
 export { AtlasOrganization } from './organization.js';
 export { AtlasProjection } from './projection.js';
