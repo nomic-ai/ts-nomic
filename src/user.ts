@@ -4,14 +4,65 @@ import { Table, tableFromIPC } from 'apache-arrow';
 export const isNode =
   typeof process !== 'undefined' && process.versions && process.versions.node;
 
-export abstract class BaseAtlasClass {
+export type LoadedObject<
+  T extends BaseAtlasClass<U>,
+  U extends Record<string, any>
+> = T & { i: U };
+
+export abstract class BaseAtlasClass<InfoType extends Record<string, any>> {
   user: AtlasUser;
+  // To avoid multiple calls, the first request sets the _info property.
+  protected _info: Promise<InfoType> | undefined;
+  // Once info resolves, it populates here.
+  protected _i: InfoType | undefined;
+
   constructor(user?: AtlasUser) {
     if (user === undefined) {
       this.user = get_env_user();
     } else {
       this.user = user;
     }
+  }
+
+  // Defines which endpoint returns the info object.
+  abstract endpoint(): string;
+
+  /**
+   * returns the object's information; this may be undefined
+   */
+  get i() {
+    return this._i;
+  }
+
+  /**
+   * Fetches basic information about the object.
+   * By default, this caches the call; if you want to
+   * bust the cache.
+   *
+   * @param bustCache Whether to refetch the relevant information
+   * @returns A promise that resolves to the organization info.
+   */
+  info(bustCache = false): Promise<InfoType> {
+    if (!bustCache && this._info !== undefined) {
+      return this._info;
+    }
+    this._info = this.user.apiCall(this.endpoint(), 'GET').then((info) => {
+      this._i = info as InfoType;
+      return info;
+    }) as Promise<InfoType>;
+    return this._info;
+  }
+
+  /**
+   * Loads the information associated with the class, removing any
+   * existing caches.
+   *
+   * @returns a LoadedObject instance of the class that is guaranteed to
+   *  have its `i` slot populated with appropriate information.
+   */
+  async load(): Promise<LoadedObject<this, InfoType>> {
+    await this.info(true);
+    return this as LoadedObject<this, InfoType>;
   }
 
   async apiCall(
@@ -191,7 +242,7 @@ export class AtlasUser {
   apiLocation: string;
   _info: Promise<UserInfo> | undefined = undefined;
 
-  /**
+  /**`
    *
    * @param params
    *  An object that corresponds to one of the accepted login methods

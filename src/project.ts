@@ -61,10 +61,9 @@ type CreateAtlasIndexRequest = {
  * interfaces to upload, update, and delete data, as well as create and delete
  * indices which handle specific views.
  */
-export class AtlasDataset extends BaseAtlasClass {
+export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
   _indices: AtlasIndex[] = [];
   _schema?: Schema | null;
-  private _info?: Promise<Atlas.ProjectInfo>;
   id: UUID;
 
   /**
@@ -119,7 +118,7 @@ export class AtlasDataset extends BaseAtlasClass {
     headers: null | Record<string, string> = null,
     options: ApiCallOptions = {}
   ) {
-    const fixedEndpoint = await this._fixEndpointURL(endpoint);
+    const fixedEndpoint = this._fixEndpointURL(endpoint);
     return this.user.apiCall(fixedEndpoint, method, payload, headers, options);
   }
 
@@ -152,27 +151,14 @@ export class AtlasDataset extends BaseAtlasClass {
     });
   }
 
-  project_info() {
-    throw new Error(`This method is deprecated. Use info() instead.`);
+  endpoint() {
+    return `/v1/project/${this.id}`;
   }
 
-  info() {
-    if (this._info !== undefined) {
-      return this._info;
-    }
-    // This call must be on the underlying user object, not the project object,
-    // because otherwise it will infinitely in some downstream calls.
-
-    // stored as a promise so that we don't make multiple calls to the server
-    this._info = this.user
-      // Try the public route first
-      .apiCall(`/v1/project/${this.id}`, 'GET') as Promise<Atlas.ProjectInfo>;
-    return this._info;
-  }
-
-  async _fixEndpointURL(endpoint: string): Promise<string> {
+  _fixEndpointURL(endpoint: string): string {
     // Don't mandate starting with a slash
     if (!endpoint.startsWith('/')) {
+      throw new Error('Must start endpoints with slashes');
       console.warn(`DANGER: endpoint ${endpoint} doesn't start with a slash`);
       endpoint = '/' + endpoint;
     }
@@ -313,6 +299,7 @@ export class AtlasDataset extends BaseAtlasClass {
     if (table instanceof Uint8Array) {
       table = tableFromIPC(table);
     }
+
     table.schema.metadata.set('project_id', this.id);
     table.schema.metadata.set('on_id_conflict_ignore', JSON.stringify(true));
     const data = tableToIPC(table, 'file');
