@@ -1,3 +1,16 @@
+# 0.11.0
+
+- This PR disentangles two concepts in the module:
+
+  1. The AtlasUser in the system, which is a set of information like an e-mail, a name, a profile picture, etc.
+  2. The basket of permissions that we hit the API endpoint with.
+
+  Fusing them together leads to a monstrous solipsism where the AtlasUser cannot imagine any user other than himself. He cannot collaborate with other AtlasUsers unless they give him full access to their APIKeys and authority to hit endpoints with them.
+
+  Following practice at Meta, we introduce a new fundamental class called the `AtlasViewer`, which is the agent making requests. `AtlasUser` is just the person in the system. For the time being `AtlasUser` still accepts keys in its constructor, but it passes them through to the underlying AtlasViewer: this behavior will probably be deprecated in version 1.0.
+
+# 0.10.0
+
 # 0.9.6
 
 - Rename "AtlasProject" to "AtlasDataset" with backwards compatible alias.
