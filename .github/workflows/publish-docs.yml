@@ -6,7 +6,6 @@ permissions:
   checks: write
   deployments: write
   issues: write
-  metadata: read
   packages: read
   pull-requests: write
   statuses: write
