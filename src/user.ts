@@ -1,4 +1,4 @@
-import type { OrganizationProjectInfo } from './organization.js';
+import { components } from 'api-raw-types.js';
 import { Table, tableFromIPC } from 'apache-arrow';
 
 export const isNode =
@@ -298,7 +298,7 @@ export class AtlasUser {
    * @returns All projects that the user has access to.
    */
   async projects() {
-    const all_projects: OrganizationProjectInfo[] = [];
+    const all_projects: components['schemas']['Organization']['projects'] = [];
     for (const org of await this.organizations()) {
       const projects = await org.projects();
       all_projects.push(...projects);

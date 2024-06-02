@@ -3,8 +3,9 @@ import { BaseAtlasClass } from './user.js';
 import type { AtlasUser } from './user.js';
 import { AtlasDataset } from './project.js';
 import type { AtlasIndex } from './index.js';
+import { components } from 'api-raw-types.js';
 
-export type ProjectGetInfo = Record<string, any>;
+export type ProjectGetInfo = components['schemas']['Project'];
 
 type UUID = string;
 
@@ -12,10 +13,17 @@ export type DeleteTagRequest = {
   tag_id: UUID;
 };
 
+/**
+ * Options for initializing a projection.
+ */
 type ProjectionInitializationOptions = {
+  // The project that this projection belongs to.
   project?: AtlasDataset;
+  // The index that this projection belongs to.
   index?: AtlasIndex;
+  // The project ID that this projection belongs to.
   project_id?: UUID;
+  // The user object to query with.
   user?: AtlasUser;
 };
 
@@ -86,10 +94,20 @@ type TagStatus = {
 };
 
 export class AtlasProjection extends BaseAtlasClass<ProjectGetInfo> {
+  /**
+   * A projection is a map in Atlas; it represents a snapshot 2d view of a dataset
+   * at a point in time. Every projection belongs to a Dataset.
+   */
   _project?: AtlasDataset;
   project_id: UUID;
   _index?: AtlasIndex;
 
+  /**
+   *
+   * @param id The UUID of the projection to retrieve.
+   * @param user The user object to query with.
+   * @param options Options for initializing the projection.
+   */
   constructor(
     public id: UUID,
     user?: AtlasUser,

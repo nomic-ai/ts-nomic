@@ -4,7 +4,6 @@ import { tableToIPC, tableFromJSON, tableFromIPC } from 'apache-arrow';
 import { AtlasUser, get_env_user, BaseAtlasClass } from './user.js';
 import { AtlasIndex } from './index.js';
 // get the API key from the node environment
-import { OrganizationProjectInfo } from 'organization.js';
 type UUID = string;
 
 export function load_project(options: Atlas.LoadProjectOptions): AtlasDataset {
@@ -88,9 +87,12 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
     }
   }
 
+  /**
+   *
+   * @returns A list of projection summaries, sorted so that the first is
+   * the most useable (defined as ready and newest)
+   */
   public async projectionSummaries() {
-    // Returns a list of projection summaries, sorted so that the first is
-    // the most useable (defined as ready and newest)
     const projections = [];
     const info = await this.info();
     for (const index of info.atlas_indices) {
@@ -109,17 +111,6 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
       );
     });
     return projections;
-  }
-
-  async apiCall(
-    endpoint: string,
-    method: 'GET' | 'POST',
-    payload: Atlas.Payload = null,
-    headers: null | Record<string, string> = null,
-    options: ApiCallOptions = {}
-  ) {
-    const fixedEndpoint = this._fixEndpointURL(endpoint);
-    return this.user.apiCall(fixedEndpoint, method, payload, headers, options);
   }
 
   async delete() {
@@ -155,20 +146,11 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
     return `/v1/project/${this.id}`;
   }
 
-  _fixEndpointURL(endpoint: string): string {
-    // Don't mandate starting with a slash
-    if (!endpoint.startsWith('/')) {
-      throw new Error('Must start endpoints with slashes');
-      console.warn(`DANGER: endpoint ${endpoint} doesn't start with a slash`);
-      endpoint = '/' + endpoint;
-    }
-    return endpoint;
-  }
-
   async indices(): Promise<AtlasIndex[]> {
     if (this._indices.length > 0) {
       return this._indices;
     }
+    await this.info;
     const { atlas_indices } = (await this.info()) as Atlas.ProjectInfo;
     console.log(await this.info(), atlas_indices, 'INFO');
     if (atlas_indices === undefined) {
