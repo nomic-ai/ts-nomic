@@ -9,12 +9,14 @@ export type LoadedObject<
   U extends Record<string, any>
 > = T & { i: U };
 
-export abstract class BaseAtlasClass<InfoType extends Record<string, any>> {
+export abstract class BaseAtlasClass<
+  AttributesType extends Record<string, any>
+> {
   user: AtlasUser;
   // To avoid multiple calls, the first request sets the _info property.
-  protected _info: Promise<InfoType> | undefined;
+  protected attributePromise: Promise<AttributesType> | undefined;
   // Once info resolves, it populates here.
-  protected _i: InfoType | undefined;
+  protected _attr: AttributesType | undefined;
 
   constructor(user?: AtlasUser) {
     if (user === undefined) {
@@ -30,39 +32,60 @@ export abstract class BaseAtlasClass<InfoType extends Record<string, any>> {
   /**
    * returns the object's information; this may be undefined
    */
-  get i() {
-    return this._i;
+  get attr() {
+    return this._attr;
   }
 
   /**
    * Fetches basic information about the object.
    * By default, this caches the call; if you want to
-   * bust the cache.
+   * bust the cache, pass `true` as the first argument.
+   * This immediately.
    *
    * @param bustCache Whether to refetch the relevant information
    * @returns A promise that resolves to the organization info.
    */
-  info(bustCache = false): Promise<InfoType> {
-    if (!bustCache && this._info !== undefined) {
-      return this._info;
+  fetchAttributes(bustCache = false): Promise<AttributesType> {
+    if (!bustCache && this.attributePromise !== undefined) {
+      return this.attributePromise;
     }
-    this._info = this.user.apiCall(this.endpoint(), 'GET').then((info) => {
-      this._i = info as InfoType;
-      return info;
-    }) as Promise<InfoType>;
-    return this._info;
+    this.attributePromise = this.user
+      .apiCall(this.endpoint(), 'GET')
+      .then((attr) => {
+        this._attr = attr as AttributesType;
+        return attr;
+      }) as Promise<AttributesType>;
+    return this.attributePromise;
   }
 
   /**
    * Loads the information associated with the class, removing any
    * existing caches.
    *
+   *
+   *
    * @returns a LoadedObject instance of the class that is guaranteed to
    *  have its `i` slot populated with appropriate information.
+   *
+   * @example
+   *  const loadedProject = await (new AtlasProject(projectId)).withLoadedAttributes()
+   *
+   *  // OR, in cases where we want to do stuff immediately with the project and ensure
+   *  // that later calls there don't double-fetch information.
+   *
+   *  const project = new AtlasProject(projectId)
+   *
+   *  // do stuff right away.
+   *  const projection = new AtlasProjection(projectionId, {project: project})
+   *  const loadedProjection = await projection.withLoadedAttributes()
+   *  // do stuff with loadedProjection
+   *
+   *
    */
-  async load(): Promise<LoadedObject<this, InfoType>> {
-    await this.info(true);
-    return this as LoadedObject<this, InfoType>;
+
+  async withLoadedAttributes(): Promise<LoadedObject<this, AttributesType>> {
+    await this.fetchAttributes(true);
+    return this as LoadedObject<this, AttributesType>;
   }
 
   async apiCall(

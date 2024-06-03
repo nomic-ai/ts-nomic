@@ -83,7 +83,7 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
     if (!id.toLowerCase().match(uuidPattern)) {
       // throw new Error(`${id} is not a valid UUID.`);
       this.id = id;
-      this.info().then((i) => (this.id = i.project_id));
+      this.fetchAttributes().then((i) => (this.id = i.project_id));
     }
   }
 
@@ -94,7 +94,7 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
    */
   public async projectionSummaries() {
     const projections = [];
-    const info = await this.info();
+    const info = await this.fetchAttributes();
     for (const index of info.atlas_indices) {
       for (const projection of index.projections) {
         projections.push(projection);
@@ -121,7 +121,7 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
   }
 
   private clear() {
-    this._info = undefined;
+    this.attributePromise = undefined;
     this._schema = undefined;
     this._indices = [];
   }
@@ -131,7 +131,7 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
       const interval = setInterval(async () => {
         // Create a new project to clear the cache.
         const renewed = new AtlasDataset(this.id, this.user);
-        const info = (await renewed.info()) as Atlas.ProjectInfo;
+        const info = (await renewed.fetchAttributes()) as Atlas.ProjectInfo;
         if (info.insert_update_delete_lock === false) {
           clearInterval(interval);
           // Clear the cache.
@@ -150,9 +150,9 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
     if (this._indices.length > 0) {
       return this._indices;
     }
-    await this.info;
-    const { atlas_indices } = (await this.info()) as Atlas.ProjectInfo;
-    console.log(await this.info(), atlas_indices, 'INFO');
+    const { atlas_indices } =
+      (await this.fetchAttributes()) as Atlas.ProjectInfo;
+
     if (atlas_indices === undefined) {
       return [];
     }
@@ -195,7 +195,7 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
   async createIndex(
     options: Omit<IndexCreateOptions, 'project_id'>
   ): Promise<AtlasIndex> {
-    const info = await this.info();
+    const info = await this.fetchAttributes();
     const isText = info.modality === 'text';
     // TODO: Python version has a number of asserts here - should we replicate?
     const fields: CreateAtlasIndexRequest = {
