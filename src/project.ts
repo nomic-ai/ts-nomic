@@ -274,7 +274,6 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
 
   async delete_data(ids: string[]): Promise<void> {
     // TODO: untested
-    // const info = await this.info
     await this.user.apiCall('/v1/project/data/delete', 'POST', {
       project_id: this.id,
       datum_ids: ids,
