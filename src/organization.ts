@@ -31,7 +31,7 @@ export class AtlasOrganization extends BaseAtlasClass<OrganizationInfo> {
   }
 
   async projects() {
-    const info = (await this.info()) as OrganizationInfo;
+    const info = (await this.fetchAttributes()) as OrganizationInfo;
     return info.projects;
   }
 
