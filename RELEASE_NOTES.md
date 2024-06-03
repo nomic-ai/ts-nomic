@@ -1,3 +1,8 @@
+# 0.10.0
+
+Add `fetchAttr`, `withLoadedAttr`, and `attr` methods to `BaseAtlasClass` to allow for a single reliable
+way to await attributes with cache-busting.
+
 # 0.9.6
 
 - Rename "AtlasProject" to "AtlasDataset" with backwards compatible alias.
