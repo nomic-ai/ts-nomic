@@ -3,16 +3,27 @@ import { BaseAtlasClass } from './user.js';
 import type { AtlasUser } from './user.js';
 import { AtlasDataset } from './project.js';
 import type { AtlasIndex } from './index.js';
+import { components } from 'api-raw-types.js';
+
+export type ProjectGetInfo = components['schemas']['Project'];
 
 type UUID = string;
 
 export type DeleteTagRequest = {
   tag_id: UUID;
 };
+
+/**
+ * Options for initializing a projection.
+ */
 type ProjectionInitializationOptions = {
+  // The project that this projection belongs to.
   project?: AtlasDataset;
+  // The index that this projection belongs to.
   index?: AtlasIndex;
+  // The project ID that this projection belongs to.
   project_id?: UUID;
+  // The user object to query with.
   user?: AtlasUser;
 };
 
@@ -66,6 +77,7 @@ export type UpdateTagMaskOptions = {
   tag_definition_id: string;
   complete: boolean | undefined;
 };
+
 type CreateTagOptions = {
   tag_name: string;
   dsl_rule: TagComposition;
@@ -81,12 +93,21 @@ type TagStatus = {
   is_complete: boolean;
 };
 
-export class AtlasProjection extends BaseAtlasClass {
+export class AtlasProjection extends BaseAtlasClass<ProjectGetInfo> {
+  /**
+   * A projection is a map in Atlas; it represents a snapshot 2d view of a dataset
+   * at a point in time. Every projection belongs to a Dataset.
+   */
   _project?: AtlasDataset;
   project_id: UUID;
   _index?: AtlasIndex;
-  private _info?: Promise<Record<string, any>>;
 
+  /**
+   *
+   * @param id The UUID of the projection to retrieve.
+   * @param user The user object to query with.
+   * @param options Options for initializing the projection.
+   */
   constructor(
     public id: UUID,
     user?: AtlasUser,
@@ -300,14 +321,7 @@ export class AtlasProjection extends BaseAtlasClass {
     return `${protocol}://${this.user.apiLocation}/v1/project/${this.project_id}/index/projection/${this.id}/quadtree`;
   }
 
-  async info() {
-    if (this._info !== undefined) {
-      return this._info;
-    }
-    this._info = this.apiCall(
-      `/v1/project/${this.project_id}/index/projection/${this.id}`,
-      'GET'
-    ) as Promise<Record<string, any>>;
-    return this._info;
+  endpoint() {
+    return `/v1/project/${this.project_id}/index/projection/${this.id}`;
   }
 }

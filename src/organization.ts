@@ -1,16 +1,11 @@
-import { AtlasUser, get_env_user } from './user.js';
+import { AtlasUser, BaseAtlasClass, get_env_user } from './user.js';
 import { AtlasDataset } from './project.js';
-
+import type { components } from 'api-raw-types.js';
 type UUID = string;
 
-type OrganizationInfo = {
-  id: UUID;
-  projects: OrganizationProjectInfo[];
-};
-
-export type OrganizationProjectInfo = {
-  id: UUID;
-};
+export type OrganizationInfo =
+  | components['schemas']['PublicOrganizationResponse']
+  | components['schemas']['Organization'];
 
 type ProjectInitOptions = {
   project_name: string;
@@ -18,34 +13,24 @@ type ProjectInitOptions = {
   modality: 'text' | 'embedding';
 };
 
-export class AtlasOrganization {
+export class AtlasOrganization extends BaseAtlasClass<OrganizationInfo> {
   id: UUID;
-  user: AtlasUser;
-  private _info: Promise<OrganizationInfo> | undefined = undefined;
 
   constructor(id: UUID, user?: AtlasUser) {
+    super(user);
     this.id = id;
-    this.user = user || get_env_user();
   }
 
-  info() {
-    if (this._info !== undefined) {
-      return this._info;
-    }
-    this._info = this.user.apiCall(
-      `/v1/organization/${this.id}`,
-      'GET'
-    ) as Promise<OrganizationInfo>;
-    return this._info;
+  endpoint() {
+    return `/v1/organization/${this.id}`;
   }
 
   async projects() {
-    const info = (await this.info()) as OrganizationInfo;
+    const info = (await this.fetchAttributes()) as OrganizationInfo;
     return info.projects;
   }
 
   async create_project(options: ProjectInitOptions): Promise<AtlasDataset> {
-    const info = (await this.info()) as OrganizationInfo;
     const user = this.user;
     if (options.unique_id_field === undefined) {
       throw new Error('unique_id_field is required');

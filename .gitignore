@@ -4,3 +4,4 @@ src/openapi.d.ts
 etc/openapi.json
 private
 dist
+docs

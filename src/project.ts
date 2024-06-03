@@ -4,7 +4,6 @@ import { tableToIPC, tableFromJSON, tableFromIPC } from 'apache-arrow';
 import { AtlasUser, get_env_user, BaseAtlasClass } from './user.js';
 import { AtlasIndex } from './index.js';
 // get the API key from the node environment
-import { OrganizationProjectInfo } from 'organization.js';
 type UUID = string;
 
 export function load_project(options: Atlas.LoadProjectOptions): AtlasDataset {
@@ -61,10 +60,9 @@ type CreateAtlasIndexRequest = {
  * interfaces to upload, update, and delete data, as well as create and delete
  * indices which handle specific views.
  */
-export class AtlasDataset extends BaseAtlasClass {
+export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
   _indices: AtlasIndex[] = [];
   _schema?: Schema | null;
-  private _info?: Promise<Atlas.ProjectInfo>;
   id: UUID;
 
   /**
@@ -85,15 +83,18 @@ export class AtlasDataset extends BaseAtlasClass {
     if (!id.toLowerCase().match(uuidPattern)) {
       // throw new Error(`${id} is not a valid UUID.`);
       this.id = id;
-      this.info().then((i) => (this.id = i.project_id));
+      this.fetchAttributes().then((i) => (this.id = i.project_id));
     }
   }
 
+  /**
+   *
+   * @returns A list of projection summaries, sorted so that the first is
+   * the most useable (defined as ready and newest)
+   */
   public async projectionSummaries() {
-    // Returns a list of projection summaries, sorted so that the first is
-    // the most useable (defined as ready and newest)
     const projections = [];
-    const info = await this.info();
+    const info = await this.fetchAttributes();
     for (const index of info.atlas_indices) {
       for (const projection of index.projections) {
         projections.push(projection);
@@ -112,17 +113,6 @@ export class AtlasDataset extends BaseAtlasClass {
     return projections;
   }
 
-  async apiCall(
-    endpoint: string,
-    method: 'GET' | 'POST',
-    payload: Atlas.Payload = null,
-    headers: null | Record<string, string> = null,
-    options: ApiCallOptions = {}
-  ) {
-    const fixedEndpoint = await this._fixEndpointURL(endpoint);
-    return this.user.apiCall(fixedEndpoint, method, payload, headers, options);
-  }
-
   async delete() {
     const value = await this.apiCall(`/v1/project/remove`, 'POST', {
       project_id: this.id,
@@ -131,7 +121,7 @@ export class AtlasDataset extends BaseAtlasClass {
   }
 
   private clear() {
-    this._info = undefined;
+    this.attributePromise = undefined;
     this._schema = undefined;
     this._indices = [];
   }
@@ -141,7 +131,7 @@ export class AtlasDataset extends BaseAtlasClass {
       const interval = setInterval(async () => {
         // Create a new project to clear the cache.
         const renewed = new AtlasDataset(this.id, this.user);
-        const info = (await renewed.info()) as Atlas.ProjectInfo;
+        const info = (await renewed.fetchAttributes()) as Atlas.ProjectInfo;
         if (info.insert_update_delete_lock === false) {
           clearInterval(interval);
           // Clear the cache.
@@ -152,39 +142,17 @@ export class AtlasDataset extends BaseAtlasClass {
     });
   }
 
-  project_info() {
-    throw new Error(`This method is deprecated. Use info() instead.`);
-  }
-
-  info() {
-    if (this._info !== undefined) {
-      return this._info;
-    }
-    // This call must be on the underlying user object, not the project object,
-    // because otherwise it will infinitely in some downstream calls.
-
-    // stored as a promise so that we don't make multiple calls to the server
-    this._info = this.user
-      // Try the public route first
-      .apiCall(`/v1/project/${this.id}`, 'GET') as Promise<Atlas.ProjectInfo>;
-    return this._info;
-  }
-
-  async _fixEndpointURL(endpoint: string): Promise<string> {
-    // Don't mandate starting with a slash
-    if (!endpoint.startsWith('/')) {
-      console.warn(`DANGER: endpoint ${endpoint} doesn't start with a slash`);
-      endpoint = '/' + endpoint;
-    }
-    return endpoint;
+  endpoint() {
+    return `/v1/project/${this.id}`;
   }
 
   async indices(): Promise<AtlasIndex[]> {
     if (this._indices.length > 0) {
       return this._indices;
     }
-    const { atlas_indices } = (await this.info()) as Atlas.ProjectInfo;
-    console.log(await this.info(), atlas_indices, 'INFO');
+    const { atlas_indices } =
+      (await this.fetchAttributes()) as Atlas.ProjectInfo;
+
     if (atlas_indices === undefined) {
       return [];
     }
@@ -227,7 +195,7 @@ export class AtlasDataset extends BaseAtlasClass {
   async createIndex(
     options: Omit<IndexCreateOptions, 'project_id'>
   ): Promise<AtlasIndex> {
-    const info = await this.info();
+    const info = await this.fetchAttributes();
     const isText = info.modality === 'text';
     // TODO: Python version has a number of asserts here - should we replicate?
     const fields: CreateAtlasIndexRequest = {
@@ -313,6 +281,7 @@ export class AtlasDataset extends BaseAtlasClass {
     if (table instanceof Uint8Array) {
       table = tableFromIPC(table);
     }
+
     table.schema.metadata.set('project_id', this.id);
     table.schema.metadata.set('on_id_conflict_ignore', JSON.stringify(true));
     const data = tableToIPC(table, 'file');
