@@ -73,7 +73,8 @@ export class AtlasIndex extends BaseAtlasClass<{}> {
     if (this._projections) {
       return this._projections;
     } else {
-      const project_info = (await this.project.info()) as Atlas.ProjectInfo;
+      const project_info =
+        (await this.project.fetchAttributes()) as Atlas.ProjectInfo;
       const projections =
         project_info.atlas_indices?.find((d) => d.id === this.id)
           ?.projections || [];

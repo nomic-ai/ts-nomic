@@ -83,15 +83,18 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
     if (!id.toLowerCase().match(uuidPattern)) {
       // throw new Error(`${id} is not a valid UUID.`);
       this.id = id;
-      this.info().then((i) => (this.id = i.project_id));
+      this.fetchAttributes().then((i) => (this.id = i.project_id));
     }
   }
 
+  /**
+   *
+   * @returns A list of projection summaries, sorted so that the first is
+   * the most useable (defined as ready and newest)
+   */
   public async projectionSummaries() {
-    // Returns a list of projection summaries, sorted so that the first is
-    // the most useable (defined as ready and newest)
     const projections = [];
-    const info = await this.info();
+    const info = await this.fetchAttributes();
     for (const index of info.atlas_indices) {
       for (const projection of index.projections) {
         projections.push(projection);
@@ -110,23 +113,6 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
     return projections;
   }
 
-  async apiCall(
-    endpoint: string,
-    method: 'GET' | 'POST',
-    payload: Atlas.Payload = null,
-    headers: null | Record<string, string> = null,
-    options: Atlas.ApiCallOptions = {}
-  ) {
-    const fixedEndpoint = this._fixEndpointURL(endpoint);
-    return this.viewer.apiCall(
-      fixedEndpoint,
-      method,
-      payload,
-      headers,
-      options
-    );
-  }
-
   async delete() {
     const value = await this.apiCall(`/v1/project/remove`, 'POST', {
       project_id: this.id,
@@ -135,7 +121,7 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
   }
 
   private clear() {
-    this._info = undefined;
+    this.attributePromise = undefined;
     this._schema = undefined;
     this._indices = [];
   }
@@ -144,8 +130,9 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
     return new Promise((resolve, reject) => {
       const interval = setInterval(async () => {
         // Create a new project to clear the cache.
+
         const renewed = new AtlasDataset(this.id, this.viewer);
-        const info = (await renewed.info()) as Atlas.ProjectInfo;
+        const info = (await renewed.fetchAttributes()) as Atlas.ProjectInfo;
         if (info.insert_update_delete_lock === false) {
           clearInterval(interval);
           // Clear the cache.
@@ -160,22 +147,13 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
     return `/v1/project/${this.id}`;
   }
 
-  _fixEndpointURL(endpoint: string): string {
-    // Don't mandate starting with a slash
-    if (!endpoint.startsWith('/')) {
-      throw new Error('Must start endpoints with slashes');
-      console.warn(`DANGER: endpoint ${endpoint} doesn't start with a slash`);
-      endpoint = '/' + endpoint;
-    }
-    return endpoint;
-  }
-
   async indices(): Promise<AtlasIndex[]> {
     if (this._indices.length > 0) {
       return this._indices;
     }
-    const { atlas_indices } = (await this.info()) as Atlas.ProjectInfo;
-    console.log(await this.info(), atlas_indices, 'INFO');
+    const { atlas_indices } =
+      (await this.fetchAttributes()) as Atlas.ProjectInfo;
+
     if (atlas_indices === undefined) {
       return [];
     }
@@ -218,7 +196,7 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
   async createIndex(
     options: Omit<IndexCreateOptions, 'project_id'>
   ): Promise<AtlasIndex> {
-    const info = await this.info();
+    const info = await this.fetchAttributes();
     const isText = info.modality === 'text';
     // TODO: Python version has a number of asserts here - should we replicate?
     const fields: CreateAtlasIndexRequest = {

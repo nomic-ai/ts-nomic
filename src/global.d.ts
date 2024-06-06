@@ -3,9 +3,22 @@ declare namespace Atlas {
   type LoadProjectOptions = {
     project_id: UUID;
   };
+
+  /**
+   * Options for the nearest neighbors query.
+   */
   type NNOptions = {
+    /**
+     * The datum_ids (i.e., user-specified keys) to query for.
+     */
     datum_ids?: string[];
+    /**
+     * The Atom IDs (Nomic-generated integers) to query for.
+     */
     atom_ids?: string[];
+    /**
+     * The number of nearest neighbors to return.
+     */
     k?: number;
   };
 

@@ -1,16 +1,11 @@
 import { AtlasUser, BaseAtlasClass, getEnvViewer } from './user.js';
 import { AtlasDataset } from './project.js';
-
+import type { components } from 'api-raw-types.js';
 type UUID = string;
 
-type OrganizationInfo = {
-  id: UUID;
-  projects: OrganizationProjectInfo[];
-};
-
-export type OrganizationProjectInfo = {
-  id: UUID;
-};
+export type OrganizationInfo =
+  | components['schemas']['PublicOrganizationResponse']
+  | components['schemas']['Organization'];
 
 type ProjectInitOptions = {
   project_name: string;
@@ -31,7 +26,7 @@ export class AtlasOrganization extends BaseAtlasClass<OrganizationInfo> {
   }
 
   async projects() {
-    const info = (await this.info()) as OrganizationInfo;
+    const info = (await this.fetchAttributes()) as OrganizationInfo;
     return info.projects;
   }
 
