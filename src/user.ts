@@ -179,7 +179,7 @@ export class AtlasUser extends BaseAtlasClass<UserInfo> {
    * @returns A list of organizations where the user has the specified role
    */
   async organizations(role: 'OWNER' | 'MEMBER' | null = null) {
-    let organizations = (await this.info()).organizations;
+    let organizations = (await this.fetchAttributes()).organizations;
     if (role !== null) {
       organizations = organizations.filter((org) => org.access_role === role);
     }
