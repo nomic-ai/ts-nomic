@@ -3,6 +3,7 @@ import { BaseAtlasClass } from './user.js';
 import type { AtlasUser } from './user.js';
 import { AtlasDataset } from './project.js';
 import type { AtlasIndex } from './index.js';
+import { components } from 'api-raw-types.js';
 
 type UUID = string;
 
@@ -298,6 +299,21 @@ export class AtlasProjection extends BaseAtlasClass {
       ? 'http'
       : 'https';
     return `${protocol}://${this.user.apiLocation}/v1/project/${this.project_id}/index/projection/${this.id}/quadtree`;
+  }
+
+  async nearest_neighbors_by_vector({
+    k = 10,
+    queries,
+  }: Omit<
+    components['schemas']['EmbeddingNeighborRequest'],
+    'atlas_index_id'
+  >): Promise<components['schemas']['EmbeddingNeighborResponse']> {
+    const index = await this.index();
+    const { neighbors, distances } = await index.nearest_neighbors_by_vector({
+      k,
+      queries,
+    });
+    return { neighbors, distances };
   }
 
   async info() {

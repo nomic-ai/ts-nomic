@@ -1693,7 +1693,7 @@ export interface components {
        */
       model:
         | components['schemas']['NomicTextEmbeddingModel']
-        | components['schemas']['NomicVisionEmbeddingModel'];
+        | components['schemas']['NomicImageEmbeddingModel'];
       /**
        * Tokens
        * @description The total tokens used.
@@ -1742,9 +1742,9 @@ export interface components {
       atlas_index_id: string;
       /**
        * Queries
-       * @description The bytes of a batch of embeddings to get neighbors for
+       * @description A set of embeddings to query. Where `n` is the number of vectors to search and `d` is the vector dimensionality, this can be either an `n`x`d` numpy array encoded to base64, OR a list of `n` lists with `d` numbers per list.
        */
-      queries: string;
+      queries: string | number[][];
       /**
        * K
        * @description The number of neighbors to return
@@ -2333,6 +2333,14 @@ export interface components {
       atom_strategies: string[];
     };
     /**
+     * NomicImageEmbeddingModel
+     * @description An enumeration.
+     * @enum {unknown}
+     */
+    NomicImageEmbeddingModel:
+      | 'nomic-embed-vision-v1'
+      | 'nomic-embed-vision-v1.5';
+    /**
      * NomicProjectModel
      * @description An enumeration.
      * @enum {string}
@@ -2348,14 +2356,6 @@ export interface components {
       | 'nomic-embed-text-v1'
       | 'nomic-embed-text-v1.5'
       | 'nomic-embed-code';
-    /**
-     * NomicVisionEmbeddingModel
-     * @description An enumeration.
-     * @enum {unknown}
-     */
-    NomicVisionEmbeddingModel:
-      | 'nomic-embed-vision-v1'
-      | 'nomic-embed-vision-v1.5';
     /** ObtainAccessTokenRequest */
     ObtainAccessTokenRequest: {
       /**
