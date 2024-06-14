@@ -301,6 +301,11 @@ export class AtlasProjection extends BaseAtlasClass {
     return `${protocol}://${this.user.apiLocation}/v1/project/${this.project_id}/index/projection/${this.id}/quadtree`;
   }
 
+  /**
+   *
+   * @param param0 an object with keys k (number of numbers) and queries (list of vectors, where each one is the length of the embedding space).
+   * @returns A list of entries in sorted order, where each entry is a list of neighbors including distances in the `_distance` field.
+   */
   async nearest_neighbors_by_vector({
     k = 10,
     queries,
