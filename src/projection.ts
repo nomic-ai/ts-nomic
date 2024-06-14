@@ -332,9 +332,7 @@ export class AtlasProjection extends BaseAtlasClass {
       }
     }
 
-    console.log({ filled_out });
     return filled_out;
-    return { neighbors, distances };
   }
 
   async info() {

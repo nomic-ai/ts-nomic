@@ -1,3 +1,7 @@
+# 0.10.0
+
+- Add support for nearest-neighbor search by vector.
+
 # 0.9.6
 
 - Rename "AtlasProject" to "AtlasDataset" with backwards compatible alias.
