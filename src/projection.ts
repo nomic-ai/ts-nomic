@@ -4,11 +4,14 @@ import type { AtlasUser } from './user.js';
 import { AtlasDataset } from './project.js';
 import type { AtlasIndex } from './index.js';
 
+export type ProjectGetInfo = Record<string, any>;
+
 type UUID = string;
 
 export type DeleteTagRequest = {
   tag_id: UUID;
 };
+
 type ProjectionInitializationOptions = {
   project?: AtlasDataset;
   index?: AtlasIndex;
@@ -66,6 +69,7 @@ export type UpdateTagMaskOptions = {
   tag_definition_id: string;
   complete: boolean | undefined;
 };
+
 type CreateTagOptions = {
   tag_name: string;
   dsl_rule: TagComposition;
@@ -81,11 +85,10 @@ type TagStatus = {
   is_complete: boolean;
 };
 
-export class AtlasProjection extends BaseAtlasClass {
+export class AtlasProjection extends BaseAtlasClass<ProjectGetInfo> {
   _project?: AtlasDataset;
   project_id: UUID;
   _index?: AtlasIndex;
-  private _info?: Promise<Record<string, any>>;
 
   constructor(
     public id: UUID,
@@ -300,14 +303,7 @@ export class AtlasProjection extends BaseAtlasClass {
     return `${protocol}://${this.user.apiLocation}/v1/project/${this.project_id}/index/projection/${this.id}/quadtree`;
   }
 
-  async info() {
-    if (this._info !== undefined) {
-      return this._info;
-    }
-    this._info = this.apiCall(
-      `/v1/project/${this.project_id}/index/projection/${this.id}`,
-      'GET'
-    ) as Promise<Record<string, any>>;
-    return this._info;
+  endpoint() {
+    return `/v1/project/${this.project_id}/index/projection/${this.id}`;
   }
 }
