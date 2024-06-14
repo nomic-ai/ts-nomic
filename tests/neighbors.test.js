@@ -1,23 +1,23 @@
 import { test } from 'uvu';
 import { AtlasProjection } from '../dist/projection.js';
 import { AtlasUser } from '../dist/user.js';
+import * as assert from 'uvu/assert';
 
 test('Neighbors', async () => {
   // get user
-  console.log('getting user');
   const user = new AtlasUser({ useEnvToken: true });
   const projection = new AtlasProjection(
-    '728d4f4d-91ab-4852-a4a6-6cf41da1cd5e',
+    '0efb002a-09b3-47df-b43e-71780879b501',
     user,
-    { project_id: '449402ea-1730-475c-9b41-4bbbf98b4e49' }
+    { project_id: 'b7d7ff07-7272-4481-8618-c05bcf6feca5' }
   );
   const vec = [];
-  for (let i = 0; i <= 768; i++) {
+  for (let i = 0; i < 768; i++) {
     vec.push(Math.random());
   }
   const result = await projection.nearest_neighbors_by_vector({
     queries: [vec],
     k: 25,
   });
-  console.log({ result });
+  assert.is(result[0].length, 25);
 });

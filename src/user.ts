@@ -301,7 +301,6 @@ export class AtlasUser {
     Record<string, any> | string | Array<any> | Table | Uint8Array | null
   > {
     // make an API call
-
     if (headers === null) {
       const credentials = await this.credentials;
       if (credentials === null) {

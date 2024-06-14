@@ -7,7 +7,12 @@ import { AtlasOrganization } from '../dist/organization.js';
 
 test('AtlasOrganization test', async () => {
   const user = new AtlasUser({ useEnvToken: true });
-  const info = await user.info();
+
+  const info = await user.info().catch((err) => {
+    console.error(err);
+    throw err;
+  });
+
   const organization = new AtlasOrganization(
     info.organizations[0].organization_id,
     user

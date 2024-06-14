@@ -137,7 +137,6 @@ export class AtlasIndex extends BaseAtlasClass {
         queries,
       }
     )) as components['schemas']['EmbeddingNeighborResponse'];
-
     return { neighbors, distances };
   }
 }
