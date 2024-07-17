@@ -3,6 +3,7 @@ import { BaseAtlasClass } from './user.js';
 import type { AtlasUser } from './user.js';
 import { AtlasDataset } from './project.js';
 import type { AtlasIndex } from './index.js';
+import { components } from 'api-raw-types.js';
 
 export type ProjectGetInfo = Record<string, any>;
 
@@ -305,5 +306,39 @@ export class AtlasProjection extends BaseAtlasClass<ProjectGetInfo> {
 
   endpoint() {
     return `/v1/project/${this.project_id}/index/projection/${this.id}`;
+  }
+
+  /**
+   *
+   * @param param0 an object with keys k (number of numbers) and queries (list of vectors, where each one is the length of the embedding space).
+   * @returns A list of entries in sorted order, where each entry is a list of neighbors including distances in the `_distance` field.
+   */
+  async nearest_neighbors_by_vector({
+    k = 10,
+    queries,
+  }: Omit<
+    components['schemas']['EmbeddingNeighborRequest'],
+    'atlas_index_id'
+  >): Promise<Record<string, any>> {
+    const index = await this.index();
+    const { neighbors, distances } = await index.nearest_neighbors_by_vector({
+      k,
+      queries,
+    });
+    const project = await this.project();
+    const datums = (await Promise.all(
+      neighbors.map((ids) => project.fetch_ids(ids).then((d) => d.datums))
+    )) as Record<string, any>[][];
+    const filled_out: Record<string, any>[][] = [];
+    for (let i = 0; i < neighbors.length; i++) {
+      filled_out[i] = [];
+      for (let j = 0; j < neighbors[i].length; j++) {
+        const d = { ...datums[i][j] };
+        d._distance = distances[i][j];
+        filled_out[i].push(d);
+      }
+    }
+
+    return filled_out;
   }
 }

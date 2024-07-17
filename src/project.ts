@@ -207,8 +207,19 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
    * @param ids A list of identifiers to fetch from the server.
    */
 
-  async fetch_ids(ids?: string[]): Promise<Record<string, any>[]> {
-    throw new Error('Not implemented');
+  async fetch_ids(
+    ids?: string[]
+  ): Promise<Record<string, Record<string, any>>> {
+    if (ids === undefined) {
+      return {};
+    }
+    const response = await this.apiCall(
+      '/v1/project/data/get',
+      'POST',
+      { project_id: this.id, datum_ids: ids },
+      null
+    );
+    return response as Record<string, Record<string, any>>;
   }
 
   async createIndex(
@@ -270,14 +281,6 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
     );
     const id = response as string;
     return new AtlasIndex(id, this.user, { project: this });
-  }
-
-  async delete_data(ids: string[]): Promise<void> {
-    // TODO: untested
-    await this.user.apiCall('/v1/project/data/delete', 'POST', {
-      project_id: this.id,
-      datum_ids: ids,
-    });
   }
 
   validate_metadata(): void {
