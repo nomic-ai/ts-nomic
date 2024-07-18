@@ -71,7 +71,7 @@ const BATCH_SIZE = 32;
  * }
  * ```
  */
-export class Embedder extends BaseAtlasClass {
+export class Embedder extends BaseAtlasClass<{}> {
   model: EmbeddingModel;
   // A container of strings and their promise rejections/resolutions. It serves to pool requests
   // together.
@@ -117,6 +117,10 @@ export class Embedder extends BaseAtlasClass {
     super(user);
     this.model = model;
     this.taskType = taskType;
+  }
+
+  endpoint(): string {
+    throw new Error('Embedders do not have info() property.');
   }
 
   private async _embed(values: string[]): Promise<NomicEmbedResponse> {

@@ -1,3 +1,8 @@
+# 0.11.0
+
+- Add `fetchAttr`, `withLoadedAttr`, and `attr` methods to `BaseAtlasClass` to allow for a single reliable
+  way to await attributes with cache-busting.
+
 # 0.10.0
 
 - Add support for nearest-neighbor search by vector.

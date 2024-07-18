@@ -10,7 +10,7 @@ type IndexInitializationOptions = {
   project?: AtlasDataset;
 };
 
-export class AtlasIndex extends BaseAtlasClass {
+export class AtlasIndex extends BaseAtlasClass<{}> {
   id: Atlas.UUID;
   _projections?: AtlasProjection[] = undefined;
   project: AtlasDataset;
@@ -31,6 +31,11 @@ export class AtlasIndex extends BaseAtlasClass {
       options.project || new AtlasDataset(options.project_id as string, user);
     this.id = id;
   }
+
+  endpoint(): string {
+    throw new Error('There is no info property on Atlas Indexes');
+  }
+
   /**
    *
    * @param ids a list of ids (atom_ids, which are scoped to the index level) to fetch. If passing
@@ -68,7 +73,8 @@ export class AtlasIndex extends BaseAtlasClass {
     if (this._projections) {
       return this._projections;
     } else {
-      const project_info = (await this.project.info()) as Atlas.ProjectInfo;
+      const project_info =
+        (await this.project.fetchAttributes()) as Atlas.ProjectInfo;
       const projections =
         project_info.atlas_indices?.find((d) => d.id === this.id)
           ?.projections || [];
