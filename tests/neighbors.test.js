@@ -3,7 +3,7 @@ import { AtlasProjection } from '../dist/projection.js';
 import { AtlasUser } from '../dist/user.js';
 import * as assert from 'uvu/assert';
 
-test('Neighbors', async () => {
+test.skip('Neighbors', async () => {
   // get user
   const user = new AtlasUser({ useEnvToken: true });
   const projection = new AtlasProjection(

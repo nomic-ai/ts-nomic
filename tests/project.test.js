@@ -23,6 +23,12 @@ test('Full project flow', async () => {
     organization_id = user_info.default_organization;
   }
   const organization = new AtlasOrganization(organization_id, user);
+  // ensure organization has no attributes at this time
+  assert.is(organization.attr, undefined);
+  // set organization attributes
+  await organization.fetchAttributes();
+  // ensure organization has attributes now
+  assert.type(organization.attr, 'object');
   // create project in organization
   console.log('creating project');
   const project = await organization.create_project({
