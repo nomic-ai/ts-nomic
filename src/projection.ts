@@ -3,7 +3,7 @@ import { BaseAtlasClass } from './user.js';
 import type { AtlasUser } from './user.js';
 import { AtlasDataset } from './project.js';
 import type { AtlasIndex } from './index.js';
-import { components } from 'api-raw-types.js';
+import { components } from './type-gen/openapi.js';
 
 export type ProjectGetInfo = Record<string, any>;
 
