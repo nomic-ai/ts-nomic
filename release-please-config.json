@@ -4,7 +4,7 @@
   "bump-minor-pre-major": true,
   "bump-patch-for-minor-pre-major": true,
   "include-v-in-tag": true,
-  "changelog-path": "RELEASE_NOTES.json",
+  "changelog-path": "RELEASE_NOTES.md",
   "packages": {
     ".": {}
   }
