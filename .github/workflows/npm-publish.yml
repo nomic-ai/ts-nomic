@@ -1,0 +1,44 @@
+name: Publish Next Tag Version
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish-next-tag-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install release-please
+        run: npm install -g release-please
+
+      - name: Determine next version and update package.json
+        run: |
+          # Determine next version
+          OUTPUT=$(release-please release-pr --dry-run --token=${{ secrets.GITHUB_TOKEN }} --repo-url=${{ github.repository }} --default-branch=main)
+          NEXT_VERSION=$(echo "$OUTPUT" | grep "chore(main): release atlas" | sed 's/.*atlas //')
+          echo "Next version: $NEXT_VERSION"
+
+          # Count existing pre-releases
+          NEXT_VERSION_COUNT=$(npm view . versions --json | jq "[.[] | select(startswith(\"$NEXT_VERSION-next.\"))] | length")
+          echo "Number of existing pre-releases: $NEXT_VERSION_COUNT"
+
+          # Create final version string
+          FINAL_VERSION="${NEXT_VERSION}-next.${NEXT_VERSION_COUNT}"
+          echo "Final version: $FINAL_VERSION"
+
+          # Update package.json
+          npm version $FINAL_VERSION --no-git-tag-version
+          npm publish --preid=next
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
