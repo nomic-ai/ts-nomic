@@ -42,6 +42,6 @@ jobs:
 
           # Update package.json
           npm version $FINAL_VERSION --no-git-tag-version
-          npm publish --preid=next
+          npm publish --tag=next
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
