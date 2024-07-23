@@ -1,6 +1,6 @@
 {
   "name": "@nomic-ai/atlas",
-  "version": "0.10.0",
+  "version": "1.0.0",
   "type": "module",
   "files": [
     "dist"
