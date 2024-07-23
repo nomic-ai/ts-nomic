@@ -159,6 +159,41 @@ export interface paths {
      */
     post: operations['remove_pending_invitation_v1_organization_invitations_delete_post'];
   };
+  '/v1/organization/{organization_id_or_slug}/access-requests': {
+    /**
+     * Get Organization Access Requests Handler
+     * @description Get organization access requests
+     */
+    get: operations['get_organization_access_requests_handler_v1_organization__organization_id_or_slug__access_requests_get'];
+  };
+  '/v1/organization/access-requests': {
+    /**
+     * Create Organization Access Request Handler
+     * @description Request access to organization
+     */
+    post: operations['create_organization_access_request_handler_v1_organization_access_requests_post'];
+  };
+  '/v1/organization/access-requests/accept': {
+    /**
+     * Accept Organization Access Request Handler
+     * @description Approve a request to access an organization
+     */
+    post: operations['accept_organization_access_request_handler_v1_organization_access_requests_accept_post'];
+  };
+  '/v1/organization/access-requests/reject': {
+    /**
+     * Reject Organization Access Request Handler
+     * @description Reject a request to access an organization
+     */
+    post: operations['reject_organization_access_request_handler_v1_organization_access_requests_reject_post'];
+  };
+  '/v1/organization/access-requests/cancel': {
+    /**
+     * Cancel Organization Access Request Handler
+     * @description Cancel a request to access an organization
+     */
+    post: operations['cancel_organization_access_request_handler_v1_organization_access_requests_cancel_post'];
+  };
   '/v1/user/': {
     /** Fetch Current User */
     get: operations['fetch_current_user_v1_user__get'];
@@ -205,13 +240,6 @@ export interface paths {
      * @description Fetches all details about a project.
      */
     get: operations['fetch_project_v1_project__project_id__get'];
-  };
-  '/v1/project/hub/gallery': {
-    /**
-     * Fetch Project Gallery
-     * @description Fetches all projects in the gallery
-     */
-    get: operations['fetch_project_gallery_v1_project_hub_gallery_get'];
   };
   '/v1/project/sidebar/list': {
     /**
@@ -349,8 +377,8 @@ export interface paths {
     post: operations['get_embedding_page_endpoint_v1_project_data_get_embedding_paged_post'];
   };
   '/v1/project/data/get': {
-    /** Get Datums By Ids External */
-    post: operations['get_datums_by_ids_external_v1_project_data_get_post'];
+    /** Get Datums By Ids Handler */
+    post: operations['get_datums_by_ids_handler_v1_project_data_get_post'];
   };
   '/v1/project/atoms/get': {
     /** Atoms Get */
@@ -521,13 +549,6 @@ export interface paths {
      */
     get: operations['fetch_project_v1_dataset__project_id__get'];
   };
-  '/v1/dataset/hub/gallery': {
-    /**
-     * Fetch Project Gallery
-     * @description Fetches all projects in the gallery
-     */
-    get: operations['fetch_project_gallery_v1_dataset_hub_gallery_get'];
-  };
   '/v1/dataset/sidebar/list': {
     /**
      * Fetch All Project
@@ -664,8 +685,8 @@ export interface paths {
     post: operations['get_embedding_page_endpoint_v1_dataset_data_get_embedding_paged_post'];
   };
   '/v1/dataset/data/get': {
-    /** Get Datums By Ids External */
-    post: operations['get_datums_by_ids_external_v1_dataset_data_get_post'];
+    /** Get Datums By Ids Handler */
+    post: operations['get_datums_by_ids_handler_v1_dataset_data_get_post'];
   };
   '/v1/dataset/atoms/get': {
     /** Atoms Get */
@@ -1115,10 +1136,10 @@ export interface components {
        * Atoms
        * @description The data for each atom, keyed by its atom_id
        */
-      atoms: Record<string, unknown>;
+      atoms: Record<string, never>;
     };
     /** BaseModel */
-    BaseModel: Record<string, unknown>;
+    BaseModel: Record<string, never>;
     /** Body_add_blob_v1_dataset_data_add_blobs_post */
     Body_add_blob_v1_dataset_data_add_blobs_post: {
       /**
@@ -1683,7 +1704,7 @@ export interface components {
        * Hyperparameters
        * @description The hyperparameters this model was trained with.
        */
-      hyperparameters: Record<string, unknown>;
+      hyperparameters: Record<string, never>;
     };
     /** EmbeddingModelInferenceUsage */
     EmbeddingModelInferenceUsage: {
@@ -1693,7 +1714,7 @@ export interface components {
        */
       model:
         | components['schemas']['NomicTextEmbeddingModel']
-        | components['schemas']['NomicImageEmbeddingModel'];
+        | components['schemas']['NomicVisionEmbeddingModel'];
       /**
        * Tokens
        * @description The total tokens used.
@@ -1832,7 +1853,7 @@ export interface components {
         | components['schemas']['MultiPolygon']
         | components['schemas']['GeometryCollection'];
       /** Properties */
-      properties?: Record<string, unknown> | components['schemas']['BaseModel'];
+      properties?: Record<string, never> | components['schemas']['BaseModel'];
       /** Id */
       id?: string;
       /** Bbox */
@@ -1907,7 +1928,7 @@ export interface components {
        * Datums
        * @description The returned datums without json deserialization.
        */
-      datums: Record<string, unknown>[];
+      datums: Record<string, never>[];
     };
     /** GetProjectionAliasRequest */
     GetProjectionAliasRequest: {
@@ -2325,21 +2346,13 @@ export interface components {
        * Hyperparameters
        * @description The hyperparameters of this index.
        */
-      hyperparameters: Record<string, unknown>;
+      hyperparameters: Record<string, never>;
       /**
        * Atom Strategies
        * @description The phrase strategies of the phrases this embedder is embedding.
        */
       atom_strategies: string[];
     };
-    /**
-     * NomicImageEmbeddingModel
-     * @description An enumeration.
-     * @enum {unknown}
-     */
-    NomicImageEmbeddingModel:
-      | 'nomic-embed-vision-v1'
-      | 'nomic-embed-vision-v1.5';
     /**
      * NomicProjectModel
      * @description An enumeration.
@@ -2356,6 +2369,14 @@ export interface components {
       | 'nomic-embed-text-v1'
       | 'nomic-embed-text-v1.5'
       | 'nomic-embed-code';
+    /**
+     * NomicVisionEmbeddingModel
+     * @description An enumeration.
+     * @enum {unknown}
+     */
+    NomicVisionEmbeddingModel:
+      | 'nomic-embed-vision-v1'
+      | 'nomic-embed-vision-v1.5';
     /** ObtainAccessTokenRequest */
     ObtainAccessTokenRequest: {
       /**
@@ -2506,6 +2527,57 @@ export interface components {
        * @description Max datums across all projects
        */
       max_datums_across_all_projects: number;
+    };
+    /** OrganizationAccessRequestApproveRequest */
+    OrganizationAccessRequestApproveRequest: {
+      /**
+       * Organization ID
+       * Format: uuid
+       * @description The ID of the organization to add the user to
+       */
+      organization_id: string;
+      /**
+       * User ID
+       * @description The user ID to approve the request for
+       */
+      user_id: string;
+    };
+    /** OrganizationAccessRequestCancelRequest */
+    OrganizationAccessRequestCancelRequest: {
+      /**
+       * Organization ID
+       * Format: uuid
+       * @description The ID of the organization to add the user to
+       */
+      organization_id: string;
+      /**
+       * User ID
+       * @description The user ID to approve the request for
+       */
+      user_id: string;
+    };
+    /** OrganizationAccessRequestCreateRequest */
+    OrganizationAccessRequestCreateRequest: {
+      /**
+       * Organization ID
+       * Format: uuid
+       * @description The ID of the organization to add the user to
+       */
+      organization_id: string;
+    };
+    /** OrganizationAccessRequestRejectRequest */
+    OrganizationAccessRequestRejectRequest: {
+      /**
+       * Organization ID
+       * Format: uuid
+       * @description The ID of the organization to add the user to
+       */
+      organization_id: string;
+      /**
+       * User ID
+       * @description The user ID to approve the request for
+       */
+      user_id: string;
     };
     /** OrganizationIDResponse */
     OrganizationIDResponse: {
@@ -2974,7 +3046,7 @@ export interface components {
        * Datums
        * @description The datums to update
        */
-      datums: Record<string, unknown>[];
+      datums: Record<string, never>[];
       /**
        * Project Id
        * Format: uuid
@@ -2982,15 +3054,6 @@ export interface components {
        * @example df4dcf85-84ed-4e3a-9519-17c72682f905
        */
       project_id: string;
-    };
-    /** ProjectGalleryResponse */
-    ProjectGalleryResponse: {
-      /**
-       * Results
-       * @description A list of projects in the gallery
-       * @default []
-       */
-      results?: components['schemas']['ProjectMetadataBaseModel'][];
     };
     /** ProjectIdName */
     ProjectIdName: {
@@ -3191,7 +3254,7 @@ export interface components {
        * Hyperparameters
        * @description The hyperparameters of this projection.
        */
-      hyperparameters: Record<string, unknown>;
+      hyperparameters: Record<string, never>;
       /**
        * Atom Strategies
        * @description The phrase strategies of the phrases this embedder is embedding.
@@ -3250,7 +3313,7 @@ export interface components {
        * Topic Model Metadatas
        * @description list of topic model metadata
        */
-      topic_model_metadatas: Record<string, unknown>[];
+      topic_model_metadatas: Record<string, never>[];
     };
     /** ProjectsResponse */
     ProjectsResponse: {
@@ -3675,7 +3738,7 @@ export interface components {
        * Results
        * @description A list of topic metadata, including movement information
        */
-      results: Record<string, unknown>[];
+      results: Record<string, never>[];
     };
     /** UpdateInviteRequest */
     UpdateInviteRequest: {
@@ -3814,6 +3877,8 @@ export interface components {
   headers: never;
   pathItems: never;
 }
+
+export type $defs = Record<string, never>;
 
 export type external = Record<string, never>;
 
@@ -4340,6 +4405,135 @@ export interface operations {
       };
     };
   };
+  /**
+   * Get Organization Access Requests Handler
+   * @description Get organization access requests
+   */
+  get_organization_access_requests_handler_v1_organization__organization_id_or_slug__access_requests_get: {
+    parameters: {
+      query?: {
+        offset_number?: number;
+        limit?: number;
+      };
+      path: {
+        organization_id_or_slug: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Create Organization Access Request Handler
+   * @description Request access to organization
+   */
+  create_organization_access_request_handler_v1_organization_access_requests_post: {
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['OrganizationAccessRequestCreateRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        content: {
+          'application/json': components['schemas']['SuccessResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Accept Organization Access Request Handler
+   * @description Approve a request to access an organization
+   */
+  accept_organization_access_request_handler_v1_organization_access_requests_accept_post: {
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['OrganizationAccessRequestApproveRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['SuccessResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Reject Organization Access Request Handler
+   * @description Reject a request to access an organization
+   */
+  reject_organization_access_request_handler_v1_organization_access_requests_reject_post: {
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['OrganizationAccessRequestRejectRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['SuccessResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Cancel Organization Access Request Handler
+   * @description Cancel a request to access an organization
+   */
+  cancel_organization_access_request_handler_v1_organization_access_requests_cancel_post: {
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['OrganizationAccessRequestCancelRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['SuccessResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
   /** Fetch Current User */
   fetch_current_user_v1_user__get: {
     responses: {
@@ -4588,20 +4782,6 @@ export interface operations {
       422: {
         content: {
           'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Fetch Project Gallery
-   * @description Fetches all projects in the gallery
-   */
-  fetch_project_gallery_v1_project_hub_gallery_get: {
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['ProjectGalleryResponse'];
         };
       };
     };
@@ -5113,8 +5293,8 @@ export interface operations {
       };
     };
   };
-  /** Get Datums By Ids External */
-  get_datums_by_ids_external_v1_project_data_get_post: {
+  /** Get Datums By Ids Handler */
+  get_datums_by_ids_handler_v1_project_data_get_post: {
     requestBody: {
       content: {
         'application/json': components['schemas']['GetDatumRequest'];
@@ -5872,20 +6052,6 @@ export interface operations {
     };
   };
   /**
-   * Fetch Project Gallery
-   * @description Fetches all projects in the gallery
-   */
-  fetch_project_gallery_v1_dataset_hub_gallery_get: {
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['ProjectGalleryResponse'];
-        };
-      };
-    };
-  };
-  /**
    * Fetch All Project
    * @deprecated
    * @description Fetches all project for authenticated user.
@@ -6392,8 +6558,8 @@ export interface operations {
       };
     };
   };
-  /** Get Datums By Ids External */
-  get_datums_by_ids_external_v1_dataset_data_get_post: {
+  /** Get Datums By Ids Handler */
+  get_datums_by_ids_handler_v1_dataset_data_get_post: {
     requestBody: {
       content: {
         'application/json': components['schemas']['GetDatumRequest'];
@@ -7376,8 +7542,6 @@ export interface operations {
       query?: {
         /** @description Search term to match on project name or description */
         search_term?: string;
-        /** @description Tags to match against dataset tags */
-        dataset_tags?: string[];
       };
     };
     responses: {
