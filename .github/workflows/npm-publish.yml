@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14' # or whatever version you prefer
+          node-version: '20'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install release-please
