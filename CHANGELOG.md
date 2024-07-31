@@ -1,75 +1,78 @@
-# 0.11.0
+# Changelog
 
-- This PR disentangles two concepts in the module:
+## [0.10.1](https://github.com/nomic-ai/ts-nomic/compare/v0.10.0...v0.10.1) (2024-07-24)
 
-  1. The AtlasUser in the system, which is a set of information like an e-mail, a name, a profile picture, etc.
-  2. The basket of permissions that we hit the API endpoint with.
+_Introduced Release-Please for Release Management_
 
-  Fusing them together leads to a monstrous solipsism where the AtlasUser cannot imagine any user other than himself. He cannot collaborate with other AtlasUsers unless they give him full access to their APIKeys and authority to hit endpoints with them.
+### Bug Fixes
 
-  Following practice at Meta, we introduce a new fundamental class called the `AtlasViewer`, which is the agent making requests. `AtlasUser` is just the person in the system. For the time being `AtlasUser` still accepts keys in its constructor, but it passes them through to the underlying AtlasViewer: this behavior will probably be deprecated in version 1.0.
+- openapi script and file ([#54](https://github.com/nomic-ai/ts-nomic/issues/54)) ([65631bf](https://github.com/nomic-ai/ts-nomic/commit/65631bfc6649fda0b0fd9641fa1437359e199b46))
 
-# 0.10.0
+## 0.10.0
 
-# 0.9.6
+- Add `fetchAttr`, `withLoadedAttr`, and `attr` methods to `BaseAtlasClass` to allow for a single reliable
+  way to await attributes with cache-busting.
+- Add support for nearest-neighbor search by vector.
+
+## 0.9.6
 
 - Rename "AtlasProject" to "AtlasDataset" with backwards compatible alias.
 
-# 0.9.5
+## 0.9.5
 
 - Fixed issue with duplicate detection parameters
 
-# 0.9.4
+## 0.9.4
 
 - Deprecated 'update_indices' method
 
-# 0.9.3
+## 0.9.3
 
 - Change default projection hyperparameters.
 
-# 0.9.2
+## 0.9.2
 
 - Support for different embedding tasks
 - Support for nomic-embed-text-v1.5
 
-# 0.9.1
+## 0.9.1
 
 - Minor patch
 
-# 0.9.0
+## 0.9.0
 
 - Full support of embedding endpoints with API keys.
 
-# 0.8.0
+## 0.8.0
 
 - Support new Nomic API keys for requests.
 - Improved support of tagging.
 
-# 0.7.0
+## 0.7.0
 
 - Methods for creating, updating, deleting tags and tag masks
 - Tests for tagging methods
 - Adding default organization to user info so tests get run in tester's organization
 
-# 0.6.2
+## 0.6.2
 
 - Improve typing of index creation function
 
-# 0.6.1
+## 0.6.1
 
 - Export APIError for external usage
 - uploadArrow now accepts a serialized arrow IPC file in addition to an arrow table
 - Fix URL for projection information
 
-# 0.6.0
+## 0.6.0
 
 - Remove all use of `/public` endpoints.
 
-# 0.5.1
+## 0.5.1
 
 - Improved handling of API Errors with APIError class
 
-# 0.5.0
+## 0.5.0
 
 - Switch to more consistent constructor patter of `new AtlasProject(id, user, options)
 - Switch to more consistent `info()` pattern as promise.
@@ -77,51 +80,51 @@
 - Add `AtlasProject.clear()` to clear cache, and call at the end of the `waitForProjectLock` method.
 - Have `AtlasProject` use `AtlasUser` for its `info()` method to allow private method.
 
-# 0.4.4
+## 0.4.4
 
 - Allow passing tables as Uint8Arrays rather than Arrow.Table objects.
 
-# 0.4.3
+## 0.4.3
 
 - `Project.info` calls `User.apiCall()` instead of `Project.apiCall()` to avoid infinite recursion in certain cases.
 
-# 0.4.2
+## 0.4.2
 
 - autocorrect requests
 
-# 0.4.1
+## 0.4.1
 
 - add boolean flag to identify unauthenticated users.
 
-# 0.4.0
+## 0.4.0
 
 - Refactored User.apiCall to deserialize JSON and Arrow before returning (breaking change)
 
-# 0.3.4
+## 0.3.4
 
 - Added protocol switch for localhost development
 - Updated apache-arrow to 12.0.1
 
-# 0.3.3
+## 0.3.3
 
 - Re-added env variable for setting domain
 
-# 0.3.2
+## 0.3.2
 
 - Bump code for commit.
 
-# 0.3.1
+## 0.3.1
 
 - Move tests from typescript to javascript
 - Add '.js' suffix to all imports
 - Move remote URL model from struct called 'tenants' to a single 'apiLocation'.
 
-# 0.3.0
+## 0.3.0
 
 - Refactoring of environment setting
 - Change to AtlasUser initialization
 
-# 0.2.0
+## 0.2.0
 
 2023-06-23
 
@@ -129,10 +132,12 @@
 - Remove build artifacts from repo.
 - Change 'create_project' to be method on `AtlasOrganization`.
 
-# 0.1.1 - 0.1.6
+## 0.1.1 - 0.1.6
 
 Private releases
 
-# 0.1.0
+## 0.1.0
 
 First release
+
+> > > > > > > main

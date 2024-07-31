@@ -189,8 +189,19 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
    * @param ids A list of identifiers to fetch from the server.
    */
 
-  async fetch_ids(ids?: string[]): Promise<Record<string, any>[]> {
-    throw new Error('Not implemented');
+  async fetch_ids(
+    ids?: string[]
+  ): Promise<Record<string, Record<string, any>>> {
+    if (ids === undefined) {
+      return {};
+    }
+    const response = await this.apiCall(
+      '/v1/project/data/get',
+      'POST',
+      { project_id: this.id, datum_ids: ids },
+      null
+    );
+    return response as Record<string, Record<string, any>>;
   }
 
   async createIndex(

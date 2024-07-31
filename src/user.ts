@@ -7,7 +7,7 @@ export const isNode =
 export type LoadedObject<
   T extends BaseAtlasClass<U>,
   U extends Record<string, any>
-> = T & { i: U };
+> = T & { attr: U };
 
 export abstract class BaseAtlasClass<
   AttributesType extends Record<string, any>
@@ -70,7 +70,7 @@ export abstract class BaseAtlasClass<
    *
    *
    * @returns a LoadedObject instance of the class that is guaranteed to
-   *  have its `i` slot populated with appropriate information.
+   *  have its `attr` slot populated with appropriate information.
    *
    * @example
    *  const loadedProject = await (new AtlasProject(projectId)).withLoadedAttributes()

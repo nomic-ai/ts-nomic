@@ -4,6 +4,7 @@ import { AtlasProjection } from './projection.js';
 import { AtlasDataset as AtlasDataset } from './project.js';
 import type { Table } from 'apache-arrow';
 import { AtlasViewer } from 'viewer.js';
+import type { components } from './type-gen/openapi.js';
 
 type IndexInitializationOptions = {
   project_id?: Atlas.UUID;
@@ -119,5 +120,30 @@ export class AtlasIndex extends BaseAtlasClass<{}> {
       }
     )) as Table;
     return tb;
+  }
+
+  /**
+   *
+   * @param param0 A keyed dictionary including `k` (the number of neighbors to return)
+   * and `queries` (a list of vectors to search for).
+   * @returns
+   */
+  async nearest_neighbors_by_vector({
+    k = 10,
+    queries,
+  }: Omit<
+    components['schemas']['EmbeddingNeighborRequest'],
+    'atlas_index_id'
+  >): Promise<components['schemas']['EmbeddingNeighborResponse']> {
+    const { neighbors, distances } = (await this.apiCall(
+      `/v1/project/data/get/nearest_neighbors/by_embedding`,
+      'POST',
+      {
+        atlas_index_id: this.id,
+        k,
+        queries,
+      }
+    )) as components['schemas']['EmbeddingNeighborResponse'];
+    return { neighbors, distances };
   }
 }
