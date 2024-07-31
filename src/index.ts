@@ -3,8 +3,8 @@ import type { AtlasUser } from './user.js';
 import { AtlasProjection } from './projection.js';
 import { AtlasDataset as AtlasDataset } from './project.js';
 import type { Table } from 'apache-arrow';
-import { AtlasViewer } from 'viewer.js';
-import type { components } from 'type-gen/openapi.js';
+import { AtlasViewer } from './viewer.js';
+import type { components } from './type-gen/openapi.js';
 
 type IndexInitializationOptions = {
   project_id?: Atlas.UUID;

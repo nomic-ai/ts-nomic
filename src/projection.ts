@@ -3,8 +3,8 @@ import { BaseAtlasClass } from './user.js';
 import type { AtlasUser } from './user.js';
 import { AtlasDataset } from './project.js';
 import type { AtlasIndex } from './index.js';
-import { AtlasViewer } from 'viewer.js';
-import type { components } from 'type-gen/openapi.js';
+import { AtlasViewer } from './viewer.js';
+import type { components } from './type-gen/openapi.js';
 
 export type ProjectGetInfo = components['schemas']['Project'];
 

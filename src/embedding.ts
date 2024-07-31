@@ -1,4 +1,4 @@
-import { AtlasViewer } from 'viewer.js';
+import { AtlasViewer } from './viewer.js';
 import { BaseAtlasClass, AtlasUser } from './user.js';
 
 type TaskType =
