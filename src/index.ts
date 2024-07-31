@@ -3,6 +3,7 @@ import type { AtlasUser } from './user.js';
 import { AtlasProjection } from './projection.js';
 import { AtlasDataset as AtlasDataset } from './project.js';
 import type { Table } from 'apache-arrow';
+import { AtlasViewer } from './viewer.js';
 import type { components } from './type-gen/openapi.js';
 
 type IndexInitializationOptions = {
@@ -17,7 +18,7 @@ export class AtlasIndex extends BaseAtlasClass<{}> {
 
   constructor(
     id: Atlas.UUID,
-    user?: AtlasUser,
+    user?: AtlasUser | AtlasViewer,
     options: IndexInitializationOptions = {}
   ) {
     super(user);
@@ -32,7 +33,7 @@ export class AtlasIndex extends BaseAtlasClass<{}> {
     this.id = id;
   }
 
-  endpoint(): string {
+  protected endpoint(): string {
     throw new Error('There is no info property on Atlas Indexes');
   }
 
@@ -80,7 +81,7 @@ export class AtlasIndex extends BaseAtlasClass<{}> {
           ?.projections || [];
       this._projections = projections.map(
         (d) =>
-          new AtlasProjection(d.id as string, this.user, {
+          new AtlasProjection(d.id as string, this.viewer, {
             index: this,
             project: this.project,
           })

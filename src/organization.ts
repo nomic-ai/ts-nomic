@@ -1,16 +1,11 @@
-import { AtlasUser, BaseAtlasClass, get_env_user } from './user.js';
+import { AtlasUser, BaseAtlasClass, getEnvViewer } from './user.js';
 import { AtlasDataset } from './project.js';
-
+import type { components } from './type-gen/openapi.js';
 type UUID = string;
 
-type OrganizationInfo = {
-  id: UUID;
-  projects: OrganizationProjectInfo[];
-};
-
-export type OrganizationProjectInfo = {
-  id: UUID;
-};
+export type OrganizationInfo =
+  | components['schemas']['PublicOrganizationResponse']
+  | components['schemas']['Organization'];
 
 type ProjectInitOptions = {
   project_name: string;
@@ -26,7 +21,7 @@ export class AtlasOrganization extends BaseAtlasClass<OrganizationInfo> {
     this.id = id;
   }
 
-  endpoint() {
+  protected endpoint() {
     return `/v1/organization/${this.id}`;
   }
 
@@ -36,7 +31,6 @@ export class AtlasOrganization extends BaseAtlasClass<OrganizationInfo> {
   }
 
   async create_project(options: ProjectInitOptions): Promise<AtlasDataset> {
-    const user = this.user;
     if (options.unique_id_field === undefined) {
       throw new Error('unique_id_field is required');
     }
@@ -47,10 +41,10 @@ export class AtlasOrganization extends BaseAtlasClass<OrganizationInfo> {
     type CreateResponse = {
       project_id: UUID;
     };
-    const data = (await user.apiCall(`/v1/project/create`, 'POST', {
+    const data = (await this.apiCall(`/v1/project/create`, 'POST', {
       ...options,
       organization_id: this.id,
     })) as CreateResponse;
-    return new AtlasDataset(data['project_id'], user);
+    return new AtlasDataset(data['project_id'], this.viewer);
   }
 }

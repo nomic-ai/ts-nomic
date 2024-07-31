@@ -1,10 +1,9 @@
 import type { Schema, Table } from 'apache-arrow';
-import type { ApiCallOptions } from './user.js';
 import { tableToIPC, tableFromJSON, tableFromIPC } from 'apache-arrow';
-import { AtlasUser, get_env_user, BaseAtlasClass } from './user.js';
+import { AtlasUser, BaseAtlasClass } from './user.js';
 import { AtlasIndex } from './index.js';
+import { AtlasViewer } from './viewer.js';
 // get the API key from the node environment
-import { OrganizationProjectInfo } from 'organization.js';
 type UUID = string;
 
 export function load_project(options: Atlas.LoadProjectOptions): AtlasDataset {
@@ -74,7 +73,7 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
    *
    * @returns An AtlasDataset object.
    */
-  constructor(id: UUID | string, user?: AtlasUser) {
+  constructor(id: UUID | string, user?: AtlasUser | AtlasViewer) {
     super(user);
     // check if id is a valid UUID
 
@@ -88,9 +87,12 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
     }
   }
 
+  /**
+   *
+   * @returns A list of projection summaries, sorted so that the first is
+   * the most useable (defined as ready and newest)
+   */
   public async projectionSummaries() {
-    // Returns a list of projection summaries, sorted so that the first is
-    // the most useable (defined as ready and newest)
     const projections = [];
     const info = await this.fetchAttributes();
     for (const index of info.atlas_indices) {
@@ -111,17 +113,6 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
     return projections;
   }
 
-  async apiCall(
-    endpoint: string,
-    method: 'GET' | 'POST',
-    payload: Atlas.Payload = null,
-    headers: null | Record<string, string> = null,
-    options: ApiCallOptions = {}
-  ) {
-    const fixedEndpoint = this._fixEndpointURL(endpoint);
-    return this.user.apiCall(fixedEndpoint, method, payload, headers, options);
-  }
-
   async delete() {
     const value = await this.apiCall(`/v1/project/remove`, 'POST', {
       project_id: this.id,
@@ -139,7 +130,8 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
     return new Promise((resolve, reject) => {
       const interval = setInterval(async () => {
         // Create a new project to clear the cache.
-        const renewed = new AtlasDataset(this.id, this.user);
+
+        const renewed = new AtlasDataset(this.id, this.viewer);
         const info = (await renewed.fetchAttributes()) as Atlas.ProjectInfo;
         if (info.insert_update_delete_lock === false) {
           clearInterval(interval);
@@ -151,18 +143,8 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
     });
   }
 
-  endpoint() {
+  protected endpoint() {
     return `/v1/project/${this.id}`;
-  }
-
-  _fixEndpointURL(endpoint: string): string {
-    // Don't mandate starting with a slash
-    if (!endpoint.startsWith('/')) {
-      throw new Error('Must start endpoints with slashes');
-      console.warn(`DANGER: endpoint ${endpoint} doesn't start with a slash`);
-      endpoint = '/' + endpoint;
-    }
-    return endpoint;
   }
 
   async indices(): Promise<AtlasIndex[]> {
@@ -171,13 +153,13 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
     }
     const { atlas_indices } =
       (await this.fetchAttributes()) as Atlas.ProjectInfo;
-    console.log(await this.fetchAttributes(), atlas_indices, 'INFO');
+
     if (atlas_indices === undefined) {
       return [];
     }
     const options = { project: this };
     this._indices = atlas_indices.map(
-      (d) => new AtlasIndex(d['id'], this.user, options)
+      (d) => new AtlasIndex(d['id'], this.viewer, options)
     );
     return this._indices;
   }
@@ -280,7 +262,16 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
       fields
     );
     const id = response as string;
-    return new AtlasIndex(id, this.user, { project: this });
+    return new AtlasIndex(id, this.viewer, { project: this });
+  }
+
+  async delete_data(ids: string[]): Promise<void> {
+    // TODO: untested
+    // const info = await this.info
+    await this.viewer.apiCall('/v1/project/data/delete', 'POST', {
+      project_id: this.id,
+      datum_ids: ids,
+    });
   }
 
   validate_metadata(): void {

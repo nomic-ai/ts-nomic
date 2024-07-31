@@ -1152,11 +1152,13 @@ export interface components {
        * @description The content types of the blobs.
        */
       content_type?: unknown[] | string;
+      /** Urls */
+      urls?: string[];
       /**
        * Blobs
-       * @description The blobs to be added to the project.
+       * @description A batch of blobs you want to upload to Atlas
        */
-      blobs: string[];
+      blobs?: string[];
     };
     /** Body_add_blob_v1_project_data_add_blobs_post */
     Body_add_blob_v1_project_data_add_blobs_post: {
@@ -1170,11 +1172,13 @@ export interface components {
        * @description The content types of the blobs.
        */
       content_type?: unknown[] | string;
+      /** Urls */
+      urls?: string[];
       /**
        * Blobs
-       * @description The blobs to be added to the project.
+       * @description A batch of blobs you want to upload to Atlas
        */
-      blobs: string[];
+      blobs?: string[];
     };
     /** CreateAtlasIndexRequest */
     CreateAtlasIndexRequest: {
@@ -1550,6 +1554,12 @@ export interface components {
        * @description Tags associated with the project from dataset_tags table.
        */
       tags: string[];
+      /**
+       * Index Job End Timestamp
+       * Format: date-time
+       * @description The timestamp the map index job finished.
+       */
+      index_job_end_timestamp: string;
     };
     /** DeletePendingInvitationRequest */
     DeletePendingInvitationRequest: {
@@ -2632,6 +2642,12 @@ export interface components {
        * @example member
        */
       access_role: string;
+      /**
+       * Plan Type
+       * @description Plan type
+       * @example enterprise
+       */
+      plan_type: string;
       /**
        * Permissions
        * @description User permissions in organization

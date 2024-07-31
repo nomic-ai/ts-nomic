@@ -1,3 +1,4 @@
+import { AtlasViewer } from './viewer.js';
 import { BaseAtlasClass, AtlasUser } from './user.js';
 
 type TaskType =
@@ -49,7 +50,7 @@ const BATCH_SIZE = 32;
  * const embeddings = await embedder.embed(documents)
  * ```
  *
- * GOOD -- Nomic will combine your small requests into several medium-size
+ * GOOD -- Nomic will combine your small requests into several medium-size ones.
  * ```js
  * const documents = ["Once upon a time", "there was a girl named Goldilocks", …, "and they all lived happily ever after"]
  * const embedder = new Embedder(myApiKey)
@@ -60,7 +61,7 @@ const BATCH_SIZE = 32;
  * const embeddings = await Promise.all(promises)
  * ```
  *
- * BAD -- You will generate many small, inefficient requests
+ * BAD -- You will generate many small, inefficient requests.
  * ```js
  *  * const documents = ["Once upon a time", "there was a girl named Goldilocks", …, "and they all lived happily ever after"]
  * const embedder = new Embedder(myApiKey)
@@ -98,28 +99,32 @@ export class Embedder extends BaseAtlasClass<{}> {
    */
   constructor(apiKey: string, options: EmbedderOptions);
   constructor(user: AtlasUser, options: EmbedderOptions);
-  constructor(input: string | AtlasUser, options: EmbedderOptions = {}) {
+  constructor(viewer: AtlasViewer, options: EmbedderOptions);
+  constructor(
+    input: string | AtlasUser | AtlasViewer,
+    options: EmbedderOptions = {}
+  ) {
     const { model, taskType } = {
       // Defaults
       model: 'nomic-embed-text-v1.5' as EmbeddingModel,
       taskType: 'search_document' as TaskType,
       ...options,
     };
-    let user: AtlasUser;
+    let viewer: AtlasViewer | AtlasUser;
     if (typeof input === 'string') {
-      user = new AtlasUser({
+      viewer = new AtlasViewer({
         apiKey: input,
       });
     } else {
-      user = input;
+      viewer = input;
     }
     // Handle authentication the normal way.
-    super(user);
+    super(viewer);
     this.model = model;
     this.taskType = taskType;
   }
 
-  endpoint(): string {
+  protected endpoint(): string {
     throw new Error('Embedders do not have info() property.');
   }
 
@@ -254,7 +259,7 @@ export async function embed(
 ): Promise<Embedding | Embedding[]> {
   const machine =
     apiKey === undefined
-      ? new Embedder(new AtlasUser({ useEnvToken: true }), options)
+      ? new Embedder(new AtlasViewer({ useEnvToken: true } as const), options)
       : new Embedder(apiKey, options);
 
   if (typeof value === 'string') {

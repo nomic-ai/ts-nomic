@@ -3,9 +3,10 @@ import { BaseAtlasClass } from './user.js';
 import type { AtlasUser } from './user.js';
 import { AtlasDataset } from './project.js';
 import type { AtlasIndex } from './index.js';
-import { components } from './type-gen/openapi.js';
+import { AtlasViewer } from './viewer.js';
+import type { components } from './type-gen/openapi.js';
 
-export type ProjectGetInfo = Record<string, any>;
+export type ProjectGetInfo = components['schemas']['Project'];
 
 type UUID = string;
 
@@ -13,10 +14,17 @@ export type DeleteTagRequest = {
   tag_id: UUID;
 };
 
+/**
+ * Options for initializing a projection.
+ */
 type ProjectionInitializationOptions = {
+  // The project that this projection belongs to.
   project?: AtlasDataset;
+  // The index that this projection belongs to.
   index?: AtlasIndex;
+  // The project ID that this projection belongs to.
   project_id?: UUID;
+  // The user object to query with.
   user?: AtlasUser;
 };
 
@@ -87,17 +95,27 @@ type TagStatus = {
 };
 
 export class AtlasProjection extends BaseAtlasClass<ProjectGetInfo> {
+  /**
+   * A projection is a map in Atlas; it represents a snapshot 2d view of a dataset
+   * at a point in time. Every projection belongs to a Dataset.
+   */
   _project?: AtlasDataset;
   project_id: UUID;
   _index?: AtlasIndex;
 
+  /**
+   *
+   * @param id The UUID of the projection to retrieve.
+   * @param user The user object to query with.
+   * @param options Options for initializing the projection.
+   */
   constructor(
     public id: UUID,
-    user?: AtlasUser,
+    user?: AtlasUser | AtlasViewer,
     options: ProjectionInitializationOptions = {}
   ) {
     const { project, project_id } = options;
-    super(user || project?.user);
+    super(user || project?.viewer);
 
     if (project_id === undefined && project === undefined) {
       throw new Error('project_id or project is required');
@@ -267,7 +285,7 @@ export class AtlasProjection extends BaseAtlasClass<ProjectGetInfo> {
 
   async project(): Promise<AtlasDataset> {
     if (this._project === undefined) {
-      this._project = new AtlasDataset(this.project_id, this.user);
+      this._project = new AtlasDataset(this.project_id, this.viewer);
     }
     return this._project;
   }
@@ -298,13 +316,13 @@ export class AtlasProjection extends BaseAtlasClass<ProjectGetInfo> {
    * 'public' may be be added in fetching.
    */
   get quadtree_root(): string {
-    const protocol = this.user.apiLocation.startsWith('localhost')
+    const protocol = this.viewer.apiLocation.startsWith('localhost')
       ? 'http'
       : 'https';
-    return `${protocol}://${this.user.apiLocation}/v1/project/${this.project_id}/index/projection/${this.id}/quadtree`;
+    return `${protocol}://${this.viewer.apiLocation}/v1/project/${this.project_id}/index/projection/${this.id}/quadtree`;
   }
 
-  endpoint() {
+  protected endpoint() {
     return `/v1/project/${this.project_id}/index/projection/${this.id}`;
   }
 
