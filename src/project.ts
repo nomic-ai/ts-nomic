@@ -1,8 +1,8 @@
 import type { Schema, Table } from 'apache-arrow';
-import type { ApiCallOptions } from './user.js';
 import { tableToIPC, tableFromJSON, tableFromIPC } from 'apache-arrow';
-import { AtlasUser, get_env_user, BaseAtlasClass } from './user.js';
+import { AtlasUser, BaseAtlasClass } from './user.js';
 import { AtlasIndex } from './index.js';
+import { AtlasViewer } from './viewer.js';
 // get the API key from the node environment
 type UUID = string;
 
@@ -73,7 +73,7 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
    *
    * @returns An AtlasDataset object.
    */
-  constructor(id: UUID | string, user?: AtlasUser) {
+  constructor(id: UUID | string, user?: AtlasUser | AtlasViewer) {
     super(user);
     // check if id is a valid UUID
 
@@ -130,7 +130,8 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
     return new Promise((resolve, reject) => {
       const interval = setInterval(async () => {
         // Create a new project to clear the cache.
-        const renewed = new AtlasDataset(this.id, this.user);
+
+        const renewed = new AtlasDataset(this.id, this.viewer);
         const info = (await renewed.fetchAttributes()) as Atlas.ProjectInfo;
         if (info.insert_update_delete_lock === false) {
           clearInterval(interval);
@@ -142,7 +143,7 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
     });
   }
 
-  endpoint() {
+  protected endpoint() {
     return `/v1/project/${this.id}`;
   }
 
@@ -158,7 +159,7 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
     }
     const options = { project: this };
     this._indices = atlas_indices.map(
-      (d) => new AtlasIndex(d['id'], this.user, options)
+      (d) => new AtlasIndex(d['id'], this.viewer, options)
     );
     return this._indices;
   }
@@ -188,8 +189,19 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
    * @param ids A list of identifiers to fetch from the server.
    */
 
-  async fetch_ids(ids?: string[]): Promise<Record<string, any>[]> {
-    throw new Error('Not implemented');
+  async fetch_ids(
+    ids?: string[]
+  ): Promise<Record<string, Record<string, any>>> {
+    if (ids === undefined) {
+      return {};
+    }
+    const response = await this.apiCall(
+      '/v1/project/data/get',
+      'POST',
+      { project_id: this.id, datum_ids: ids },
+      null
+    );
+    return response as Record<string, Record<string, any>>;
   }
 
   async createIndex(
@@ -250,13 +262,13 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
       fields
     );
     const id = response as string;
-    return new AtlasIndex(id, this.user, { project: this });
+    return new AtlasIndex(id, this.viewer, { project: this });
   }
 
   async delete_data(ids: string[]): Promise<void> {
     // TODO: untested
     // const info = await this.info
-    await this.user.apiCall('/v1/project/data/delete', 'POST', {
+    await this.viewer.apiCall('/v1/project/data/delete', 'POST', {
       project_id: this.id,
       datum_ids: ids,
     });

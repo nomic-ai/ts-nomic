@@ -1,0 +1,17 @@
+version: 1.3
+
+about:
+  - This is a codebase for the Typescript SDK of Nomic Atlas. Atlas is a web based service that allows users to store and interact with unstructure datasets. The SDK should be useful for developers who want to interact with the Atlas API in both Node and browser environments.
+
+pr_review:
+  confidence_threshold: 0.7
+  rules:
+    - "Code should be DRY (Don't Repeat Yourself)"
+    - 'There should no secrets or credentials in the code'
+    - 'Extremely Complicated Code Needs Comments'
+    - 'Use Descriptive Variable and Constant Names'
+    - "Requests to APIs must have error handling, they shouldn't solely just the network error"
+    - 'Use retries when calling external API services'
+    - "Don't log sensitive data"
+    - 'Follow the Single Responsibility Principle'
+    - 'Function and Method Naming Should Follow Consistent Patterns'

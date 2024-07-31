@@ -3,6 +3,8 @@ import type { AtlasUser } from './user.js';
 import { AtlasProjection } from './projection.js';
 import { AtlasDataset as AtlasDataset } from './project.js';
 import type { Table } from 'apache-arrow';
+import { AtlasViewer } from './viewer.js';
+import type { components } from './type-gen/openapi.js';
 
 type IndexInitializationOptions = {
   project_id?: Atlas.UUID;
@@ -16,7 +18,7 @@ export class AtlasIndex extends BaseAtlasClass<{}> {
 
   constructor(
     id: Atlas.UUID,
-    user?: AtlasUser,
+    user?: AtlasUser | AtlasViewer,
     options: IndexInitializationOptions = {}
   ) {
     super(user);
@@ -31,7 +33,7 @@ export class AtlasIndex extends BaseAtlasClass<{}> {
     this.id = id;
   }
 
-  endpoint(): string {
+  protected endpoint(): string {
     throw new Error('There is no info property on Atlas Indexes');
   }
 
@@ -79,7 +81,7 @@ export class AtlasIndex extends BaseAtlasClass<{}> {
           ?.projections || [];
       this._projections = projections.map(
         (d) =>
-          new AtlasProjection(d.id as string, this.user, {
+          new AtlasProjection(d.id as string, this.viewer, {
             index: this,
             project: this.project,
           })
@@ -118,5 +120,30 @@ export class AtlasIndex extends BaseAtlasClass<{}> {
       }
     )) as Table;
     return tb;
+  }
+
+  /**
+   *
+   * @param param0 A keyed dictionary including `k` (the number of neighbors to return)
+   * and `queries` (a list of vectors to search for).
+   * @returns
+   */
+  async nearest_neighbors_by_vector({
+    k = 10,
+    queries,
+  }: Omit<
+    components['schemas']['EmbeddingNeighborRequest'],
+    'atlas_index_id'
+  >): Promise<components['schemas']['EmbeddingNeighborResponse']> {
+    const { neighbors, distances } = (await this.apiCall(
+      `/v1/project/data/get/nearest_neighbors/by_embedding`,
+      'POST',
+      {
+        atlas_index_id: this.id,
+        k,
+        queries,
+      }
+    )) as components['schemas']['EmbeddingNeighborResponse'];
+    return { neighbors, distances };
   }
 }

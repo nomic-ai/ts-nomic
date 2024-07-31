@@ -52,4 +52,45 @@ declare namespace Atlas {
   };
   type Payload = Record<string, any> | Uint8Array | null;
   type AtlasUser = {};
+
+  type Envlogin = {
+    useEnvToken: true;
+    apiLocation?: never;
+    apiKey?: never;
+    bearerToken?: never;
+  };
+  type ApiKeyLogin = {
+    useEnvToken?: never;
+    apiLocation?: string;
+    apiKey: string;
+    bearerToken?: never;
+  };
+  type BearerTokenLogin = {
+    useEnvToken?: never;
+    bearerToken: string;
+    apiLocation?: string;
+    apiKey?: never;
+  };
+  type AnonViewerLogin = {
+    useEnvToken?: never;
+    bearerToken?: never;
+    apiLocation?: string;
+    apiKey?: never;
+  };
+  type LoginParams =
+    | Envlogin
+    | ApiKeyLogin
+    | BearerTokenLogin
+    | AnonViewerLogin;
+
+  type ApiCallOptions = {
+    octetStreamAsUint8?: boolean;
+  };
+
+  type TokenRefreshResponse = any;
+  interface Credentials {
+    refresh_token: string | null;
+    token: string;
+    expires: number;
+  }
 }
