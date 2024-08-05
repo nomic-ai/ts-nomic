@@ -21,7 +21,8 @@
     "build-types": "openapi-typescript https://api-atlas.nomic.ai/v1/api-reference/openapi.json -o ./src/type-gen/openapi.d.ts",
     "build": "tsc",
     "build:watch": "tsc -w",
-    "prepublish": "npm run build",
+    "insert-version": "node -e \"const fs = require('fs'); const pkg = require('./package.json'); fs.writeFileSync('./src/version.ts', 'export const version = \\'' + pkg.version + '\\';');\"",
+    "prepublishOnly": "npm run insert-version && npm run build",
     "precommit": "pretty-quick --staged",
     "prepare": "husky install .husky"
   },

@@ -1,5 +1,5 @@
 import { Table, tableFromIPC } from 'apache-arrow';
-import { version } from '../package.json';
+import { version } from './version';
 
 export class AtlasViewer {
   /* 
