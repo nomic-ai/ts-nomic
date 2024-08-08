@@ -1,5 +1,7 @@
 import { Table, tableFromIPC } from 'apache-arrow';
 import { version } from './version';
+import type { paths } from './type-gen/openapi';
+import createClient, { type Middleware } from 'openapi-fetch';
 
 export class AtlasViewer {
   /* 
@@ -15,6 +17,7 @@ export class AtlasViewer {
   // The location of the endpoint being called. Usually api-atlas.nomic.ai, but may
   // differ in testing or enterprise deployments.
   apiLocation: string;
+  apiClient: ReturnType<typeof createClient<paths>>;
 
   /**`
    *
@@ -64,6 +67,38 @@ export class AtlasViewer {
       this.anonymous = true;
       this.credentials = Promise.resolve(null);
     }
+
+    const protocol = this.apiLocation.startsWith('localhost')
+      ? 'http'
+      : 'https';
+
+    this.apiClient = createClient<paths>({
+      baseUrl: `${protocol}://${this.apiLocation}`,
+    });
+
+    this.apiClient.use({
+      // Add a middleware to add the Authorization header to all requests
+      onRequest: async ({ request, options }) => {
+        const credentials = await this.credentials;
+        if (credentials && credentials.token) {
+          request.headers.set('Authorization', `Bearer ${credentials.token}`);
+        }
+        request.headers.set('User-Agent', `ts-nomic/${version}`);
+      },
+      // Add a middleware to handle errors
+      onResponse: async ({ response }) => {
+        // This is a holdover from the old apiCall method. Do we still want to do this?
+        if (response.status < 200 || response.status > 299) {
+          const responseBody = await response.text();
+          throw new APIError(
+            response.status,
+            response.statusText,
+            response.headers,
+            responseBody
+          );
+        }
+      },
+    });
   }
 
   /**
