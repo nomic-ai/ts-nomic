@@ -1,5 +1,4 @@
 import { test } from 'uvu';
-import * as arrow from 'apache-arrow';
 import * as assert from 'uvu/assert';
 import { AtlasDataset } from '../dist/project.js';
 import { make_test_table } from './arrow.test.js';
@@ -10,12 +9,14 @@ import { AtlasOrganization } from '../dist/organization.js';
 test('Full project flow', async () => {
   // get user
   console.log('getting user');
-  const user = new AtlasUser({ useEnvToken: true });
+  const user = await new AtlasUser({
+    useEnvToken: true,
+  }).withLoadedAttributes();
 
   console.log('THIS TEST IS RUNNING ON: ', user.apiLocation);
   // get organization for user
   console.log('getting organization');
-  const user_info = await user.info();
+  const user_info = user.attr;
   let organization_id = null;
   if (user_info.default_organization === undefined) {
     organization_id = user_info.organizations[0].organization_id;
@@ -38,12 +39,21 @@ test('Full project flow', async () => {
   });
   // fetch project from user and project id
   console.log('fetching project');
-  const project2 = new AtlasDataset(project.id, user);
+  const project2 = await new AtlasDataset(
+    project.id,
+    user
+  ).withLoadedAttributes();
+  console.log(project2);
   assert.is(project2.id, project.id);
   // upload arrow table to project
   console.log('uploading arrow');
   const tb = make_test_table({ length: 50, modality: 'text' });
-  await project.uploadArrow(tb);
+
+  await project.uploadArrow(tb).catch((err) => {
+    console.log(err);
+    throw err;
+  });
+
   // create index on project
   console.log('creating index');
   await project.createIndex({

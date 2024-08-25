@@ -6,12 +6,11 @@ import { AtlasOrganization } from '../dist/organization.js';
 // TODO - should have a dedicated test account here
 
 test('AtlasOrganization test', async () => {
-  const user = new AtlasUser({ useEnvToken: true });
+  const user = await new AtlasUser({
+    useEnvToken: true,
+  }).withLoadedAttributes();
 
-  const info = await user.info().catch((err) => {
-    console.error(err);
-    throw err;
-  });
+  const info = user.attr;
 
   const organization = new AtlasOrganization(
     info.organizations[0].organization_id,
@@ -23,9 +22,10 @@ test('AtlasOrganization test', async () => {
 test('AtlasUser from env variables', async () => {
   // This is using the ATLAS_API_KEY env variable
   // If this isn't found it will break
-  const user = new AtlasUser({ useEnvToken: true });
-  const info = await user.info();
-  assert.type(info, 'object');
+  const user = await new AtlasUser({
+    useEnvToken: true,
+  }).withLoadedAttributes();
+  assert.type(user.attr, 'object');
 });
 
 test('AtlasUser from api key', async () => {
@@ -33,9 +33,10 @@ test('AtlasUser from api key', async () => {
   if (key === undefined) {
     throw new Error('ATLAS_API_KEY not set');
   }
-  const user = new AtlasUser({ apiKey: key });
-  const info = await user.info();
-  assert.type(info, 'object');
+  const user = await new AtlasUser({
+    useEnvToken: true,
+  }).withLoadedAttributes();
+  assert.type(user.attr, 'object');
 });
 
 // TODO - tests for bearer token login
