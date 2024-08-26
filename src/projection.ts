@@ -28,13 +28,42 @@ type ProjectionInitializationOptions = {
   user?: AtlasUser;
 };
 
-type TagResponse = {
+// Internal type --
+type UnparsedTagResponse = {
   tag_id: UUID;
   tag_definition_id: string;
   tag_name?: string;
   user_id?: string;
   dsl_rule?: string;
 };
+
+// TODO: Firmly reflect the atlas-next types for this.
+type DslRule = Record<string, any>;
+
+type Tag = {
+  tag_id: UUID;
+  tag_definition_id: string;
+  tag_name: string;
+  user_id: string;
+  dsl_rule?: DslRule;
+};
+
+function parseTagResponse(tag: UnparsedTagResponse): Tag {
+  if (tag.tag_name === undefined || tag.user_id === undefined) {
+    throw new Error('Must define tag name and user_id');
+  }
+
+  return {
+    tag_definition_id: tag.tag_definition_id,
+    tag_id: tag.tag_id,
+    user_id: tag.user_id,
+    tag_name: tag.tag_name,
+    dsl_rule:
+      tag.dsl_rule === undefined
+        ? undefined
+        : (JSON.parse(tag.dsl_rule) as DslRule),
+  };
+}
 
 type TagComponent = Record<string, any>;
 export type TagMaskOperation =
@@ -137,7 +166,7 @@ export class AtlasProjection extends BaseAtlasClass<
     }
   }
 
-  async createTag(options: CreateTagOptions): Promise<TagResponse> {
+  async createTag(options: CreateTagOptions): Promise<Tag> {
     const endpoint = '/v1/project/projection/tags/create';
     const { tag_name, dsl_rule, tag_definition_id } = options;
 
@@ -161,11 +190,11 @@ export class AtlasProjection extends BaseAtlasClass<
       endpoint,
       'POST',
       data
-    )) as TagResponse;
-    return response;
+    )) as UnparsedTagResponse;
+    return parseTagResponse(response);
   }
 
-  async updateTag(options: UpdateTagOptions): Promise<TagResponse> {
+  async updateTag(options: UpdateTagOptions): Promise<Tag> {
     const endpoint = '/v1/project/projection/tags/update';
     const { tag_name, dsl_rule, tag_id, tag_definition_id } = options;
     if (tag_id === undefined) {
@@ -182,7 +211,12 @@ export class AtlasProjection extends BaseAtlasClass<
       tag_definition_id,
     };
 
-    return this.apiCall(endpoint, 'POST', request) as Promise<TagResponse>;
+    const v = (await this.apiCall(
+      endpoint,
+      'POST',
+      request
+    )) as UnparsedTagResponse;
+    return parseTagResponse(v);
   }
 
   async deleteTag(options: DeleteTagRequest): Promise<void> {
@@ -198,14 +232,36 @@ export class AtlasProjection extends BaseAtlasClass<
     await this.apiCall(endpoint, 'POST', data);
   }
 
-  async getTags(): Promise<Array<TagResponse>> {
+  /**
+   *
+   * @returns a list of all the tags that exist on this projection.
+   */
+  async tags(): Promise<Tag[]> {
     const endpoint = '/v1/project/projection/tags/get/all';
     const params = new URLSearchParams({
       project_id: this.project_id,
       projection_id: this.id,
     }).toString();
+    const v = (await this.apiCall(
+      `${endpoint}?${params}`,
+      'GET'
+    )) as Array<UnparsedTagResponse>;
+    return v.map(parseTagResponse);
+  }
+
+  /**
+   * @deprecated in favor of `tags()`
+   * @returns
+   */
+  async getTags(): Promise<Array<UnparsedTagResponse>> {
+    const endpoint = '/v1/project/projection/tags/get/all';
+    const params = new URLSearchParams({
+      project_id: this.project_id,
+      projection_id: this.id,
+    }).toString();
+    console.warn('getTags is deprecated, use tags instead');
     return this.apiCall(`${endpoint}?${params}`, 'GET') as Promise<
-      Array<TagResponse>
+      Array<UnparsedTagResponse>
     >;
   }
 
