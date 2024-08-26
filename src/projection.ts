@@ -94,7 +94,9 @@ type TagStatus = {
   is_complete: boolean;
 };
 
-export class AtlasProjection extends BaseAtlasClass<ProjectGetInfo> {
+export class AtlasProjection extends BaseAtlasClass<
+  components['schemas']['ProjectionResponse']
+> {
   /**
    * A projection is a map in Atlas; it represents a snapshot 2d view of a dataset
    * at a point in time. Every projection belongs to a Dataset.
