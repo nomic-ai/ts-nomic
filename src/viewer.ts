@@ -1,6 +1,7 @@
 import { Table, tableFromIPC } from 'apache-arrow';
 import { version } from './version.js';
-import { Atlas } from 'global.js';
+import * as Atlas from './global.js';
+
 export class AtlasViewer {
   /* 
   An AtlasViewer represents an agent in atlas system; it manages all credentials

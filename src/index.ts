@@ -5,7 +5,7 @@ import { AtlasDataset as AtlasDataset } from './project.js';
 import type { Table } from 'apache-arrow';
 import { AtlasViewer } from './viewer.js';
 import type { components } from './type-gen/openapi.js';
-import { Atlas } from 'global.js';
+import * as Atlas from './global.js';
 
 type IndexInitializationOptions = {
   project_id?: Atlas.UUID;
@@ -30,7 +30,8 @@ export class AtlasIndex extends BaseAtlasClass<{}> {
       throw new Error('project_id or project is required');
     }
     this.project =
-      options.project || new AtlasDataset(options.project_id as string, user);
+      options.project ||
+      new AtlasDataset(options.project_id as string, this.viewer);
     this.id = id;
   }
 
@@ -75,11 +76,10 @@ export class AtlasIndex extends BaseAtlasClass<{}> {
     if (this._projections) {
       return this._projections;
     } else {
-      const project_info =
-        (await this.project.fetchAttributes()) as Atlas.ProjectInfo;
+      const project_info = await this.project.fetchAttributes();
       const projections =
-        project_info.atlas_indices?.find((d) => d.id === this.id)
-          ?.projections || [];
+        project_info.atlas_indices.find((d) => d.id === this.id)?.projections ||
+        [];
       this._projections = projections.map(
         (d) =>
           new AtlasProjection(d.id as string, this.viewer, {
