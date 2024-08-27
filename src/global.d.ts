@@ -1,4 +1,4 @@
-declare namespace Atlas {
+export namespace Atlas {
   type UUID = string;
   type LoadProjectOptions = {
     project_id: UUID;

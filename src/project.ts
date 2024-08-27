@@ -3,6 +3,7 @@ import { tableToIPC, tableFromJSON, tableFromIPC } from 'apache-arrow';
 import { AtlasUser, BaseAtlasClass } from './user.js';
 import { AtlasIndex } from './index.js';
 import { AtlasViewer } from './viewer.js';
+import { Atlas } from 'global.js';
 // get the API key from the node environment
 type UUID = string;
 

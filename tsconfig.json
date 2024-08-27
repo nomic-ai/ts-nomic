@@ -20,5 +20,5 @@
     "strict": true,
     "declaration": true
   },
-  "include": ["global.d.ts", "src/global.d.ts", "src/**/*.ts"]
+  "include": ["src/global.d.ts", "src/**/*.ts"]
 }

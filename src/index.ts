@@ -5,6 +5,7 @@ import { AtlasDataset as AtlasDataset } from './project.js';
 import type { Table } from 'apache-arrow';
 import { AtlasViewer } from './viewer.js';
 import type { components } from './type-gen/openapi.js';
+import { Atlas } from 'global.js';
 
 type IndexInitializationOptions = {
   project_id?: Atlas.UUID;

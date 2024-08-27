@@ -1,8 +1,10 @@
-import { AtlasUser, BaseAtlasClass, getEnvViewer } from './user.js';
+import { AtlasUser, BaseAtlasClass } from './user.js';
 import { AtlasDataset } from './project.js';
 import type { components } from './type-gen/openapi.js';
+
 type UUID = string;
 
+// The response here depends on the authorization
 export type OrganizationInfo =
   | components['schemas']['PublicOrganizationResponse']
   | components['schemas']['Organization'];

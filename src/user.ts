@@ -1,5 +1,6 @@
 import { AtlasViewer } from './viewer.js';
 import type { components } from './type-gen/openapi.js';
+import { Atlas } from 'global.js';
 
 export const isNode =
   typeof process !== 'undefined' && process.versions && process.versions.node;
