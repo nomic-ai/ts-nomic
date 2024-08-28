@@ -1,8 +1,11 @@
-import { AtlasUser, BaseAtlasClass, getEnvViewer } from './user.js';
+import { AtlasUser, BaseAtlasClass } from './user.js';
 import { AtlasDataset } from './project.js';
 import type { components } from './type-gen/openapi.js';
+import { AtlasViewer } from 'viewer.js';
+
 type UUID = string;
 
+// The response here depends on the authorization
 export type OrganizationInfo =
   | components['schemas']['PublicOrganizationResponse']
   | components['schemas']['Organization'];
@@ -16,8 +19,8 @@ type ProjectInitOptions = {
 export class AtlasOrganization extends BaseAtlasClass<OrganizationInfo> {
   id: UUID;
 
-  constructor(id: UUID, user?: AtlasUser) {
-    super(user);
+  constructor(id: UUID, viewer?: AtlasViewer) {
+    super(viewer);
     this.id = id;
   }
 

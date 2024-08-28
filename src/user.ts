@@ -1,5 +1,6 @@
 import { AtlasViewer } from './viewer.js';
 import type { components } from './type-gen/openapi.js';
+import * as Atlas from './global.js';
 
 export const isNode =
   typeof process !== 'undefined' && process.versions && process.versions.node;
@@ -187,7 +188,7 @@ export class AtlasUser extends BaseAtlasClass<UserInfo> {
       (d) => d.AtlasOrganization
     );
     return organizations.map(
-      (org) => new AtlasOrganization(org.organization_id, this)
+      (org) => new AtlasOrganization(org.organization_id, this.viewer)
     );
   }
 }

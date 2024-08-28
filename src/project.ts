@@ -1,8 +1,10 @@
 import type { Schema, Table } from 'apache-arrow';
 import { tableToIPC, tableFromJSON, tableFromIPC } from 'apache-arrow';
-import { AtlasUser, BaseAtlasClass } from './user.js';
+import { BaseAtlasClass } from './user.js';
 import { AtlasIndex } from './index.js';
 import { AtlasViewer } from './viewer.js';
+import * as Atlas from './global.js';
+import { components } from 'type-gen/openapi.js';
 // get the API key from the node environment
 type UUID = string;
 
@@ -15,11 +17,6 @@ type SingleEmbedding = Array<number>;
 type EmbeddingMatrix = Array<SingleEmbedding>;
 type TypedArrayEmbedding = Float32Array | Float64Array;
 type EmbeddingType = EmbeddingMatrix | TypedArrayEmbedding;
-
-interface AddDataOptions {
-  data: DataIngest;
-  embeddings?: EmbeddingType;
-}
 
 type IndexCreateOptions = {
   project_id: UUID;
@@ -60,7 +57,9 @@ type CreateAtlasIndexRequest = {
  * interfaces to upload, update, and delete data, as well as create and delete
  * indices which handle specific views.
  */
-export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
+export class AtlasDataset extends BaseAtlasClass<
+  components['schemas']['Project']
+> {
   _indices: AtlasIndex[] = [];
   _schema?: Schema | null;
   id: UUID;
@@ -73,8 +72,8 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
    *
    * @returns An AtlasDataset object.
    */
-  constructor(id: UUID | string, user?: AtlasUser | AtlasViewer) {
-    super(user);
+  constructor(id: UUID | string, viewer?: AtlasViewer) {
+    super(viewer);
     // check if id is a valid UUID
 
     const uuidPattern =
@@ -83,7 +82,7 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
     if (!id.toLowerCase().match(uuidPattern)) {
       // throw new Error(`${id} is not a valid UUID.`);
       this.id = id;
-      this.fetchAttributes().then((i) => (this.id = i.project_id));
+      this.fetchAttributes().then((i) => (this.id = i.id));
     }
   }
 
@@ -132,7 +131,7 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
         // Create a new project to clear the cache.
 
         const renewed = new AtlasDataset(this.id, this.viewer);
-        const info = (await renewed.fetchAttributes()) as Atlas.ProjectInfo;
+        const info = await renewed.fetchAttributes();
         if (info.insert_update_delete_lock === false) {
           clearInterval(interval);
           // Clear the cache.
@@ -151,8 +150,7 @@ export class AtlasDataset extends BaseAtlasClass<Atlas.ProjectInfo> {
     if (this._indices.length > 0) {
       return this._indices;
     }
-    const { atlas_indices } =
-      (await this.fetchAttributes()) as Atlas.ProjectInfo;
+    const { atlas_indices } = await this.fetchAttributes();
 
     if (atlas_indices === undefined) {
       return [];

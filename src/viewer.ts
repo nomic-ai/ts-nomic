@@ -1,5 +1,6 @@
 import { Table, tableFromIPC } from 'apache-arrow';
-import { version } from './version';
+import { version } from './version.js';
+import * as Atlas from './global.js';
 
 export class AtlasViewer {
   /* 
