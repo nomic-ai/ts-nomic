@@ -842,6 +842,13 @@ export interface paths {
      */
     post: operations['update_dataset_member_v1_dataset__dataset_id__members_update_post'];
   };
+  '/v1/stripe/promo-code/validate': {
+    /**
+     * Validate Promo Code
+     * @description Validate a promo code against a plan type using Stripe API
+     */
+    get: operations['validate_promo_code_v1_stripe_promo_code_validate_get'];
+  };
   '/v1/stripe/subscribe': {
     /**
      * Stripe Subscription
@@ -2397,6 +2404,58 @@ export interface components {
     };
     /** Organization */
     Organization: {
+      /** @description The plan type this organization is on. */
+      plan_type: components['schemas']['OrganizationPlan'];
+      /** Max Datums Per Project */
+      max_datums_per_project: number;
+      /** Max Members */
+      max_members: number;
+      /** Max Projects */
+      max_projects: number;
+      /** Max External Collaborators */
+      max_external_collaborators: number;
+      /** Max Datums Across All Projects */
+      max_datums_across_all_projects?: number;
+      /**
+       * Private Projects
+       * @default false
+       */
+      private_projects?: boolean;
+      /** Max Text Tokens */
+      max_text_tokens?: number;
+      /** Max Image Embeddings */
+      max_image_embeddings?: number;
+      /** Max Storage */
+      max_storage?: number;
+      /** Max Premium Api Calls */
+      max_premium_api_calls?: number;
+      /** Max Non Embedding Projects */
+      max_non_embedding_projects?: number;
+      /**
+       * Features
+       * @description The features this organization is allowed to utilize.
+       */
+      features: string[];
+      /**
+       * Free Text Tokens Per Seat
+       * @default 0
+       */
+      free_text_tokens_per_seat?: number;
+      /**
+       * Free Image Embeddings Per Seat
+       * @default 0
+       */
+      free_image_embeddings_per_seat?: number;
+      /**
+       * Free Storage Per Seat
+       * @default 0
+       */
+      free_storage_per_seat?: number;
+      /**
+       * Free Seats
+       * @default 0
+       */
+      free_seats?: number;
       /**
        * Id
        * Format: uuid
@@ -2410,11 +2469,6 @@ export interface components {
        * @example nomicai
        */
       nickname: string;
-      /**
-       * Plan Type
-       * @description The plan type this organization is on.
-       */
-      plan_type: string;
       /**
        * Time Created
        * Format: date-time
@@ -2479,26 +2533,6 @@ export interface components {
        */
       website?: string;
       /**
-       * Features
-       * @description The features this organization is allowed to utilize.
-       */
-      features: string[];
-      /**
-       * Max Datums Per Project
-       * @description The maximum number of datums per project this organization is allowed.
-       */
-      max_datums_per_project: string;
-      /**
-       * Max Members
-       * @description The maximum number of members this organization is allowed.
-       */
-      max_members: string;
-      /**
-       * Max Projects
-       * @description The maximum number of projects this organization can create.
-       */
-      max_projects: number;
-      /**
        * Stripe Subscription Id
        * @description Stripe subscription id
        * @example sub_e31fd13
@@ -2523,20 +2557,10 @@ export interface components {
        */
       stripe_subscription_end_timestamp: string;
       /**
-       * Max External Collaborators
-       * @description The maximum number of external collaborators.
-       */
-      max_external_collaborators: number;
-      /**
        * Project Count
        * @description The total number of projects of this organization
        */
       project_count: number;
-      /**
-       * Max Datums Across All Projects
-       * @description Max datums across all projects
-       */
-      max_datums_across_all_projects: number;
     };
     /** OrganizationAccessRequestApproveRequest */
     OrganizationAccessRequestApproveRequest: {
@@ -2643,11 +2667,10 @@ export interface components {
        */
       access_role: string;
       /**
-       * Plan Type
        * @description Plan type
        * @example enterprise
        */
-      plan_type: string;
+      plan_type: components['schemas']['OrganizationPlan'];
       /**
        * Permissions
        * @description User permissions in organization
@@ -2730,6 +2753,24 @@ export interface components {
       /** Organization:Billing:Write */
       'organization:billing:write': boolean;
     };
+    /**
+     * OrganizationPlan
+     * @description The list of available plans for organizations.
+     * @enum {string}
+     */
+    OrganizationPlan:
+      | 'atlas_demo'
+      | 'atlas_enterprise'
+      | 'atlas_research'
+      | 'atlas_starter'
+      | 'atlas_startup'
+      | 'atlas_pro'
+      | 'mock'
+      | 'free_test_user'
+      | 'pro'
+      | 'enterprise'
+      | 'free'
+      | 'research';
     /** PagedEmbeddingRequest */
     PagedEmbeddingRequest: {
       /**
@@ -3375,11 +3416,8 @@ export interface components {
        * @example nomicai
        */
       nickname: string;
-      /**
-       * Plan Type
-       * @description The plan type this organization is on.
-       */
-      plan_type: string;
+      /** @description The plan type this organization is on. */
+      plan_type: components['schemas']['OrganizationPlan'];
       /**
        * Time Created
        * Format: date-time
@@ -3559,6 +3597,16 @@ export interface components {
        */
       max_datums: number;
     };
+    /** StripeSubscriptionCancelRequest */
+    StripeSubscriptionCancelRequest: {
+      /**
+       * Organization Id
+       * Format: uuid
+       * @description Organization ID
+       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
+       */
+      organization_id: string;
+    };
     /** StripeSubscriptionCreateRequest */
     StripeSubscriptionCreateRequest: {
       /**
@@ -3568,6 +3616,16 @@ export interface components {
        * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       organization_id: string;
+      /**
+       * @description Subscription plan
+       * @default pro
+       */
+      plan_type?: components['schemas']['OrganizationPlan'];
+      /**
+       * Promo Code
+       * @description Promotion code
+       */
+      promo_code?: string;
     };
     /** StripeSubscriptionCreateResponse */
     StripeSubscriptionCreateResponse: {
@@ -3876,6 +3934,19 @@ export interface components {
        * @description Topic model geojson to replace existing topic model
        */
       topic_geojson: components['schemas']['FeatureCollection'];
+    };
+    /** ValidatePromoCodeRequest */
+    ValidatePromoCodeRequest: {
+      /**
+       * Promo Code
+       * @description The promo code to validate
+       */
+      promo_code: string;
+      /**
+       * Plan Type
+       * @description The plan type to validate the promo code against
+       */
+      plan_type: string;
     };
     /** ValidationError */
     ValidationError: {
@@ -7234,6 +7305,31 @@ export interface operations {
     };
   };
   /**
+   * Validate Promo Code
+   * @description Validate a promo code against a plan type using Stripe API
+   */
+  validate_promo_code_v1_stripe_promo_code_validate_get: {
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ValidatePromoCodeRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['SuccessResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
    * Stripe Subscription
    * @description Create stripe subscription checkout session url and send it to front end
    */
@@ -7290,7 +7386,7 @@ export interface operations {
   cancel_stripe_subscription_v1_stripe_cancel_post: {
     requestBody: {
       content: {
-        'application/json': components['schemas']['StripeSubscriptionCreateRequest'];
+        'application/json': components['schemas']['StripeSubscriptionCancelRequest'];
       };
     };
     responses: {
