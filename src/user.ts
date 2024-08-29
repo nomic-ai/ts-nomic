@@ -115,28 +115,11 @@ export function getEnvViewer(): AtlasViewer {
   return viewer;
 }
 
-type UUID = string;
-
-type OrganizationUserInfo = {
-  organization_id: UUID;
-  nickname: string;
-  user_id: string;
-  access_role: 'OWNER' | 'MEMBER';
-};
-
-export type UserInfo = {
-  sub: string;
-  nickname: string;
-  name: string;
-  picture: string;
-  updated_at: string;
-  default_organization?: UUID;
-  organizations: OrganizationUserInfo[];
-};
-
 type ViewMakerArgs = ConstructorParameters<typeof AtlasViewer>;
 
-export class AtlasUser extends BaseAtlasClass<UserInfo> {
+export class AtlasUser extends BaseAtlasClass<
+  components['schemas']['PrivateUser']
+> {
   /* 
   An AtlasUser is a registered user. The class contains 
   both information about the user and the credentials
@@ -180,7 +163,7 @@ export class AtlasUser extends BaseAtlasClass<UserInfo> {
    * @returns A list of organizations where the user has the specified role
    */
   async organizations(role: 'OWNER' | 'MEMBER' | null = null) {
-    let organizations = (await this.fetchAttributes()).organizations;
+    let organizations = (await this.fetchAttributes()).organizations || [];
     if (role !== null) {
       organizations = organizations.filter((org) => org.access_role === role);
     }
