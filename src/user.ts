@@ -126,12 +126,15 @@ export class AtlasUser extends BaseAtlasClass<
   needed to make API calls.
   */
 
-  // @deprecated
-  constructor(...args: ViewMakerArgs) {
+  constructor(...args: ViewMakerArgs | [AtlasViewer]) {
     // For the time being, the AtlasUser can be constructed to created a viewer inside of it.
     // As time goes on, this will be deprecated.
-    const viewer = new AtlasViewer(...args);
-    super(viewer);
+    if (args[0] instanceof AtlasViewer) {
+      super(args[0]);
+    } else {
+      const viewer = new AtlasViewer(...(args as ViewMakerArgs));
+      super(viewer);
+    }
   }
 
   protected endpoint() {

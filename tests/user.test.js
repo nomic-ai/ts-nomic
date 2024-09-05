@@ -1,6 +1,7 @@
 import { test } from 'uvu';
 import * as assert from 'uvu/assert';
 import { AtlasUser } from '../dist/user.js';
+import { AtlasViewer } from '../dist/viewer.js';
 import { AtlasOrganization } from '../dist/organization.js';
 
 // TODO - should have a dedicated test account here
@@ -36,6 +37,18 @@ test('AtlasUser from api key', async () => {
   const user = await new AtlasUser({
     useEnvToken: true,
   }).withLoadedAttributes();
+  assert.type(user.attr, 'object');
+});
+
+test('AtlasUser from AtlasViewer', async () => {
+  const key = process.env.ATLAS_API_KEY;
+  if (key === undefined) {
+    throw new Error('ATLAS_API_KEY not set');
+  }
+  const viewer = new AtlasViewer({
+    useEnvToken: true,
+  });
+  const user = await new AtlasUser(viewer).withLoadedAttributes();
   assert.type(user.attr, 'object');
 });
 
