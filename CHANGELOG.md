@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.11.0](https://github.com/nomic-ai/ts-nomic/compare/v0.10.1...v0.11.0) (2024-09-09)
+
+
+### Features
+
+* add 'Viewer' class disentangled from 'User' ([#48](https://github.com/nomic-ai/ts-nomic/issues/48)) ([b55eff3](https://github.com/nomic-ai/ts-nomic/commit/b55eff387dbbc31ef464cdf1f3cab98b5647a8fc))
+
+
+### Bug Fixes
+
+* user constructor from viewer ([#69](https://github.com/nomic-ai/ts-nomic/issues/69)) ([a87d4fe](https://github.com/nomic-ai/ts-nomic/commit/a87d4fe4c73c114ded4e896276891cf5c3fb4961))
+
 ## [0.10.1](https://github.com/nomic-ai/ts-nomic/compare/v0.10.0...v0.10.1) (2024-07-24)
 
 _Introduced Release-Please for Release Management_
