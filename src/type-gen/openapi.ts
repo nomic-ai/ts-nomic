@@ -65,10 +65,7 @@ export interface paths {
     post: operations['search_user_v1_organization_search_post'];
   };
   '/v1/organization/members/add': {
-    /**
-     * Add Organization Member
-     * @description Adds a user to an organization
-     */
+    /** Add Organization Member */
     post: operations['add_organization_member_v1_organization_members_add_post'];
   };
   '/v1/organization/members/delete': {
@@ -376,6 +373,13 @@ export interface paths {
      */
     post: operations['get_embedding_page_endpoint_v1_project_data_get_embedding_paged_post'];
   };
+  '/v1/project/projection/{map_id}/datums': {
+    /**
+     * Datum Table
+     * @description Get a table of datums for a map
+     */
+    get: operations['datum_table_v1_project_projection__map_id__datums_get'];
+  };
   '/v1/project/data/get': {
     /** Get Datums By Ids Handler */
     post: operations['get_datums_by_ids_handler_v1_project_data_get_post'];
@@ -506,18 +510,15 @@ export interface paths {
      */
     post: operations['create_hash_v1_project_projection__projection_id__view_post'];
   };
-  '/v1/project/{dataset_id}/members': {
+  '/v1/project/{dataset_id}/members/': {
     /**
      * Get Dataset Members
      * @description Fetches all dataset members
      */
-    get: operations['get_dataset_members_v1_project__dataset_id__members_get'];
+    get: operations['get_dataset_members_v1_project__dataset_id__members__get'];
   };
   '/v1/project/{dataset_id}/members/add': {
-    /**
-     * Add Dataset Member
-     * @description Add a dataset member
-     */
+    /** Add Dataset Member */
     post: operations['add_dataset_member_v1_project__dataset_id__members_add_post'];
   };
   '/v1/project/{dataset_id}/members/delete': {
@@ -684,6 +685,13 @@ export interface paths {
      */
     post: operations['get_embedding_page_endpoint_v1_dataset_data_get_embedding_paged_post'];
   };
+  '/v1/dataset/projection/{map_id}/datums': {
+    /**
+     * Datum Table
+     * @description Get a table of datums for a map
+     */
+    get: operations['datum_table_v1_dataset_projection__map_id__datums_get'];
+  };
   '/v1/dataset/data/get': {
     /** Get Datums By Ids Handler */
     post: operations['get_datums_by_ids_handler_v1_dataset_data_get_post'];
@@ -814,18 +822,15 @@ export interface paths {
      */
     post: operations['create_hash_v1_dataset_projection__projection_id__view_post'];
   };
-  '/v1/dataset/{dataset_id}/members': {
+  '/v1/dataset/{dataset_id}/members/': {
     /**
      * Get Dataset Members
      * @description Fetches all dataset members
      */
-    get: operations['get_dataset_members_v1_dataset__dataset_id__members_get'];
+    get: operations['get_dataset_members_v1_dataset__dataset_id__members__get'];
   };
   '/v1/dataset/{dataset_id}/members/add': {
-    /**
-     * Add Dataset Member
-     * @description Add a dataset member
-     */
+    /** Add Dataset Member */
     post: operations['add_dataset_member_v1_dataset__dataset_id__members_add_post'];
   };
   '/v1/dataset/{dataset_id}/members/delete': {
@@ -994,6 +999,7 @@ export interface components {
       | 'VIEWER'
       | 'READ_ONLY'
       | 'EXTERNAL'
+      | 'GUEST'
       | 'NONE';
     /** AddBlobResponse */
     AddBlobResponse: {
@@ -1010,7 +1016,13 @@ export interface components {
        * @description Unique user id
        * @example auth0|12345678
        */
-      user_id: string;
+      user_id?: string;
+      /**
+       * Email
+       * @description The email address associated with an Atlas account
+       * @example jane@doe.com
+       */
+      email?: string;
       /**
        * @description The access role the new user should have: MEMBER, ADMIN, OWNER
        * @example MEMBER
@@ -1392,7 +1404,12 @@ export interface components {
        * User ID
        * @description The user ID to add to the dataset
        */
-      user_id: string;
+      user_id?: string;
+      /**
+       * User e-mail
+       * @description The user Email to add to the dataset, if user_id is not available
+       */
+      email?: string;
       /**
        * Dataset Role
        * @description The role to assign to the user in the dataset
@@ -1413,7 +1430,12 @@ export interface components {
        * User ID
        * @description The user ID to add to the dataset
        */
-      user_id: string;
+      user_id?: string;
+      /**
+       * User e-mail
+       * @description The user Email to add to the dataset, if user_id is not available
+       */
+      email?: string;
       /**
        * Dataset Role
        * @description The role to assign to the user in the dataset
@@ -1475,6 +1497,14 @@ export interface components {
       'dataset:data:read': boolean;
       /** Dataset:Data:Write */
       'dataset:data:write': boolean;
+      /** Dataset:Data:Add Data */
+      'dataset:data:add_data': boolean;
+      /** Dataset:Resource:Create */
+      'dataset:resource:create': boolean;
+      /** Dataset:Data:Delete Data */
+      'dataset:data:delete_data': boolean;
+      /** Dataset:Resource:Delete */
+      'dataset:resource:delete': boolean;
       /** Dataset:Members:Read */
       'dataset:members:read': boolean;
       /** Dataset:Members:Write */
@@ -2472,7 +2502,7 @@ export interface components {
       /**
        * Time Created
        * Format: date-time
-       * @description When this organizations was created.
+       * @description When this organization was created.
        */
       time_created: string;
       /**
@@ -2482,7 +2512,7 @@ export interface components {
       members: components['schemas']['OrganizationMembershipWithPicture'][];
       /**
        * Projects
-       * @description All of the organizations projects the requested user can access
+       * @description All of the organization's projects the requested user can access
        */
       projects: components['schemas']['ProjectMetadataBaseModel'][];
       /**
@@ -2748,6 +2778,12 @@ export interface components {
       'organization:datasets:read': boolean;
       /** Organization:Datasets:Write */
       'organization:datasets:write': boolean;
+      /** Organization:Datasets:Write All */
+      'organization:datasets:write_all': boolean;
+      /** Organization:Datasets:Create */
+      'organization:datasets:create': boolean;
+      /** Organization:Internally Shared Datasets:Access */
+      'organization:internally_shared_datasets:access': boolean;
       /** Organization:Billing:Read */
       'organization:billing:read': boolean;
       /** Organization:Billing:Write */
@@ -2756,7 +2792,7 @@ export interface components {
     /**
      * OrganizationPlan
      * @description The list of available plans for organizations.
-     * @enum {string}
+     * @enum {unknown}
      */
     OrganizationPlan:
       | 'atlas_demo'
@@ -3421,7 +3457,7 @@ export interface components {
       /**
        * Time Created
        * Format: date-time
-       * @description When this organizations was created.
+       * @description When this organization was created.
        */
       time_created: string;
       /**
@@ -3431,7 +3467,7 @@ export interface components {
       members: components['schemas']['PublicOrganizationMembershipWithPicture'][];
       /**
        * Projects
-       * @description All of the organizations projects the requested user can access
+       * @description All of the organization's projects the requested user can access
        */
       projects: components['schemas']['ProjectMetadataBaseModel'][];
       /**
@@ -4174,10 +4210,7 @@ export interface operations {
       };
     };
   };
-  /**
-   * Add Organization Member
-   * @description Adds a user to an organization
-   */
+  /** Add Organization Member */
   add_organization_member_v1_organization_members_add_post: {
     requestBody: {
       content: {
@@ -5380,6 +5413,45 @@ export interface operations {
       };
     };
   };
+  /**
+   * Datum Table
+   * @description Get a table of datums for a map
+   */
+  datum_table_v1_project_projection__map_id__datums_get: {
+    parameters: {
+      query: {
+        /**
+         * @description The IDs of the datums to fetch, in 'tile-row' format
+         * @example [
+         *   "13-264"
+         * ]
+         */
+        qid: string[];
+        /** @description The response type, either 'arrow' or 'json' */
+        response_type?: string;
+        /** @description The columns to fetch */
+        columns?: string[];
+        summary?: unknown;
+      };
+      path: {
+        map_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
   /** Get Datums By Ids Handler */
   get_datums_by_ids_handler_v1_project_data_get_post: {
     requestBody: {
@@ -5928,7 +6000,7 @@ export interface operations {
    * Get Dataset Members
    * @description Fetches all dataset members
    */
-  get_dataset_members_v1_project__dataset_id__members_get: {
+  get_dataset_members_v1_project__dataset_id__members__get: {
     parameters: {
       path: {
         dataset_id: string;
@@ -5949,10 +6021,7 @@ export interface operations {
       };
     };
   };
-  /**
-   * Add Dataset Member
-   * @description Add a dataset member
-   */
+  /** Add Dataset Member */
   add_dataset_member_v1_project__dataset_id__members_add_post: {
     parameters: {
       path: {
@@ -6645,6 +6714,45 @@ export interface operations {
       };
     };
   };
+  /**
+   * Datum Table
+   * @description Get a table of datums for a map
+   */
+  datum_table_v1_dataset_projection__map_id__datums_get: {
+    parameters: {
+      query: {
+        /**
+         * @description The IDs of the datums to fetch, in 'tile-row' format
+         * @example [
+         *   "13-264"
+         * ]
+         */
+        qid: string[];
+        /** @description The response type, either 'arrow' or 'json' */
+        response_type?: string;
+        /** @description The columns to fetch */
+        columns?: string[];
+        summary?: unknown;
+      };
+      path: {
+        map_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
   /** Get Datums By Ids Handler */
   get_datums_by_ids_handler_v1_dataset_data_get_post: {
     requestBody: {
@@ -7193,7 +7301,7 @@ export interface operations {
    * Get Dataset Members
    * @description Fetches all dataset members
    */
-  get_dataset_members_v1_dataset__dataset_id__members_get: {
+  get_dataset_members_v1_dataset__dataset_id__members__get: {
     parameters: {
       path: {
         dataset_id: string;
@@ -7214,10 +7322,7 @@ export interface operations {
       };
     };
   };
-  /**
-   * Add Dataset Member
-   * @description Add a dataset member
-   */
+  /** Add Dataset Member */
   add_dataset_member_v1_dataset__dataset_id__members_add_post: {
     parameters: {
       path: {
