@@ -1155,10 +1155,10 @@ export interface components {
        * Atoms
        * @description The data for each atom, keyed by its atom_id
        */
-      atoms: Record<string, never>;
+      atoms: Record<string, unknown>;
     };
     /** BaseModel */
-    BaseModel: Record<string, never>;
+    BaseModel: Record<string, unknown>;
     /** Body_add_blob_v1_dataset_data_add_blobs_post */
     Body_add_blob_v1_dataset_data_add_blobs_post: {
       /**
@@ -1751,7 +1751,7 @@ export interface components {
        * Hyperparameters
        * @description The hyperparameters this model was trained with.
        */
-      hyperparameters: Record<string, never>;
+      hyperparameters: Record<string, unknown>;
     };
     /** EmbeddingModelInferenceUsage */
     EmbeddingModelInferenceUsage: {
@@ -1900,7 +1900,7 @@ export interface components {
         | components['schemas']['MultiPolygon']
         | components['schemas']['GeometryCollection'];
       /** Properties */
-      properties?: Record<string, never> | components['schemas']['BaseModel'];
+      properties?: Record<string, unknown> | components['schemas']['BaseModel'];
       /** Id */
       id?: string;
       /** Bbox */
@@ -1975,7 +1975,7 @@ export interface components {
        * Datums
        * @description The returned datums without json deserialization.
        */
-      datums: Record<string, never>[];
+      datums: Record<string, unknown>[];
     };
     /** GetProjectionAliasRequest */
     GetProjectionAliasRequest: {
@@ -2393,7 +2393,7 @@ export interface components {
        * Hyperparameters
        * @description The hyperparameters of this index.
        */
-      hyperparameters: Record<string, never>;
+      hyperparameters: Record<string, unknown>;
       /**
        * Atom Strategies
        * @description The phrase strategies of the phrases this embedder is embedding.
@@ -3139,7 +3139,7 @@ export interface components {
        * Datums
        * @description The datums to update
        */
-      datums: Record<string, never>[];
+      datums: Record<string, unknown>[];
       /**
        * Project Id
        * Format: uuid
@@ -3347,7 +3347,7 @@ export interface components {
        * Hyperparameters
        * @description The hyperparameters of this projection.
        */
-      hyperparameters: Record<string, never>;
+      hyperparameters: Record<string, unknown>;
       /**
        * Atom Strategies
        * @description The phrase strategies of the phrases this embedder is embedding.
@@ -3406,7 +3406,7 @@ export interface components {
        * Topic Model Metadatas
        * @description list of topic model metadata
        */
-      topic_model_metadatas: Record<string, never>[];
+      topic_model_metadatas: Record<string, unknown>[];
     };
     /** ProjectsResponse */
     ProjectsResponse: {
@@ -3848,7 +3848,7 @@ export interface components {
        * Results
        * @description A list of topic metadata, including movement information
        */
-      results: Record<string, never>[];
+      results: Record<string, unknown>[];
     };
     /** UpdateInviteRequest */
     UpdateInviteRequest: {
