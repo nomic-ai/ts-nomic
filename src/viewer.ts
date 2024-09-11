@@ -98,7 +98,9 @@ export class AtlasViewer {
       }
     }
 
-    headers['User-Agent'] = `ts-nomic/${version}`;
+    // This line caused serious issues with Safari and Firefox.
+    // Disabling but leaving as a marker for future work.
+    // headers['User-Agent'] = `ts-nomic/${version}`;
 
     // Bigints are passed to the API
     // which would break JSON.stringify.
