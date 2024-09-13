@@ -1,7 +1,7 @@
 import { AtlasUser, BaseAtlasClass } from './user.js';
 import { AtlasDataset } from './project.js';
 import type { components } from './type-gen/openapi.js';
-import { AtlasViewer } from 'viewer.js';
+import { AtlasViewer } from './viewer.js';
 
 type UUID = string;
 
