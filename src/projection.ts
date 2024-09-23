@@ -134,7 +134,7 @@ export class AtlasProjection extends BaseAtlasClass<
     }
   }
 
-  async getDatasetId(): Promise<UUID> {
+  async datasetId(): Promise<UUID> {
     if (this.project_id !== undefined) {
       return this.project_id;
     }
@@ -145,6 +145,7 @@ export class AtlasProjection extends BaseAtlasClass<
     const { dataset_id } = (await this.apiCall(endpoint, 'GET')) as {
       dataset_id: UUID;
     };
+    this.project_id = dataset_id;
     return dataset_id;
   }
 
@@ -211,7 +212,7 @@ export class AtlasProjection extends BaseAtlasClass<
 
   async getTags(): Promise<Array<TagResponse>> {
     const endpoint = '/v1/project/projection/tags/get/all';
-    const project_id = await this.getDatasetId();
+    const project_id = await this.datasetId();
     const params = new URLSearchParams({
       project_id: project_id,
       projection_id: this.id,
@@ -226,7 +227,7 @@ export class AtlasProjection extends BaseAtlasClass<
     if (tag_id === undefined) {
       throw new Error('tag_id is required');
     }
-    const project_id = await this.getDatasetId();
+    const project_id = await this.datasetId();
     const endpoint = '/v1/project/projection/tags/status';
     const params = new URLSearchParams({
       project_id: project_id,
@@ -241,7 +242,7 @@ export class AtlasProjection extends BaseAtlasClass<
   ): Promise<void> {
     const endpoint = '/v1/project/projection/tags/update/mask';
     const { tag_id, tag_definition_id, complete } = options;
-    const project_id = await this.getDatasetId();
+    const project_id = await this.datasetId();
 
     // Upsert tag mask with tag definition id
     let post_tag_definition_id = tag_definition_id;
@@ -301,7 +302,7 @@ export class AtlasProjection extends BaseAtlasClass<
 
   async project(): Promise<AtlasDataset> {
     if (this._project === undefined) {
-      const project_id = await this.getDatasetId();
+      const project_id = await this.datasetId();
       this._project = new AtlasDataset(project_id, this.viewer);
     }
     return this._project;
