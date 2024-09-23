@@ -72,6 +72,9 @@ test('Full project flow', async () => {
   // Re-instantiate with just the project; test if we properly infer the index.
   console.log('re-instantiating projection');
   const projection = new AtlasProjection(orig_projection.id, user, { project });
+  // Fetch dataset id from projection
+  const projectionWithoutId = new AtlasProjection(orig_projection.id, user);
+  assert.is(await projectionWithoutId.datasetId(), project.id);
   const inferred_index = await projection.index();
   assert.is(inferred_index.id, index.id);
   // // Create a tag
