@@ -125,7 +125,7 @@ export class AtlasProjection extends BaseAtlasClass<
 
     if (project_id !== undefined) {
       this.project_id = project_id;
-    } else {
+    } else if (project !== undefined) {
       this.project_id = project!.id;
       this._project = project;
     }
