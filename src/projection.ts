@@ -103,6 +103,7 @@ export class AtlasProjection extends BaseAtlasClass<
    */
   _project?: AtlasDataset;
   project_id?: UUID;
+  _project_id_promise?: Promise<UUID>;
   _index?: AtlasIndex;
 
   /**
@@ -141,12 +142,18 @@ export class AtlasProjection extends BaseAtlasClass<
     if (this._project !== undefined) {
       return this._project.id;
     }
+
     const endpoint = `/v1/project/projection/${this.id}/get/dataset_id`;
-    const { dataset_id } = (await this.apiCall(endpoint, 'GET')) as {
-      dataset_id: UUID;
-    };
-    this.project_id = dataset_id;
-    return dataset_id;
+
+    this._project_id_promise = (async () => {
+      const { dataset_id } = (await this.apiCall(endpoint, 'GET')) as {
+        dataset_id: UUID;
+      };
+      this.project_id = dataset_id;
+      return dataset_id;
+    })();
+
+    return this._project_id_promise;
   }
 
   async createTag(options: CreateTagOptions): Promise<TagResponse> {
