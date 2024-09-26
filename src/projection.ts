@@ -94,6 +94,11 @@ type TagStatus = {
   is_complete: boolean;
 };
 
+type DatasetIdResponse = {
+  dataset_id: UUID;
+  index_id: UUID;
+};
+
 export class AtlasProjection extends BaseAtlasClass<
   components['schemas']['ProjectionResponse']
 > {
@@ -102,7 +107,8 @@ export class AtlasProjection extends BaseAtlasClass<
    * at a point in time. Every projection belongs to a Dataset.
    */
   _project?: AtlasDataset;
-  project_id: UUID;
+  protected project_id?: UUID;
+  _project_id_promise?: Promise<UUID>;
   _index?: AtlasIndex;
 
   /**
@@ -119,22 +125,49 @@ export class AtlasProjection extends BaseAtlasClass<
     const { project, project_id } = options;
     super(user || project?.viewer);
 
-    if (project_id === undefined && project === undefined) {
-      throw new Error('project_id or project is required');
-    }
     if (project_id !== undefined && project !== undefined) {
       throw new Error('project_id and project are mutually exclusive');
     }
 
     if (project_id !== undefined) {
       this.project_id = project_id;
-    } else {
+    } else if (project !== undefined) {
       this.project_id = project!.id;
       this._project = project;
     }
     if (options.index) {
       this._index = options.index;
     }
+  }
+
+  /**
+   * @returns the UUID of the dataset that this projection belongs to.
+   */
+  async datasetId(): Promise<UUID> {
+    if (this.project_id !== undefined) {
+      return this.project_id;
+    }
+    if (this._project !== undefined) {
+      return this._project.id;
+    }
+
+    const endpoint = `/v1/project/projection/${this.id}/get/dataset_id`;
+
+    if (this._project_id_promise !== undefined) {
+      return this._project_id_promise;
+    }
+
+    this._project_id_promise = (
+      this.apiCall(endpoint, 'GET') as Promise<DatasetIdResponse>
+    ).then(
+      // Assign it to the project id while returning.
+      ({ dataset_id }) => {
+        this.project_id = dataset_id;
+        return dataset_id;
+      }
+    );
+
+    return this._project_id_promise;
   }
 
   async createTag(options: CreateTagOptions): Promise<TagResponse> {
@@ -148,9 +181,9 @@ export class AtlasProjection extends BaseAtlasClass<
     if (dsl_rule === undefined) {
       throw new Error('dsl_rule is required');
     }
-
+    const project_id = await this.datasetId();
     const data = {
-      project_id: this.project_id,
+      project_id: project_id,
       tag_name,
       dsl_rule: JSON.stringify(dsl_rule),
       projection_id: this.id,
@@ -192,7 +225,7 @@ export class AtlasProjection extends BaseAtlasClass<
       throw new Error('tag_id is required');
     }
     const data = {
-      project_id: this.project_id,
+      project_id: await this.datasetId(),
       tag_id,
     };
     await this.apiCall(endpoint, 'POST', data);
@@ -200,8 +233,9 @@ export class AtlasProjection extends BaseAtlasClass<
 
   async getTags(): Promise<Array<TagResponse>> {
     const endpoint = '/v1/project/projection/tags/get/all';
+    const project_id = await this.datasetId();
     const params = new URLSearchParams({
-      project_id: this.project_id,
+      project_id: project_id,
       projection_id: this.id,
     }).toString();
     return this.apiCall(`${endpoint}?${params}`, 'GET') as Promise<
@@ -214,9 +248,10 @@ export class AtlasProjection extends BaseAtlasClass<
     if (tag_id === undefined) {
       throw new Error('tag_id is required');
     }
+    const project_id = await this.datasetId();
     const endpoint = '/v1/project/projection/tags/status';
     const params = new URLSearchParams({
-      project_id: this.project_id,
+      project_id: project_id,
       tag_id,
     }).toString();
     return this.apiCall(`${endpoint}?${params}`, 'GET') as Promise<TagStatus>;
@@ -228,6 +263,7 @@ export class AtlasProjection extends BaseAtlasClass<
   ): Promise<void> {
     const endpoint = '/v1/project/projection/tags/update/mask';
     const { tag_id, tag_definition_id, complete } = options;
+    const project_id = await this.datasetId();
 
     // Upsert tag mask with tag definition id
     let post_tag_definition_id = tag_definition_id;
@@ -240,7 +276,7 @@ export class AtlasProjection extends BaseAtlasClass<
     const bitmask = tableFromIPC(bitmask_bytes);
 
     bitmask.schema.metadata.set('tag_id', tag_id as string);
-    bitmask.schema.metadata.set('project_id', this.project_id);
+    bitmask.schema.metadata.set('project_id', project_id);
     bitmask.schema.metadata.set(
       'tag_definition_id',
       post_tag_definition_id as string
@@ -264,7 +300,7 @@ export class AtlasProjection extends BaseAtlasClass<
     const { tag_id } = options;
     const request = {
       tag_id,
-      project_id: this.project_id,
+      project_id: await this.datasetId(),
     };
     const endpoint = '/v1/project/projection/tags/robotag';
     await this.apiCall(endpoint, 'POST', request);
@@ -287,7 +323,8 @@ export class AtlasProjection extends BaseAtlasClass<
 
   async project(): Promise<AtlasDataset> {
     if (this._project === undefined) {
-      this._project = new AtlasDataset(this.project_id, this.viewer);
+      const project_id = await this.datasetId();
+      this._project = new AtlasDataset(project_id, this.viewer);
     }
     return this._project;
   }
@@ -318,6 +355,9 @@ export class AtlasProjection extends BaseAtlasClass<
    * 'public' may be be added in fetching.
    */
   get quadtree_root(): string {
+    if (this.project_id === undefined) {
+      throw new Error('project_id is undefined. Fetch project_id first.');
+    }
     const protocol = this.viewer.apiLocation.startsWith('localhost')
       ? 'http'
       : 'https';
@@ -325,6 +365,9 @@ export class AtlasProjection extends BaseAtlasClass<
   }
 
   protected endpoint() {
+    if (this.project_id === undefined) {
+      throw new Error('project_id is undefined. Fetch project_id first.');
+    }
     return `/v1/project/${this.project_id}/index/projection/${this.id}`;
   }
 
