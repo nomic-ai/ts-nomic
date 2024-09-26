@@ -20,6 +20,13 @@ export interface paths {
      */
     get: operations['fetch_organization_v1_organization__organization_id_or_slug__get'];
   };
+  '/v1/organization/{organization_id_or_slug}/usage2': {
+    /**
+     * Get Organization Usage Handler
+     * @description Fetches the organization usage for the given period.
+     */
+    get: operations['get_organization_usage_handler_v1_organization__organization_id_or_slug__usage2_get'];
+  };
   '/v1/organization/{organization_id_or_slug}/usage': {
     /**
      * Fetch Organization Usage
@@ -510,6 +517,10 @@ export interface paths {
      */
     post: operations['create_hash_v1_project_projection__projection_id__view_post'];
   };
+  '/v1/project/projection/{map_id}/get/dataset_id': {
+    /** Get Project Id From Map Id */
+    get: operations['get_project_id_from_map_id_v1_project_projection__map_id__get_dataset_id_get'];
+  };
   '/v1/project/{dataset_id}/members/': {
     /**
      * Get Dataset Members
@@ -822,6 +833,10 @@ export interface paths {
      */
     post: operations['create_hash_v1_dataset_projection__projection_id__view_post'];
   };
+  '/v1/dataset/projection/{map_id}/get/dataset_id': {
+    /** Get Project Id From Map Id */
+    get: operations['get_project_id_from_map_id_v1_dataset_projection__map_id__get_dataset_id_get'];
+  };
   '/v1/dataset/{dataset_id}/members/': {
     /**
      * Get Dataset Members
@@ -961,6 +976,12 @@ export interface components {
        * @description The name of the key to deleted.
        */
       key_name: string;
+      /**
+       * User Id
+       * @description User id
+       * @example auth0|12345678
+       */
+      user_id?: string;
     };
     /** APIKeyListItem */
     APIKeyListItem: {
@@ -978,6 +999,8 @@ export interface components {
       creation: string;
       /** Suffix */
       suffix: string;
+      /** User Id */
+      user_id: string;
     };
     /** APIKeyListResponse */
     APIKeyListResponse: {
@@ -997,7 +1020,6 @@ export interface components {
       | 'ADMIN'
       | 'MEMBER'
       | 'VIEWER'
-      | 'READ_ONLY'
       | 'EXTERNAL'
       | 'GUEST'
       | 'NONE';
@@ -2807,6 +2829,19 @@ export interface components {
       | 'enterprise'
       | 'free'
       | 'research';
+    /** OrganizationUsageResponse */
+    OrganizationUsageResponse: {
+      /** Plan Type */
+      plan_type: string;
+      /**
+       * Billing Period
+       * Format: date-time
+       */
+      billing_period?: string;
+      text_tokens: components['schemas']['UsageRecord'];
+      image_embeddings: components['schemas']['UsageRecord'];
+      seats: components['schemas']['UsageRecord'];
+    };
     /** PagedEmbeddingRequest */
     PagedEmbeddingRequest: {
       /**
@@ -3971,6 +4006,35 @@ export interface components {
        */
       topic_geojson: components['schemas']['FeatureCollection'];
     };
+    /** UsageRecord */
+    UsageRecord: {
+      /**
+       * Used
+       * @description total units used
+       * @default 0
+       */
+      used?: number;
+      /**
+       * Offered
+       * @description units included in plan
+       */
+      offered?: number;
+      /**
+       * Unit Price
+       * @description price per unit of usage over included amount
+       */
+      unit_price?: number;
+      /**
+       * Unit Price Str
+       * @description exact price per unit as a string
+       */
+      unit_price_str?: string;
+      /**
+       * Billable
+       * @description billable overage price in USD
+       */
+      billable?: string;
+    };
     /** ValidatePromoCodeRequest */
     ValidatePromoCodeRequest: {
       /**
@@ -4043,6 +4107,37 @@ export interface operations {
           'application/json':
             | components['schemas']['Organization']
             | components['schemas']['PublicOrganizationResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Get Organization Usage Handler
+   * @description Fetches the organization usage for the given period.
+   */
+  get_organization_usage_handler_v1_organization__organization_id_or_slug__usage2_get: {
+    parameters: {
+      query?: {
+        /** @description The _exact_ start date of the period to fetch usage for. */
+        billing_period?: string;
+        offset_number?: number;
+        limit?: number;
+      };
+      path: {
+        organization_id_or_slug: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['OrganizationUsageResponse'];
         };
       };
       /** @description Validation Error */
@@ -5996,6 +6091,31 @@ export interface operations {
       };
     };
   };
+  /** Get Project Id From Map Id */
+  get_project_id_from_map_id_v1_project_projection__map_id__get_dataset_id_get: {
+    parameters: {
+      query?: {
+        summary?: unknown;
+      };
+      path: {
+        map_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
   /**
    * Get Dataset Members
    * @description Fetches all dataset members
@@ -7280,6 +7400,31 @@ export interface operations {
     requestBody: {
       content: {
         'application/json': components['schemas']['CreateProjectionViewRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Get Project Id From Map Id */
+  get_project_id_from_map_id_v1_dataset_projection__map_id__get_dataset_id_get: {
+    parameters: {
+      query?: {
+        summary?: unknown;
+      };
+      path: {
+        map_id: string;
       };
     };
     responses: {
