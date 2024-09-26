@@ -94,6 +94,11 @@ type TagStatus = {
   is_complete: boolean;
 };
 
+type DatasetIdResponse = {
+  dataset_id: UUID;
+  index_id: UUID;
+};
+
 export class AtlasProjection extends BaseAtlasClass<
   components['schemas']['ProjectionResponse']
 > {
@@ -145,13 +150,20 @@ export class AtlasProjection extends BaseAtlasClass<
 
     const endpoint = `/v1/project/projection/${this.id}/get/dataset_id`;
 
-    this._project_id_promise = (async () => {
-      const { dataset_id } = (await this.apiCall(endpoint, 'GET')) as {
-        dataset_id: UUID;
-      };
-      this.project_id = dataset_id;
-      return dataset_id;
-    })();
+    if (this._project_id_promise !== undefined) {
+      return this._project_id_promise;
+    }
+
+    this._project_id_promise = this.apiCall(endpoint, 'GET').then(
+      (response) => {
+        if (response === null) {
+          throw new Error('Failed to fetch dataset id');
+        }
+        const { dataset_id } = response as DatasetIdResponse;
+        this.project_id = dataset_id;
+        return this.project_id;
+      }
+    );
 
     return this._project_id_promise;
   }
