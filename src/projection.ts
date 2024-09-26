@@ -107,7 +107,7 @@ export class AtlasProjection extends BaseAtlasClass<
    * at a point in time. Every projection belongs to a Dataset.
    */
   _project?: AtlasDataset;
-  project_id?: UUID;
+  protected project_id?: UUID;
   _project_id_promise?: Promise<UUID>;
   _index?: AtlasIndex;
 
@@ -140,6 +140,9 @@ export class AtlasProjection extends BaseAtlasClass<
     }
   }
 
+  /**
+   * @returns the UUID of the dataset that this projection belongs to.
+   */
   async datasetId(): Promise<UUID> {
     if (this.project_id !== undefined) {
       return this.project_id;
@@ -154,14 +157,13 @@ export class AtlasProjection extends BaseAtlasClass<
       return this._project_id_promise;
     }
 
-    this._project_id_promise = this.apiCall(endpoint, 'GET').then(
-      (response) => {
-        if (response === null) {
-          throw new Error('Failed to fetch dataset id');
-        }
-        const { dataset_id } = response as DatasetIdResponse;
+    this._project_id_promise = (
+      this.apiCall(endpoint, 'GET') as Promise<DatasetIdResponse>
+    ).then(
+      // Assign it to the project id while returning.
+      ({ dataset_id }) => {
         this.project_id = dataset_id;
-        return this.project_id;
+        return dataset_id;
       }
     );
 
@@ -179,9 +181,9 @@ export class AtlasProjection extends BaseAtlasClass<
     if (dsl_rule === undefined) {
       throw new Error('dsl_rule is required');
     }
-
+    const project_id = await this.datasetId();
     const data = {
-      project_id: this.project_id,
+      project_id: project_id,
       tag_name,
       dsl_rule: JSON.stringify(dsl_rule),
       projection_id: this.id,
@@ -223,7 +225,7 @@ export class AtlasProjection extends BaseAtlasClass<
       throw new Error('tag_id is required');
     }
     const data = {
-      project_id: this.project_id,
+      project_id: await this.datasetId(),
       tag_id,
     };
     await this.apiCall(endpoint, 'POST', data);
@@ -298,7 +300,7 @@ export class AtlasProjection extends BaseAtlasClass<
     const { tag_id } = options;
     const request = {
       tag_id,
-      project_id: this.project_id,
+      project_id: await this.datasetId(),
     };
     const endpoint = '/v1/project/projection/tags/robotag';
     await this.apiCall(endpoint, 'POST', request);
@@ -353,6 +355,9 @@ export class AtlasProjection extends BaseAtlasClass<
    * 'public' may be be added in fetching.
    */
   get quadtree_root(): string {
+    if (this.project_id === undefined) {
+      throw new Error('project_id is undefined. Fetch project_id first.');
+    }
     const protocol = this.viewer.apiLocation.startsWith('localhost')
       ? 'http'
       : 'https';
@@ -360,6 +365,9 @@ export class AtlasProjection extends BaseAtlasClass<
   }
 
   protected endpoint() {
+    if (this.project_id === undefined) {
+      throw new Error('project_id is undefined. Fetch project_id first.');
+    }
     return `/v1/project/${this.project_id}/index/projection/${this.id}`;
   }
 
