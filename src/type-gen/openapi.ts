@@ -867,7 +867,7 @@ export interface paths {
      * Validate Promo Code
      * @description Validate a promo code against a plan type using Stripe API
      */
-    get: operations['validate_promo_code_v1_stripe_promo_code_validate_get'];
+    post: operations['validate_promo_code_v1_stripe_promo_code_validate_post'];
   };
   '/v1/stripe/subscribe': {
     /**
@@ -1489,52 +1489,30 @@ export interface components {
        * @description User ID
        */
       user_id: string;
-      /**
-       * Access Role
-       * @description User access role in dataset
-       */
-      access_role: string;
-      /**
-       * Permissions
-       * @description User permissions in dataset
-       */
-      permissions: components['schemas']['DatasetPermissions'];
+      /** @description User access role in dataset, whether granted explicitly or from organization membership */
+      dataset_role: components['schemas']['DatasetRole'];
+      /** @description Access role manually granted or based on dataset creation */
+      explicit_dataset_role?: components['schemas']['DatasetRole'];
       /**
        * Picture
-       * @description The users profile image
+       * @description The user's profile image
        */
       picture?: string;
-    };
-    /** DatasetPermissions */
-    DatasetPermissions: {
-      /** Dataset:Administration:Read */
-      'dataset:administration:read': boolean;
-      /** Dataset:Administration:Write */
-      'dataset:administration:write': boolean;
-      /** Dataset:Metadata:Read */
-      'dataset:metadata:read': boolean;
-      /** Dataset:Metadata:Write */
-      'dataset:metadata:write': boolean;
-      /** Dataset:Data:Read */
-      'dataset:data:read': boolean;
-      /** Dataset:Data:Write */
-      'dataset:data:write': boolean;
-      /** Dataset:Data:Add Data */
-      'dataset:data:add_data': boolean;
-      /** Dataset:Resource:Create */
-      'dataset:resource:create': boolean;
-      /** Dataset:Data:Delete Data */
-      'dataset:data:delete_data': boolean;
-      /** Dataset:Resource:Delete */
-      'dataset:resource:delete': boolean;
-      /** Dataset:Members:Read */
-      'dataset:members:read': boolean;
-      /** Dataset:Members:Write */
-      'dataset:members:write': boolean;
-      /** Dataset:Tags:Read */
-      'dataset:tags:read': boolean;
-      /** Dataset:Tags:Write */
-      'dataset:tags:write': boolean;
+      /** Permissions */
+      permissions: {
+        [key: string]: boolean;
+      };
+      /**
+       * Org Role
+       * @description User access role in organization
+       * @example member
+       */
+      org_role: string;
+      /**
+       * Email
+       * @description The user email
+       */
+      email: string;
     };
     /**
      * DatasetRole
@@ -2427,7 +2405,7 @@ export interface components {
      * @description An enumeration.
      * @enum {string}
      */
-    NomicProjectModel: 'nomic-project-v1' | 'nomic-project-v2';
+    NomicProjectModel: 'nomic-project-v1' | 'nomic-project-v2' | 'umap';
     /**
      * NomicTextEmbeddingModel
      * @description An enumeration.
@@ -2563,7 +2541,9 @@ export interface components {
        * Permissions
        * @description User permissions in organization
        */
-      permissions: components['schemas']['OrganizationPermissions'];
+      permissions: {
+        [key: string]: boolean;
+      };
       /**
        * Public Organization
        * @description Is the organization public?
@@ -2727,7 +2707,9 @@ export interface components {
        * Permissions
        * @description User permissions in organization
        */
-      permissions: components['schemas']['OrganizationPermissions'];
+      permissions: {
+        [key: string]: boolean;
+      };
       /**
        * Slug
        * @description The organization url-safe slug
@@ -2770,46 +2752,15 @@ export interface components {
        * Permissions
        * @description User permissions in organization
        */
-      permissions: components['schemas']['OrganizationPermissions'];
+      permissions: {
+        [key: string]: boolean;
+      };
       /**
        * Email
        * @description User email
        * @example nomic@gmail.com
        */
       email: string;
-    };
-    /** OrganizationPermissions */
-    OrganizationPermissions: {
-      /** Organization:Administration:Read */
-      'organization:administration:read': boolean;
-      /** Organization:Administration:Write */
-      'organization:administration:write': boolean;
-      /** Organization:Metadata:Read */
-      'organization:metadata:read': boolean;
-      /** Organization:Metadata:Write */
-      'organization:metadata:write': boolean;
-      /** Organization:Members:Read */
-      'organization:members:read': boolean;
-      /** Organization:Members:Write */
-      'organization:members:write': boolean;
-      /** Organization:Api Keys:Read */
-      'organization:api_keys:read': boolean;
-      /** Organization:Api Keys:Write */
-      'organization:api_keys:write': boolean;
-      /** Organization:Datasets:Read */
-      'organization:datasets:read': boolean;
-      /** Organization:Datasets:Write */
-      'organization:datasets:write': boolean;
-      /** Organization:Datasets:Write All */
-      'organization:datasets:write_all': boolean;
-      /** Organization:Datasets:Create */
-      'organization:datasets:create': boolean;
-      /** Organization:Internally Shared Datasets:Access */
-      'organization:internally_shared_datasets:access': boolean;
-      /** Organization:Billing:Read */
-      'organization:billing:read': boolean;
-      /** Organization:Billing:Write */
-      'organization:billing:write': boolean;
     };
     /**
      * OrganizationPlan
@@ -3069,7 +3020,9 @@ export interface components {
        * Permissions
        * @description Access role of user for this dataset
        */
-      permissions: components['schemas']['DatasetPermissions'];
+      permissions: {
+        [key: string]: boolean;
+      };
       /**
        * Schema
        * @description An Arrow schema for the project. Binary data encoded as base64.
@@ -3531,7 +3484,9 @@ export interface components {
        * Permissions
        * @description User permissions in organization
        */
-      permissions: components['schemas']['OrganizationPermissions'];
+      permissions: {
+        [key: string]: boolean;
+      };
       /**
        * Public Organization
        * @description Is the organization public?
@@ -3710,6 +3665,16 @@ export interface components {
        * @description The stripe client secret for the payment entering session
        */
       client_secret: string;
+      /**
+       * Applied Promo Code
+       * @description The applied promo code, if successful
+       */
+      applied_promo_code?: string;
+      /**
+       * Promo Code Description
+       * @description Description of promo code (metadata.descrption in Stripe), if available
+       */
+      promo_code_description?: string;
     };
     /** SuccessResponse */
     SuccessResponse: {
@@ -3771,6 +3736,11 @@ export interface components {
        * @description DSL rule json
        */
       dsl_rule?: string;
+      /**
+       * Projection Id
+       * @description Projection ID
+       */
+      projection_id: string;
     };
     /** TagStatus */
     TagStatus: {
@@ -7558,7 +7528,7 @@ export interface operations {
    * Validate Promo Code
    * @description Validate a promo code against a plan type using Stripe API
    */
-  validate_promo_code_v1_stripe_promo_code_validate_get: {
+  validate_promo_code_v1_stripe_promo_code_validate_post: {
     requestBody: {
       content: {
         'application/json': components['schemas']['ValidatePromoCodeRequest'];
@@ -7782,8 +7752,8 @@ export interface operations {
   get_tag_request_v1_project_projection_tags_get_get: {
     parameters: {
       query: {
-        project_id: string;
         tag_id: string;
+        project_id?: string;
       };
     };
     responses: {
