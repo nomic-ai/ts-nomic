@@ -52,6 +52,46 @@ type CreateAtlasIndexRequest = {
   duplicate_detection_hyperparameters: string | null;
 };
 
+const createIndexTextDefaults: Omit<
+  components['schemas']['CreateAtlasIndexRequest'],
+  'project_id'
+> = {
+  index_name: 'New index',
+  indexed_field: 'document', // nb upstream types are vague here.
+  colorable_fields: [],
+  atomizer_strategies: ['document', 'charchunk'],
+  geometry_strategies: [['document']],
+  model: 'nomic-embed-text-v1.5',
+  model_hyperparameters: JSON.stringify({
+    dataset_buffer_size: 1000,
+    batch_size: 20,
+    polymerize_by: 'charchunk',
+    norm: 'both',
+  }),
+  nearest_neighbor_index: 'HNSWIndex',
+  nearest_neighbor_index_hyperparameters: JSON.stringify({
+    space: 'l2',
+    ef_construction: 100,
+    M: 16,
+  }),
+  projection: 'NomicProject',
+  projection_hyperparameters: JSON.stringify({
+    n_neighbors: 15,
+    n_epochs: 50,
+    spread: 1,
+  }),
+  topic_model_hyperparameters: JSON.stringify({
+    build_topic_model: true,
+    community_description_target_field: null,
+    cluster_method: 'fast',
+    enforce_topic_hierarchy: false,
+  }),
+  duplicate_detection_hyperparameters: JSON.stringify({
+    tag_duplicates: false,
+    duplicate_cutoff: 0.1,
+  }),
+};
+
 /**
  * An AtlasDataset represents a single mutable dataset in Atlas. It provides an
  * interfaces to upload, update, and delete data, as well as create and delete
@@ -202,12 +242,51 @@ export class AtlasDataset extends BaseAtlasClass<
     return response as Record<string, Record<string, any>>;
   }
 
+  /**
+   * This should be preferred over createIndex, as it uses the actual
+   * up-to-date types. Note that it is definitely possible to pass a
+   * malformed but type-compliant object. (E.g., specifying no embedding field
+   * but also specifying a model.)
+   *
+   * @param options See types for options.
+   * @returns an AtlasIndex object based on the new arguments.
+   */
+  async createIndexRaw(
+    options: Partial<components['schemas']['CreateAtlasIndexRequest']> & {
+      indexed_field: string;
+    }
+  ): Promise<AtlasIndex> {
+    // The default options for this request are very long, so we use them.
+    // Then we override them with the user's options, and finally guarantee
+    // that the project_id is set.
+
+    const fields: components['schemas']['CreateAtlasIndexRequest'] = {
+      ...createIndexTextDefaults,
+      ...options,
+      project_id: this.id,
+    };
+
+    const response = await this.apiCall(
+      '/v1/project/index/create',
+      'POST',
+      fields
+    );
+    const id = response as string;
+    return new AtlasIndex(id, this.viewer, { project: this });
+  }
+
+  /**
+   * Prefer createIndexRaw, which has better syncing of types
+   * @deprecated
+   * @param options
+   * @returns
+   */
   async createIndex(
     options: Omit<IndexCreateOptions, 'project_id'>
   ): Promise<AtlasIndex> {
     const info = await this.fetchAttributes();
     const isText = info.modality === 'text';
-    // TODO: Python version has a number of asserts here - should we replicate?
+
     const fields: CreateAtlasIndexRequest = {
       project_id: this.id,
       index_name: options.index_name ?? 'New index',
