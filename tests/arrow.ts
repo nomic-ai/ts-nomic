@@ -1,4 +1,3 @@
-import { test } from 'uvu';
 import * as arrow from 'apache-arrow';
 
 /**

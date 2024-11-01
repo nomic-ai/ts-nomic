@@ -5,3 +5,5 @@ etc/openapi.json
 private
 dist
 docs
+.vscode
+coverage
