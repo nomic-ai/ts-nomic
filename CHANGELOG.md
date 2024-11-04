@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.12.0](https://github.com/nomic-ai/ts-nomic/compare/v0.11.0...v0.12.0) (2024-11-04)
+
+
+### Features
+
+* allow project_id to be optional in projection class ([#78](https://github.com/nomic-ai/ts-nomic/issues/78)) ([e82b9da](https://github.com/nomic-ai/ts-nomic/commit/e82b9dacfdb93857cccc134ebcfcad3ba0db428c))
+
+
+### Bug Fixes
+
+* handle backoff and bundle requests for API timing ([#81](https://github.com/nomic-ai/ts-nomic/issues/81)) ([d5893f3](https://github.com/nomic-ai/ts-nomic/commit/d5893f3f9c14206c64b6de944e6859282fff2bd3))
+* relative imports in ts files ([#76](https://github.com/nomic-ai/ts-nomic/issues/76)) ([7c11a54](https://github.com/nomic-ai/ts-nomic/commit/7c11a54c4c4fa23f35916fccaa9ef1835aaa49f1))
+
 ## [0.11.0](https://github.com/nomic-ai/ts-nomic/compare/v0.10.1...v0.11.0) (2024-09-09)
 
 
