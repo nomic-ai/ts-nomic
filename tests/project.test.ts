@@ -6,7 +6,6 @@ import { AtlasProjection } from '../src/projection';
 import { AtlasUser } from '../src/user';
 import { AtlasViewer } from '../src/viewer';
 import { AtlasOrganization } from '../src/organization';
-import { get } from 'http';
 
 describe('Project Flow Suite', () => {
   let viewer: AtlasViewer;
