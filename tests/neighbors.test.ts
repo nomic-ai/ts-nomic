@@ -1,7 +1,6 @@
-import { test } from 'uvu';
+import { test, expect } from 'vitest';
 import { AtlasProjection } from '../dist/projection.js';
 import { AtlasUser } from '../dist/user.js';
-import * as assert from 'uvu/assert';
 
 test.skip('Neighbors', async () => {
   // get user
@@ -19,5 +18,5 @@ test.skip('Neighbors', async () => {
     queries: [vec],
     k: 25,
   });
-  assert.is(result[0].length, 25);
+  expect(result[0].length).toBe(25);
 });

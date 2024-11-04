@@ -1,5 +1,5 @@
-import { test } from 'uvu';
-import * as assert from 'uvu/assert';
+import { expect, test } from 'vitest';
+
 import { AtlasUser } from '../dist/user.js';
 import { AtlasViewer } from '../dist/viewer.js';
 import { AtlasOrganization } from '../dist/organization.js';
@@ -17,7 +17,7 @@ test('AtlasOrganization test', async () => {
     info.organizations[0].organization_id,
     user
   );
-  assert.is(organization.id, info.organizations[0].organization_id);
+  expect(info.organizations[0].organization_id).toBe(organization.id);
 });
 
 test('AtlasUser from env variables', async () => {
@@ -26,7 +26,7 @@ test('AtlasUser from env variables', async () => {
   const user = await new AtlasUser({
     useEnvToken: true,
   }).withLoadedAttributes();
-  assert.type(user.attr, 'object');
+  expect(user.attr).toBeInstanceOf(Object);
 });
 
 test('AtlasUser from api key', async () => {
@@ -37,7 +37,7 @@ test('AtlasUser from api key', async () => {
   const user = await new AtlasUser({
     useEnvToken: true,
   }).withLoadedAttributes();
-  assert.type(user.attr, 'object');
+  expect(user.attr).toBeInstanceOf(Object);
 });
 
 test('AtlasUser from AtlasViewer', async () => {
@@ -49,10 +49,8 @@ test('AtlasUser from AtlasViewer', async () => {
     useEnvToken: true,
   });
   const user = await new AtlasUser(viewer).withLoadedAttributes();
-  assert.type(user.attr, 'object');
+  expect(user.attr).toBeInstanceOf(Object);
 });
 
 // TODO - tests for bearer token login
 // TODO - tests for anon account
-
-test.run();
