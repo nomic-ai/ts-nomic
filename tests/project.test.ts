@@ -55,11 +55,19 @@ describe('Project Flow Suite', () => {
   });
 
   test('Create index on project and verify it', async () => {
-    const index = await project.createIndex({
+    const index = await project.createIndexRaw({
       index_name: 'test index',
       indexed_field: 'text',
       colorable_fields: [],
     });
+  });
+
+  test('Cleanup deletion', async () => {
+    async function getMeta() {
+      return project.fetchAttributes(true);
+    }
+    expect(getMeta).not.toThrow();
+    const f = await project.delete();
   });
 });
 
