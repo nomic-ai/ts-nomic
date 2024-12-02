@@ -203,7 +203,20 @@ export interface paths {
     get: operations['fetch_current_user_v1_user__get'];
   };
   '/v1/user/authorization/keys/{organization_id}/create': {
-    /** Create Api Key */
+    /**
+     * Create Api Key
+     * @description Creates a new API key with specified scope and permissions.
+     *
+     * By default, API keys are scoped to an organization. Additionally, API keys can also be scoped to a specific dataset or a specific user.
+     *
+     * If only key_name is provided in the request for creating an API key, the key will be scoped to the user's current organization.
+     *
+     * To scope an API key to a specific organization by ID, set key_scope = "ORGANIZATION" and key_target_id with the UUID of the organization in the API key creation request.
+     *
+     * To scope an API key to a specific dataset, set key_scope = "DATASET" and key_target_id with the UUID of the dataset in the API key creation request.
+     *
+     * To scope an API key to a specific user, set key_scope = "USER" in the API key creation request.
+     */
     post: operations['create_api_key_v1_user_authorization_keys__organization_id__create_post'];
   };
   '/v1/user/authorization/keys/{organization_id}/delete': {
@@ -532,19 +545,16 @@ export interface paths {
     /** Add Dataset Member */
     post: operations['add_dataset_member_v1_project__dataset_id__members_add_post'];
   };
+  '/v1/project/{dataset_id}/members/update': {
+    /** Add Dataset Member */
+    post: operations['add_dataset_member_v1_project__dataset_id__members_update_post'];
+  };
   '/v1/project/{dataset_id}/members/delete': {
     /**
      * Remove Dataset Member
      * @description Remove a dataset member
      */
     post: operations['remove_dataset_member_v1_project__dataset_id__members_delete_post'];
-  };
-  '/v1/project/{dataset_id}/members/update': {
-    /**
-     * Update Dataset Member
-     * @description Update a dataset member role
-     */
-    post: operations['update_dataset_member_v1_project__dataset_id__members_update_post'];
   };
   '/v1/dataset/tags/{project_id}': {
     /** Get Tags For Project */
@@ -848,19 +858,16 @@ export interface paths {
     /** Add Dataset Member */
     post: operations['add_dataset_member_v1_dataset__dataset_id__members_add_post'];
   };
+  '/v1/dataset/{dataset_id}/members/update': {
+    /** Add Dataset Member */
+    post: operations['add_dataset_member_v1_dataset__dataset_id__members_update_post'];
+  };
   '/v1/dataset/{dataset_id}/members/delete': {
     /**
      * Remove Dataset Member
      * @description Remove a dataset member
      */
     post: operations['remove_dataset_member_v1_dataset__dataset_id__members_delete_post'];
-  };
-  '/v1/dataset/{dataset_id}/members/update': {
-    /**
-     * Update Dataset Member
-     * @description Update a dataset member role
-     */
-    post: operations['update_dataset_member_v1_dataset__dataset_id__members_update_post'];
   };
   '/v1/stripe/promo-code/validate': {
     /**
@@ -901,8 +908,136 @@ export interface paths {
     /**
      * Embed Text
      * @description Generates text embeddings
+     *
+     * `nomic-embed-text` was trained to support these tasks:
+     *
+     * - `search_document` (embedding document chunks for search & retrieval)
+     * - `search_query` (embedding queries for search & retrieval)
+     * - `classification` (embeddings for text classification)
+     * - `clustering` (embeddings for cluster visualization)
+     *
+     * In the Nomic API or Python client, specify your task with the `task_type` parameter (default is `search_document` if no `task_type` is provided)
+     *
+     * Using `nomic-embed-text` with other libraries requires you to use a prefix to specify your embedding task. See our [HuggingFace model card](https://huggingface.co/nomic-ai/nomic-embed-text-v1.5) for details.
      */
     post: operations['embed_text_v1_embedding_text_post'];
+  };
+  '/v1/embedding/image': {
+    /**
+     * Embed Image
+     * @description Generate embeddings from images in `.png`, `.jpeg`, or `.webp` formats.
+     *
+     *   Images can be provided either as:
+     *
+     *       - Files (filepaths or raw image bytes)
+     *
+     *       - URLs
+     *
+     *   #### `curl`
+     *
+     *   Embedding image files using `curl`:
+     *
+     *   ```bash
+     *   curl -X POST "https://api-atlas.nomic.ai/v1/embedding/image" \
+     * -H "Authorization: Bearer $NOMIC_API_KEY" \
+     * -H "Content-Type: multipart/form-data" \
+     * -F "model=nomic-embed-vision-v1.5" \
+     * -F "images=@path/to/image1.jpg" \
+     * -F "images=@path/to/image2.jpg"
+     *   ```
+     *
+     *   Embedding images via URLs using `curl`:
+     *
+     *   ```bash
+     *   curl -X POST "https://api-atlas.nomic.ai/v1/embedding/image" \
+     * -H "Authorization: Bearer $NOMIC_API_KEY" \
+     * -H "Content-Type: application/x-www-form-urlencoded" \
+     * -d "model=nomic-embed-vision-v1.5" \
+     * -d "urls=https://static.nomic.ai/secret-model.png" \
+     * -d "urls=https://static.nomic.ai/secret-model-2.png"
+     *   ```
+     *
+     *   #### `nomic` Python library
+     *
+     *   Embeddings image files using the `nomic` Python library:
+     *
+     *   ```python
+     *   from nomic import embed
+     *
+     *   output = embed.image(
+     *       images=['path/to/image1.jpg', 'path/to/image2.jpg'],
+     *       model='nomic-embed-vision-v1.5',
+     *   )
+     *
+     *   print(output)
+     *   ```
+     *
+     *   Embedding images via URLs using the `nomic` Python library:
+     *
+     *   ```python
+     *   from nomic import embed
+     *
+     *   output = embed.image(
+     *       images=[
+     *           "https://static.nomic.ai/secret-model.png",
+     *           "https://static.nomic.ai/secret-model-2.png"
+     *       ],
+     *       model="nomic-embed-vision-v1.5"
+     *   )
+     *
+     *   print(output)
+     *   ```
+     *
+     *   #### `requests` Python library
+     *
+     *   Embedding image files using the `requests` Python library (note that this option requires image bytes rather than image files):
+     *
+     *   ```python
+     *   import requests
+     *   import os
+     *
+     *   auth_header = "Bearer " + os.environ["NOMIC_API_KEY"]
+     *
+     *   image_filepaths = ["path/to/image1.jpg", "path/to/image2.jpg"]
+     *   image_bytes = []
+     *   for fpath in image_filepaths:
+     *       with open(fpath, "rb") as f:
+     *           image_bytes.append(("images", f.read()))
+     *
+     *   response = requests.post(
+     *       "https://api-atlas.nomic.ai/v1/embedding/image",
+     *       headers=dict(Authorization=auth_header),
+     *       data=dict(model="nomic-embed-vision-v1.5"),
+     *       files=image_bytes
+     *   )
+     *
+     *   print(response.json())
+     *   ```
+     *
+     *   Embedding images via URLs using the `requests` Python library:
+     *
+     *   ```python
+     *   import requests
+     *   import os
+     *
+     *   auth_header = "Bearer " + os.environ["NOMIC_API_KEY"]
+     *
+     *   response = requests.post(
+     *       "https://api-atlas.nomic.ai/v1/embedding/image",
+     *       headers=dict(Authorization=auth_header),
+     *       data=dict(
+     *           model="nomic-embed-vision-v1.5",
+     *           urls=[
+     *               "https://static.nomic.ai/secret-model.png",
+     *               "https://static.nomic.ai/secret-model-2.png"
+     *           ]
+     *       )
+     *   )
+     *
+     *   print(response.json())
+     *   ```
+     */
+    post: operations['embed_image_v1_embedding_image_post'];
   };
   '/v1/project/projection/tags/create': {
     /** Create Tag Request */
@@ -947,6 +1082,14 @@ export interface paths {
      */
     get: operations['fetch_datasets_by_query_v1_search_datasets_get'];
   };
+  '/sketch/resource/{dataset_id}/{resource_id}': {
+    /** Returns the resource info */
+    get: operations['resource_info_sketch_resource__dataset_id___resource_id__get'];
+  };
+  '/sketch/resource/{dataset_id}/create': {
+    /** Creates a resource */
+    post: operations['create_sketch_resource__dataset_id__create_post'];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -957,9 +1100,27 @@ export interface components {
     APIKeyCreationRequest: {
       /**
        * Key Name
-       * @description The name of the key to create.
+       * @description The name of the API key to create.
        */
       key_name: string;
+      /**
+       * Key Role
+       * @description The role associated to the API key scope
+       */
+      key_role?:
+        | components['schemas']['AccessRole']
+        | components['schemas']['DatasetRole'];
+      /**
+       * @description The scope of the API key: ORGANIZATION, DATASET, or USER
+       * @default ORGANIZATION
+       */
+      key_scope?: components['schemas']['APIKeyScopeType'];
+      /**
+       * Key Target Id
+       * Format: uuid
+       * @description The UUID representing a dataset id or an organization id
+       */
+      key_target_id?: string;
     };
     /** APIKeyCreationResponse */
     APIKeyCreationResponse: {
@@ -1010,6 +1171,12 @@ export interface components {
        */
       keys?: components['schemas']['APIKeyListItem'][];
     };
+    /**
+     * APIKeyScopeType
+     * @description An enumeration.
+     * @enum {string}
+     */
+    APIKeyScopeType: 'ORGANIZATION' | 'DATASET' | 'USER';
     /**
      * AccessRole
      * @description An enumeration.
@@ -1149,6 +1316,19 @@ export interface components {
       /** Embedding Models */
       embedding_models: components['schemas']['EmbeddingModelInferenceUsage'][];
     };
+    /**
+     * AtlasViewer
+     * @description We may not really want this, but I'd feel mucy safer if we had an internal model
+     * indicating the user who is accessing the data; this would allow us to be
+     * more fine-grained in our access controls. We have used this model of attaching the
+     * viewer to the class in atlas-next and it has worked well.
+     *
+     * It's optional in this PR, though.
+     */
+    AtlasViewer: {
+      /** Id */
+      id: string;
+    };
     /** AtomsRequest */
     AtomsRequest: {
       /**
@@ -1220,6 +1400,21 @@ export interface components {
        * @description A batch of blobs you want to upload to Atlas
        */
       blobs?: string[];
+    };
+    /** Body_embed_image_v1_embedding_image_post */
+    Body_embed_image_v1_embedding_image_post: {
+      /**
+       * @description The model to use when embedding.
+       * @default nomic-embed-vision-v1.5
+       */
+      model?: components['schemas']['NomicVisionEmbeddingModel'];
+      /** Urls */
+      urls?: string[];
+      /**
+       * Images
+       * @description A batch of image bytes you want to embed
+       */
+      images?: string[];
     };
     /** CreateAtlasIndexRequest */
     CreateAtlasIndexRequest: {
@@ -1316,6 +1511,12 @@ export interface components {
        * @default {"tag_duplicates": false, "duplicate_cutoff": 0.1}
        */
       duplicate_detection_hyperparameters?: string;
+      /**
+       * Build From Versioned Dataset
+       * @description Build index from new storage format (Experimental)
+       * @default false
+       */
+      build_from_versioned_dataset?: boolean;
     };
     /** CreateAtlasIndexResponse */
     CreateAtlasIndexResponse: {
@@ -1420,6 +1621,15 @@ export interface components {
        */
       deepscatter_api?: string;
     };
+    /**
+     * Dataset
+     * @description A dataset is a collection of resources, built around user-uploaded data.
+     */
+    Dataset: {
+      /** Id */
+      id: string;
+      viewer?: components['schemas']['AtlasViewer'];
+    };
     /** DatasetMemberCreateRequest */
     DatasetMemberCreateRequest: {
       /**
@@ -1445,24 +1655,6 @@ export interface components {
        * @description The user ID to remove from the dataset
        */
       user_id: string;
-    };
-    /** DatasetMemberUpdateRequest */
-    DatasetMemberUpdateRequest: {
-      /**
-       * User ID
-       * @description The user ID to add to the dataset
-       */
-      user_id?: string;
-      /**
-       * User e-mail
-       * @description The user Email to add to the dataset, if user_id is not available
-       */
-      email?: string;
-      /**
-       * Dataset Role
-       * @description The role to assign to the user in the dataset
-       */
-      access_role: components['schemas']['DatasetRole'];
     };
     /** DatasetMembershipWithPicture */
     DatasetMembershipWithPicture: {
@@ -1833,6 +2025,21 @@ export interface components {
        */
       distances: number[][];
     };
+    /** EmbeddingSetCreateArgs */
+    EmbeddingSetCreateArgs: {
+      /** Dataset Id */
+      dataset_id: string;
+      /**
+       * The column to retrieve embeddings from.
+       * @default embedding
+       */
+      embedding_target?: string;
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'EMBEDDING_SET';
+    };
     /** EmbeddingTopicRequest */
     EmbeddingTopicRequest: {
       /**
@@ -2002,6 +2209,21 @@ export interface components {
     HTTPValidationError: {
       /** Detail */
       detail?: components['schemas']['ValidationError'][];
+    };
+    /** ImageEmbeddingInferenceResponse */
+    ImageEmbeddingInferenceResponse: {
+      /**
+       * Embeddings
+       * @description The embeddings
+       */
+      embeddings: number[][];
+      /**
+       * Usage
+       * @description The embedding usage
+       */
+      usage: components['schemas']['EmbeddingUsageModel'];
+      /** @description The model used to produce the embeddings. */
+      model: components['schemas']['NomicVisionEmbeddingModel'];
     };
     /** IndexJob */
     IndexJob: {
@@ -2415,7 +2637,8 @@ export interface components {
       | 'all-MiniLM-L6-v2'
       | 'nomic-embed-text-v1'
       | 'nomic-embed-text-v1.5'
-      | 'nomic-embed-code';
+      | 'nomic-embed-code'
+      | 'gte-multilingual-base';
     /**
      * NomicVisionEmbeddingModel
      * @description An enumeration.
@@ -2532,11 +2755,10 @@ export interface components {
        */
       linked_user_account_id: string;
       /**
-       * Access Role
        * @description Access role of user for this organization
        * @default VIEWER
        */
-      access_role?: string;
+      access_role?: components['schemas']['AccessRole'];
       /**
        * Permissions
        * @description User permissions in organization
@@ -2645,6 +2867,54 @@ export interface components {
        */
       user_id: string;
     };
+    /** OrganizationAccessRequestResponse */
+    OrganizationAccessRequestResponse: {
+      /**
+       * Organization Id
+       * Format: uuid
+       * @description The ID of the organization.
+       * @example df4dcf85-84ed-4e3a-9519-17c72682f905
+       */
+      organization_id: string;
+      /**
+       * Organization Nickname
+       * @description The nickname of the organization.
+       * @example MyOrganization
+       */
+      organization_nickname: string;
+      /**
+       * User Id
+       * @description Unique user id
+       * @example auth0|12345678
+       */
+      user_id: string;
+      /**
+       * User Nickname
+       * @description User nickname
+       * @example JohnDoe
+       */
+      user_nickname: string;
+      /**
+       * Email
+       * @description User email
+       * @example Email id of the user
+       */
+      email: string;
+      /**
+       * Created At
+       * Format: date-time
+       * @description The timestamp this request was created.
+       */
+      created_at: string;
+    };
+    /** OrganizationAccessRequestsResponse */
+    OrganizationAccessRequestsResponse: {
+      /**
+       * Organization Access Requests
+       * @description Organization access requests
+       */
+      organization_access_requests: components['schemas']['OrganizationAccessRequestResponse'][];
+    };
     /** OrganizationIDResponse */
     OrganizationIDResponse: {
       /**
@@ -2693,11 +2963,10 @@ export interface components {
        */
       user_id: string;
       /**
-       * Access Role
        * @description User access role in organization
-       * @example member
+       * @example VIEWER
        */
-      access_role: string;
+      access_role: components['schemas']['AccessRole'];
       /**
        * @description Plan type
        * @example enterprise
@@ -2792,6 +3061,7 @@ export interface components {
       text_tokens: components['schemas']['UsageRecord'];
       image_embeddings: components['schemas']['UsageRecord'];
       seats: components['schemas']['UsageRecord'];
+      storage: components['schemas']['UsageRecord'];
     };
     /** PagedEmbeddingRequest */
     PagedEmbeddingRequest: {
@@ -3011,11 +3281,8 @@ export interface components {
        * @description Whether the project is locked for CRUD operations.
        */
       insert_update_delete_lock: boolean;
-      /**
-       * Access Role
-       * @description Access role of user for this project
-       */
-      access_role: string;
+      /** @description Access role of user for this project */
+      access_role: components['schemas']['DatasetRole'];
       /**
        * Permissions
        * @description Access role of user for this dataset
@@ -3475,11 +3742,10 @@ export interface components {
        */
       linked_user_account_id: string;
       /**
-       * Access Role
        * @description Access role of user for this organization
        * @default VIEWER
        */
-      access_role?: string;
+      access_role?: components['schemas']['AccessRole'];
       /**
        * Permissions
        * @description User permissions in organization
@@ -3532,6 +3798,68 @@ export interface components {
        * @example example-project
        */
       project_id: string;
+    };
+    /** Resource */
+    Resource: {
+      /** Resource */
+      resource:
+        | components['schemas']['SVDCreateArgs']
+        | components['schemas']['EmbeddingSetCreateArgs'];
+      /**
+       * Dataset
+       * @description Dataset associated to the resource
+       */
+      dataset: components['schemas']['Dataset'];
+    };
+    /** ResourceResponse */
+    ResourceResponse: {
+      /** @description Resource type. */
+      type: components['schemas']['ResourceType'];
+      /**
+       * Id
+       * Format: uuid
+       * @description The resource id.
+       */
+      id: string;
+      /**
+       * Dataset Id
+       * Format: uuid
+       * @description The dataset id ass
+       */
+      dataset_id: string;
+      /** @description The resource status. */
+      status: components['schemas']['ResourceStatus'];
+      /**
+       * Params
+       * @description Resource-specific parameters.
+       */
+      params: Record<string, unknown>;
+    };
+    /**
+     * ResourceStatus
+     * @description An enumeration.
+     * @enum {unknown}
+     */
+    ResourceStatus: 'COMPLETED' | 'FAILED' | 'BUILDING' | 'WAITING';
+    /**
+     * ResourceType
+     * @description An enumeration.
+     * @enum {unknown}
+     */
+    ResourceType: 'EMBEDDING_SET' | 'SVD_COORDS';
+    /** SVDCreateArgs */
+    SVDCreateArgs: {
+      /** Dataset Id */
+      dataset_id: string;
+      /** The ID of the embedding set to use */
+      embedding_set_id: string;
+      /** Number of components to keep */
+      n_components: number;
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'SVD_COORDS';
     };
     /** SearchDatasetsResponse */
     SearchDatasetsResponse: {
@@ -4608,7 +4936,7 @@ export interface operations {
       /** @description Successful Response */
       200: {
         content: {
-          'application/json': unknown;
+          'application/json': components['schemas']['OrganizationAccessRequestsResponse'];
         };
       };
       /** @description Validation Error */
@@ -4730,7 +5058,20 @@ export interface operations {
       };
     };
   };
-  /** Create Api Key */
+  /**
+   * Create Api Key
+   * @description Creates a new API key with specified scope and permissions.
+   *
+   * By default, API keys are scoped to an organization. Additionally, API keys can also be scoped to a specific dataset or a specific user.
+   *
+   * If only key_name is provided in the request for creating an API key, the key will be scoped to the user's current organization.
+   *
+   * To scope an API key to a specific organization by ID, set key_scope = "ORGANIZATION" and key_target_id with the UUID of the organization in the API key creation request.
+   *
+   * To scope an API key to a specific dataset, set key_scope = "DATASET" and key_target_id with the UUID of the dataset in the API key creation request.
+   *
+   * To scope an API key to a specific user, set key_scope = "USER" in the API key creation request.
+   */
   create_api_key_v1_user_authorization_keys__organization_id__create_post: {
     parameters: {
       path: {
@@ -6138,11 +6479,8 @@ export interface operations {
       };
     };
   };
-  /**
-   * Remove Dataset Member
-   * @description Remove a dataset member
-   */
-  remove_dataset_member_v1_project__dataset_id__members_delete_post: {
+  /** Add Dataset Member */
+  add_dataset_member_v1_project__dataset_id__members_update_post: {
     parameters: {
       path: {
         dataset_id: string;
@@ -6150,7 +6488,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DatasetMemberDeleteRequest'];
+        'application/json': components['schemas']['DatasetMemberCreateRequest'];
       };
     };
     responses: {
@@ -6169,10 +6507,10 @@ export interface operations {
     };
   };
   /**
-   * Update Dataset Member
-   * @description Update a dataset member role
+   * Remove Dataset Member
+   * @description Remove a dataset member
    */
-  update_dataset_member_v1_project__dataset_id__members_update_post: {
+  remove_dataset_member_v1_project__dataset_id__members_delete_post: {
     parameters: {
       path: {
         dataset_id: string;
@@ -6180,7 +6518,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DatasetMemberUpdateRequest'];
+        'application/json': components['schemas']['DatasetMemberDeleteRequest'];
       };
     };
     responses: {
@@ -7464,11 +7802,8 @@ export interface operations {
       };
     };
   };
-  /**
-   * Remove Dataset Member
-   * @description Remove a dataset member
-   */
-  remove_dataset_member_v1_dataset__dataset_id__members_delete_post: {
+  /** Add Dataset Member */
+  add_dataset_member_v1_dataset__dataset_id__members_update_post: {
     parameters: {
       path: {
         dataset_id: string;
@@ -7476,7 +7811,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DatasetMemberDeleteRequest'];
+        'application/json': components['schemas']['DatasetMemberCreateRequest'];
       };
     };
     responses: {
@@ -7495,10 +7830,10 @@ export interface operations {
     };
   };
   /**
-   * Update Dataset Member
-   * @description Update a dataset member role
+   * Remove Dataset Member
+   * @description Remove a dataset member
    */
-  update_dataset_member_v1_dataset__dataset_id__members_update_post: {
+  remove_dataset_member_v1_dataset__dataset_id__members_delete_post: {
     parameters: {
       path: {
         dataset_id: string;
@@ -7506,7 +7841,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DatasetMemberUpdateRequest'];
+        'application/json': components['schemas']['DatasetMemberDeleteRequest'];
       };
     };
     responses: {
@@ -7641,6 +7976,17 @@ export interface operations {
   /**
    * Embed Text
    * @description Generates text embeddings
+   *
+   * `nomic-embed-text` was trained to support these tasks:
+   *
+   * - `search_document` (embedding document chunks for search & retrieval)
+   * - `search_query` (embedding queries for search & retrieval)
+   * - `classification` (embeddings for text classification)
+   * - `clustering` (embeddings for cluster visualization)
+   *
+   * In the Nomic API or Python client, specify your task with the `task_type` parameter (default is `search_document` if no `task_type` is provided)
+   *
+   * Using `nomic-embed-text` with other libraries requires you to use a prefix to specify your embedding task. See our [HuggingFace model card](https://huggingface.co/nomic-ai/nomic-embed-text-v1.5) for details.
    */
   embed_text_v1_embedding_text_post: {
     parameters: {
@@ -7659,6 +8005,147 @@ export interface operations {
       200: {
         content: {
           'application/json': components['schemas']['TextEmbeddingInferenceResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Embed Image
+   * @description Generate embeddings from images in `.png`, `.jpeg`, or `.webp` formats.
+   *
+   *   Images can be provided either as:
+   *
+   *       - Files (filepaths or raw image bytes)
+   *
+   *       - URLs
+   *
+   *   #### `curl`
+   *
+   *   Embedding image files using `curl`:
+   *
+   *   ```bash
+   *   curl -X POST "https://api-atlas.nomic.ai/v1/embedding/image" \
+   * -H "Authorization: Bearer $NOMIC_API_KEY" \
+   * -H "Content-Type: multipart/form-data" \
+   * -F "model=nomic-embed-vision-v1.5" \
+   * -F "images=@path/to/image1.jpg" \
+   * -F "images=@path/to/image2.jpg"
+   *   ```
+   *
+   *   Embedding images via URLs using `curl`:
+   *
+   *   ```bash
+   *   curl -X POST "https://api-atlas.nomic.ai/v1/embedding/image" \
+   * -H "Authorization: Bearer $NOMIC_API_KEY" \
+   * -H "Content-Type: application/x-www-form-urlencoded" \
+   * -d "model=nomic-embed-vision-v1.5" \
+   * -d "urls=https://static.nomic.ai/secret-model.png" \
+   * -d "urls=https://static.nomic.ai/secret-model-2.png"
+   *   ```
+   *
+   *   #### `nomic` Python library
+   *
+   *   Embeddings image files using the `nomic` Python library:
+   *
+   *   ```python
+   *   from nomic import embed
+   *
+   *   output = embed.image(
+   *       images=['path/to/image1.jpg', 'path/to/image2.jpg'],
+   *       model='nomic-embed-vision-v1.5',
+   *   )
+   *
+   *   print(output)
+   *   ```
+   *
+   *   Embedding images via URLs using the `nomic` Python library:
+   *
+   *   ```python
+   *   from nomic import embed
+   *
+   *   output = embed.image(
+   *       images=[
+   *           "https://static.nomic.ai/secret-model.png",
+   *           "https://static.nomic.ai/secret-model-2.png"
+   *       ],
+   *       model="nomic-embed-vision-v1.5"
+   *   )
+   *
+   *   print(output)
+   *   ```
+   *
+   *   #### `requests` Python library
+   *
+   *   Embedding image files using the `requests` Python library (note that this option requires image bytes rather than image files):
+   *
+   *   ```python
+   *   import requests
+   *   import os
+   *
+   *   auth_header = "Bearer " + os.environ["NOMIC_API_KEY"]
+   *
+   *   image_filepaths = ["path/to/image1.jpg", "path/to/image2.jpg"]
+   *   image_bytes = []
+   *   for fpath in image_filepaths:
+   *       with open(fpath, "rb") as f:
+   *           image_bytes.append(("images", f.read()))
+   *
+   *   response = requests.post(
+   *       "https://api-atlas.nomic.ai/v1/embedding/image",
+   *       headers=dict(Authorization=auth_header),
+   *       data=dict(model="nomic-embed-vision-v1.5"),
+   *       files=image_bytes
+   *   )
+   *
+   *   print(response.json())
+   *   ```
+   *
+   *   Embedding images via URLs using the `requests` Python library:
+   *
+   *   ```python
+   *   import requests
+   *   import os
+   *
+   *   auth_header = "Bearer " + os.environ["NOMIC_API_KEY"]
+   *
+   *   response = requests.post(
+   *       "https://api-atlas.nomic.ai/v1/embedding/image",
+   *       headers=dict(Authorization=auth_header),
+   *       data=dict(
+   *           model="nomic-embed-vision-v1.5",
+   *           urls=[
+   *               "https://static.nomic.ai/secret-model.png",
+   *               "https://static.nomic.ai/secret-model-2.png"
+   *           ]
+   *       )
+   *   )
+   *
+   *   print(response.json())
+   *   ```
+   */
+  embed_image_v1_embedding_image_post: {
+    parameters: {
+      query?: {
+        /** @description Use semantic search mode */
+        semantic_search?: boolean;
+      };
+    };
+    requestBody?: {
+      content: {
+        'multipart/form-data': components['schemas']['Body_embed_image_v1_embedding_image_post'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['ImageEmbeddingInferenceResponse'];
         };
       };
       /** @description Validation Error */
@@ -7881,6 +8368,56 @@ export interface operations {
       200: {
         content: {
           'application/json': components['schemas']['SearchDatasetsResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Returns the resource info */
+  resource_info_sketch_resource__dataset_id___resource_id__get: {
+    parameters: {
+      path: {
+        dataset_id: string;
+        resource_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['ResourceResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Creates a resource */
+  create_sketch_resource__dataset_id__create_post: {
+    parameters: {
+      path: {
+        dataset_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['Resource'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        content: {
+          'application/json': unknown;
         };
       };
       /** @description Validation Error */
