@@ -953,6 +953,75 @@ export type webhooks = Record<string, never>;
 
 export interface components {
   schemas: {
+    ResourceDataset: {
+      /**
+       * Dataset ID
+       * @description The dataset ID associated to the resource.
+       */
+      id: string;
+    };
+
+    Resource: {
+      /**
+       * Resource Type
+       * @description String representing the resource to be created.
+       */
+      resource_type: string;
+
+      /**
+       * Dependencies
+       * @description Mapping resources types to ids to create dependencies between resources.
+       */
+      dependencies: Record<string, string>;
+
+      /**
+       * Dataset ID
+       * @description The dataset ID associated to the resource.
+       */
+      dataset_id: string;
+    };
+
+    EmbeddingSetResource: {
+      /**
+       * Resource Description
+       * @description Resource type to create an embedding set resource.
+       */
+      resource_type: 'EMBEDDING_SET';
+      /**
+       * Embedding column
+       * @description Column to load embeddings.
+       */
+      embedding_target: string;
+    };
+
+    /**
+     * Create [CoordinateSet, Cluster]Resource...
+     */
+
+    /** ResourceCreationRequest */
+    ResourceCreationRequest: {
+      /**
+       * Resource Parametes
+       * @description Parameters to create a dataset resource
+       */
+      resource: components['schemas']['Resource'];
+
+      /**
+       * Resource Dataset
+       * @description The dataset in which the resource will be associated.
+       */
+      dataset: components['schemas']['ResourceDataset'];
+    };
+
+    /** ResourceCreationResponse */
+    ResourceCreationResponse: {
+      /**
+       * Resource ID
+       * @description The ID of the resource.
+       */
+      resource_id: string;
+    };
+
     /** APIKeyCreationRequest */
     APIKeyCreationRequest: {
       /**
