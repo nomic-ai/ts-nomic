@@ -105,64 +105,6 @@ export interface paths {
      */
     post: operations['modify_organization_member_v1_organization_members_modify_post'];
   };
-  '/v1/organization/member/invite': {
-    /**
-     * Deprecated Invite Member In Organization
-     * @deprecated
-     * @description Invites a user in an organization
-     */
-    post: operations['deprecated_invite_member_in_organization_v1_organization_member_invite_post'];
-  };
-  '/v1/organization/members/invite': {
-    /**
-     * Invite Member In Organization
-     * @description Invites a user in an organization
-     */
-    post: operations['invite_member_in_organization_v1_organization_members_invite_post'];
-  };
-  '/v1/organization/invitations': {
-    /**
-     * Get Organization Invitations
-     * @description Get organization invitations for user
-     */
-    post: operations['get_organization_invitations_v1_organization_invitations_post'];
-  };
-  '/v1/organization/invitation/{invitation_id}/accept': {
-    /**
-     * Accept Organization Invitation
-     * @description Accepts an invitation to join an organization
-     */
-    post: operations['accept_organization_invitation_v1_organization_invitation__invitation_id__accept_post'];
-  };
-  '/v1/organization/invitation/{invitation_id}/reject': {
-    /**
-     * Reject Organization Invitation
-     * @description Rejects an invitation to join an organization
-     */
-    post: operations['reject_organization_invitation_v1_organization_invitation__invitation_id__reject_post'];
-  };
-  '/v1/organization/invitation/status': {
-    /**
-     * Update Invitation Status
-     * @deprecated
-     * @description Accept or reject invitation
-     */
-    post: operations['update_invitation_status_v1_organization_invitation_status_post'];
-  };
-  '/v1/organization/invitations/pending': {
-    /**
-     * Get Organization Pending Invitations
-     * @description Get organization pending invitations
-     */
-    post: operations['get_organization_pending_invitations_v1_organization_invitations_pending_post'];
-  };
-  '/v1/organization/invitations/delete': {
-    /**
-     * Remove Pending Invitation
-     * @description Delete pending invitation
-     */
-    post: operations['remove_pending_invitation_v1_organization_invitations_delete_post'];
-  };
   '/v1/organization/{organization_id_or_slug}/access-requests': {
     /**
      * Get Organization Access Requests Handler
@@ -1082,6 +1024,32 @@ export interface paths {
      */
     get: operations['fetch_datasets_by_query_v1_search_datasets_get'];
   };
+  '/v1/connector/': {
+    /**
+     * Create Connector Handler
+     * @description Create a new connector for the organization.
+     */
+    post: operations['create_connector_handler_v1_connector__post'];
+  };
+  '/v1/connector/{connector_id}': {
+    /**
+     * Get Connector Handler
+     * @description Get a specific connector by ID.
+     */
+    get: operations['get_connector_handler_v1_connector__connector_id__get'];
+    /**
+     * Delete Connector Handler
+     * @description Delete a specific connector.
+     */
+    delete: operations['delete_connector_handler_v1_connector__connector_id__delete'];
+  };
+  '/v1/connector/{connector_id}/dataset': {
+    /**
+     * Create Connector Dataset Handler
+     * @description Create a new dataset through a specific connector.
+     */
+    post: operations['create_connector_dataset_handler_v1_connector__connector_id__dataset_post'];
+  };
   '/sketch/resource/{dataset_id}/{resource_id}': {
     /** Returns the resource info */
     get: operations['resource_info_sketch_resource__dataset_id___resource_id__get'];
@@ -1415,6 +1383,62 @@ export interface components {
        * @description A batch of image bytes you want to embed
        */
       images?: string[];
+    };
+    /** ConnectorCreateRequest */
+    ConnectorCreateRequest: {
+      connector_name: components['schemas']['ConnectorName'];
+      /**
+       * Organization Id
+       * Format: uuid
+       */
+      organization_id: string;
+      /** Creation Params */
+      creation_params: Record<string, unknown>;
+      /**
+       * Secrets
+       * Format: binary
+       */
+      secrets?: string;
+    };
+    /** ConnectorDatasetCreateRequest */
+    ConnectorDatasetCreateRequest: {
+      connector_name: components['schemas']['ConnectorName'];
+      /** Creation Params */
+      creation_params: Record<string, unknown>;
+      create_dataset_params: components['schemas']['CreateProjectRequest'];
+    };
+    /** ConnectorDatasetResponse */
+    ConnectorDatasetResponse: {
+      created_dataset: components['schemas']['ProjectCreatedResponse'];
+      /** Creation Params */
+      creation_params: Record<string, unknown>;
+    };
+    /**
+     * ConnectorName
+     * @description An enumeration.
+     * @enum {string}
+     */
+    ConnectorName: 'huggingface' | 'gong';
+    /** ConnectorResponse */
+    ConnectorResponse: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      connector_name: components['schemas']['ConnectorName'];
+      /** Metadata */
+      metadata?: Record<string, unknown>;
+      /** Creation Params */
+      creation_params: Record<string, unknown>;
+      /** Created Timestamp */
+      created_timestamp: string;
+      datasets: components['schemas']['ConnectorResponseDatasetList'];
+    };
+    /** ConnectorResponseDatasetList */
+    ConnectorResponseDatasetList: {
+      /** Data */
+      data: string[];
     };
     /** CreateAtlasIndexRequest */
     CreateAtlasIndexRequest: {
@@ -1790,45 +1814,17 @@ export interface components {
        */
       index_job_end_timestamp: string;
     };
-    /** DeletePendingInvitationRequest */
-    DeletePendingInvitationRequest: {
-      /**
-       * Id
-       * Format: uuid
-       * @description Initation id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      id: string;
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description Inviter organization id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
-    };
-    /** DeprecatedInviteUserRequest */
-    DeprecatedInviteUserRequest: {
-      /**
-       * User Id
-       * @description User id to invite
-       * @example auth0|12345678
-       */
-      user_id: string;
-      /**
-       * Access Role
-       * @description Role to set
-       * @example MEMBER
-       */
-      access_role: string;
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description Inviter organization id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
-    };
+    /**
+     * DimensionalityReductionModel
+     * @description An enumeration.
+     * @enum {string}
+     */
+    DimensionalityReductionModel:
+      | 'nomic-project-v1'
+      | 'nomic-project-v2'
+      | 'umap'
+      | 'pca'
+      | 'svd';
     /** DimensionalityReductionRequest */
     DimensionalityReductionRequest: {
       /**
@@ -1845,7 +1841,7 @@ export interface components {
        * @description The model to use when projecting.
        * @default nomic-project-v1
        */
-      model?: components['schemas']['NomicProjectModel'];
+      model?: components['schemas']['DimensionalityReductionModel'];
     };
     /** DimensionalityReductionResponse */
     DimensionalityReductionResponse: {
@@ -2205,6 +2201,38 @@ export interface components {
        */
       alias_value: string;
     };
+    /** HNSWIndexCreateArgs */
+    HNSWIndexCreateArgs: {
+      /** Dataset Id */
+      dataset_id: string;
+      /** The ID of the embedding set to use */
+      embedding_set_id: string;
+      /**
+       * N Neighbors
+       * @default 15
+       */
+      n_neighbors?: number;
+      /**
+       * Ef Construction
+       * @default 64
+       */
+      ef_construction?: number;
+      /**
+       * M
+       * @default 32
+       */
+      M?: number;
+      /**
+       * Local Neighborhood Size
+       * @default 32
+       */
+      local_neighborhood_size?: number;
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'HNSW_INDEX';
+    };
     /** HTTPValidationError */
     HTTPValidationError: {
       /** Detail */
@@ -2290,127 +2318,6 @@ export interface components {
        * @description Whether topic models are rebuilding
        */
       rebuild_topic_models: boolean;
-    };
-    /** InvitationModel */
-    InvitationModel: {
-      /**
-       * Id
-       * Format: uuid
-       * @description Initation id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      id: string;
-      /**
-       * User Id
-       * @description User id
-       * @example auth0|12345678
-       */
-      user_id: string;
-      /**
-       * Access Role
-       * @description Role
-       * @example MEMBER
-       */
-      access_role: string;
-      /**
-       * Organization Nickname
-       * @description Organization name
-       * @example MyOrganization
-       */
-      organization_nickname: string;
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description Inviter organization id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
-      /**
-       * User Nickname
-       * @description Nickname of user
-       */
-      user_nickname: string;
-    };
-    /** InvitationModelPendingOrg */
-    InvitationModelPendingOrg: {
-      /**
-       * Id
-       * Format: uuid
-       * @description Initation id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      id: string;
-      /**
-       * User Id
-       * @description User id
-       * @example auth0|12345678
-       */
-      user_id: string;
-      /**
-       * Access Role
-       * @description Role
-       * @example MEMBER
-       */
-      access_role: string;
-      /**
-       * Organization Nickname
-       * @description Organization name
-       * @example MyOrganization
-       */
-      organization_nickname: string;
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description Inviter organization id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
-      /**
-       * User Nickname
-       * @description Nickname of user
-       */
-      user_nickname: string;
-      /**
-       * Email
-       * @description User email
-       * @example nomic@gmail.com
-       */
-      email: string;
-      /**
-       * Picture
-       * @description The users profile image
-       */
-      picture?: string;
-    };
-    /** InvitationsResponse */
-    InvitationsResponse: {
-      /**
-       * Invitations
-       * @description Invitation list
-       */
-      invitations: components['schemas']['InvitationModel'][];
-    };
-    /** InviteUserRequest */
-    InviteUserRequest: {
-      /**
-       * Email
-       * @description Email of the user to invite
-       * @example example@nomic.ai
-       */
-      email: string;
-      /**
-       * Access Role
-       * @description Role to set
-       * @example MEMBER
-       */
-      access_role: string;
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description Inviter organization id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
     };
     /** JobProgressResponse */
     JobProgressResponse: {
@@ -2622,12 +2529,53 @@ export interface components {
        */
       atom_strategies: string[];
     };
-    /**
-     * NomicProjectModel
-     * @description An enumeration.
-     * @enum {string}
-     */
-    NomicProjectModel: 'nomic-project-v1' | 'nomic-project-v2' | 'umap';
+    /** NomicProjectV1CoordinateSetCreateArgs */
+    NomicProjectV1CoordinateSetCreateArgs: {
+      /** Dataset Id */
+      dataset_id: string;
+      /** The ID of the embedding set to use */
+      nn_index_id: string;
+      /** The ID of the initialization */
+      initialization_id: string;
+      /** Number of contrastive samples */
+      n_noise?: number;
+      /**
+       * Number of epochs
+       * @default 50
+       */
+      n_epochs?: number;
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'NPV1_COORDINATE_SET';
+    };
+    /** NomicProjectV2CoordinateSetCreateArgs */
+    NomicProjectV2CoordinateSetCreateArgs: {
+      /** Dataset Id */
+      dataset_id: string;
+      /** The ID of the embedding set to use */
+      nn_index_id: string;
+      /** The ID of the initialization */
+      initialization_id: string;
+      /** Number of contrastive samples */
+      n_noise?: number;
+      /**
+       * Number of epochs
+       * @default 50
+       */
+      n_epochs?: number;
+      /**
+       * Controls local structure optimizing step for `nomic-project-v2`. Min value: `0`; max value: `1`
+       * @default 0.6
+       */
+      rho?: number;
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'NPV2_COORDINATE_SET';
+    };
     /**
      * NomicTextEmbeddingModel
      * @description An enumeration.
@@ -2674,10 +2622,8 @@ export interface components {
        * @default false
        */
       private_projects?: boolean;
-      /** Max Text Tokens */
-      max_text_tokens?: number;
-      /** Max Image Embeddings */
-      max_image_embeddings?: number;
+      /** Max Free Embedding Api Token Usage */
+      max_free_embedding_api_token_usage: number;
       /** Max Storage */
       max_storage?: number;
       /** Max Premium Api Calls */
@@ -3039,6 +2985,7 @@ export interface components {
     OrganizationPlan:
       | 'atlas_demo'
       | 'atlas_enterprise'
+      | 'atlas_team'
       | 'atlas_research'
       | 'atlas_starter'
       | 'atlas_startup'
@@ -3063,6 +3010,23 @@ export interface components {
       seats: components['schemas']['UsageRecord'];
       storage: components['schemas']['UsageRecord'];
     };
+    /** PCACoordinateSetCreateArgs */
+    PCACoordinateSetCreateArgs: {
+      /** Dataset Id */
+      dataset_id: string;
+      /** The ID of the embedding set to use */
+      embedding_set_id: string;
+      /**
+       * PCA's n_components
+       * @default 2
+       */
+      n_components?: number;
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'PCA_COORDINATE_SET';
+    };
     /** PagedEmbeddingRequest */
     PagedEmbeddingRequest: {
       /**
@@ -3083,24 +3047,6 @@ export interface components {
        * @default 10000
        */
       page_size?: number;
-    };
-    /** PendingInvitationsRequest */
-    PendingInvitationsRequest: {
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description Organization id to get pending invitations for
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
-    };
-    /** PendingInvitationsResponse */
-    PendingInvitationsResponse: {
-      /**
-       * Invitations
-       * @description Invitation list
-       */
-      invitations: components['schemas']['InvitationModelPendingOrg'][];
     };
     /**
      * Point
@@ -3774,6 +3720,16 @@ export interface components {
        */
       website?: string;
     };
+    /** RandomCoordinateSetCreateArgs */
+    RandomCoordinateSetCreateArgs: {
+      /** Dataset Id */
+      dataset_id: string;
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'RANDOM_COORDINATE_SET';
+    };
     /** RemoveIndexRequest */
     RemoveIndexRequest: {
       /**
@@ -3803,8 +3759,15 @@ export interface components {
     Resource: {
       /** Resource */
       resource:
-        | components['schemas']['SVDCreateArgs']
-        | components['schemas']['EmbeddingSetCreateArgs'];
+        | components['schemas']['EmbeddingSetCreateArgs']
+        | components['schemas']['HNSWIndexCreateArgs']
+        | components['schemas']['RandomCoordinateSetCreateArgs']
+        | components['schemas']['UMAPCoordinateSetCreateArgs']
+        | components['schemas']['TSNECoordinateSetCreateArgs']
+        | components['schemas']['PCACoordinateSetCreateArgs']
+        | components['schemas']['SVDCoordinateSetCreateArgs']
+        | components['schemas']['NomicProjectV1CoordinateSetCreateArgs']
+        | components['schemas']['NomicProjectV2CoordinateSetCreateArgs'];
       /**
        * Dataset
        * @description Dataset associated to the resource
@@ -3846,20 +3809,32 @@ export interface components {
      * @description An enumeration.
      * @enum {unknown}
      */
-    ResourceType: 'EMBEDDING_SET' | 'SVD_COORDS';
-    /** SVDCreateArgs */
-    SVDCreateArgs: {
+    ResourceType:
+      | 'EMBEDDING_SET'
+      | 'HNSW_INDEX'
+      | 'RANDOM_COORDINATE_SET'
+      | 'PCA_COORDINATE_SET'
+      | 'SVD_COORDINATE_SET'
+      | 'TSNE_COORDINATE_SET'
+      | 'UMAP_COORDINATE_SET'
+      | 'NPV1_COORDINATE_SET'
+      | 'NPV2_COORDINATE_SET';
+    /** SVDCoordinateSetCreateArgs */
+    SVDCoordinateSetCreateArgs: {
       /** Dataset Id */
       dataset_id: string;
       /** The ID of the embedding set to use */
       embedding_set_id: string;
-      /** Number of components to keep */
-      n_components: number;
+      /**
+       * SVD's n_components
+       * @default 2
+       */
+      n_components?: number;
       /**
        * Resource Type
        * @enum {string}
        */
-      resource_type: 'SVD_COORDS';
+      resource_type: 'SVD_COORDINATE_SET';
     };
     /** SearchDatasetsResponse */
     SearchDatasetsResponse: {
@@ -4011,6 +3986,23 @@ export interface components {
        * @default ok
        */
       result?: string;
+    };
+    /** TSNECoordinateSetCreateArgs */
+    TSNECoordinateSetCreateArgs: {
+      /** Dataset Id */
+      dataset_id: string;
+      /** The ID of the embedding set to use */
+      embedding_set_id: string;
+      /**
+       * TSNE's perplexity
+       * @default 30
+       */
+      perplexity?: number;
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'TSNE_COORDINATE_SET';
     };
     /** TagRequest */
     TagRequest: {
@@ -4183,19 +4175,27 @@ export interface components {
        */
       results: Record<string, unknown>[];
     };
-    /** UpdateInviteRequest */
-    UpdateInviteRequest: {
+    /** UMAPCoordinateSetCreateArgs */
+    UMAPCoordinateSetCreateArgs: {
+      /** Dataset Id */
+      dataset_id: string;
+      /** The ID of the embedding set to use */
+      embedding_set_id: string;
       /**
-       * Invitation Id
-       * @description Invitation id
-       * @example auth0|12345678
+       * UMAP's min_dist
+       * @default 0.4
        */
-      invitation_id: string;
+      min_dist?: number;
       /**
-       * Is Accepted
-       * @description Is invitation accepted?
+       * UMAP's n_neighbors
+       * @default 15
        */
-      is_accepted: boolean;
+      n_neighbors?: number;
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'UMAP_COORDINATE_SET';
     };
     /** UpdateOrganizationRequest */
     UpdateOrganizationRequest: {
@@ -4710,197 +4710,6 @@ export interface operations {
     requestBody: {
       content: {
         'application/json': components['schemas']['ModifyUserRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Deprecated Invite Member In Organization
-   * @deprecated
-   * @description Invites a user in an organization
-   */
-  deprecated_invite_member_in_organization_v1_organization_member_invite_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DeprecatedInviteUserRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      201: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Invite Member In Organization
-   * @description Invites a user in an organization
-   */
-  invite_member_in_organization_v1_organization_members_invite_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['InviteUserRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      201: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Get Organization Invitations
-   * @description Get organization invitations for user
-   */
-  get_organization_invitations_v1_organization_invitations_post: {
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['InvitationsResponse'];
-        };
-      };
-    };
-  };
-  /**
-   * Accept Organization Invitation
-   * @description Accepts an invitation to join an organization
-   */
-  accept_organization_invitation_v1_organization_invitation__invitation_id__accept_post: {
-    parameters: {
-      path: {
-        invitation_id: string;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Reject Organization Invitation
-   * @description Rejects an invitation to join an organization
-   */
-  reject_organization_invitation_v1_organization_invitation__invitation_id__reject_post: {
-    parameters: {
-      path: {
-        invitation_id: string;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Update Invitation Status
-   * @deprecated
-   * @description Accept or reject invitation
-   */
-  update_invitation_status_v1_organization_invitation_status_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['UpdateInviteRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Get Organization Pending Invitations
-   * @description Get organization pending invitations
-   */
-  get_organization_pending_invitations_v1_organization_invitations_pending_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['PendingInvitationsRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['PendingInvitationsResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Remove Pending Invitation
-   * @description Delete pending invitation
-   */
-  remove_pending_invitation_v1_organization_invitations_delete_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DeletePendingInvitationRequest'];
       };
     };
     responses: {
@@ -8368,6 +8177,111 @@ export interface operations {
       200: {
         content: {
           'application/json': components['schemas']['SearchDatasetsResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Create Connector Handler
+   * @description Create a new connector for the organization.
+   */
+  create_connector_handler_v1_connector__post: {
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConnectorCreateRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        content: {
+          'application/json': components['schemas']['ConnectorResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Get Connector Handler
+   * @description Get a specific connector by ID.
+   */
+  get_connector_handler_v1_connector__connector_id__get: {
+    parameters: {
+      path: {
+        connector_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['ConnectorResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Delete Connector Handler
+   * @description Delete a specific connector.
+   */
+  delete_connector_handler_v1_connector__connector_id__delete: {
+    parameters: {
+      path: {
+        connector_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['SuccessResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Create Connector Dataset Handler
+   * @description Create a new dataset through a specific connector.
+   */
+  create_connector_dataset_handler_v1_connector__connector_id__dataset_post: {
+    parameters: {
+      path: {
+        connector_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConnectorDatasetCreateRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        content: {
+          'application/json': components['schemas']['ConnectorDatasetResponse'];
         };
       };
       /** @description Validation Error */
