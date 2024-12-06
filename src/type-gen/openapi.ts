@@ -2761,6 +2761,11 @@ export interface components {
        * @description The total number of projects of this organization
        */
       project_count: number;
+      /**
+       * Connectors
+       * @description The connectors this organization has enabled
+       */
+      connectors: components['schemas']['ConnectorResponse'][];
     };
     /** OrganizationAccessRequestApproveRequest */
     OrganizationAccessRequestApproveRequest: {
