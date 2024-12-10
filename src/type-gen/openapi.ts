@@ -825,17 +825,10 @@ export interface paths {
      */
     post: operations['stripe_subscription_v1_stripe_subscribe_post'];
   };
-  '/v1/stripe/set_organization_limits': {
-    /**
-     * Set Organization Billing Limits
-     * @description Sets the organization billing limits
-     */
-    post: operations['set_organization_billing_limits_v1_stripe_set_organization_limits_post'];
-  };
   '/v1/stripe/cancel': {
     /**
      * Cancel Stripe Subscription
-     * @description Create stripe subscription checkout session url and send it to front end
+     * @description Cancels a stripe subscription. Used internally for unit tests.
      */
     post: operations['cancel_stripe_subscription_v1_stripe_cancel_post'];
   };
@@ -1407,6 +1400,16 @@ export interface components {
       creation_params: Record<string, unknown>;
       create_dataset_params: components['schemas']['CreateProjectRequest'];
     };
+    /** ConnectorDatasetDetails */
+    ConnectorDatasetDetails: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Creation Params */
+      creation_params: Record<string, unknown>;
+    };
     /** ConnectorDatasetResponse */
     ConnectorDatasetResponse: {
       created_dataset: components['schemas']['ProjectCreatedResponse'];
@@ -1735,7 +1738,7 @@ export interface components {
      * @description An enumeration.
      * @enum {string}
      */
-    DatasetRole: 'ADMIN' | 'EDITOR' | 'VIEWER' | 'NONE';
+    DatasetRole: 'ADMIN' | 'EDITOR' | 'VIEWER' | 'EXTERNAL' | 'NONE';
     /** DatasetSearchResult */
     DatasetSearchResult: {
       /**
@@ -2761,6 +2764,11 @@ export interface components {
        * @description The total number of projects of this organization
        */
       project_count: number;
+      /**
+       * Connectors
+       * @description The connectors this organization has enabled
+       */
+      connectors: components['schemas']['ConnectorResponse'][];
     };
     /** OrganizationAccessRequestApproveRequest */
     OrganizationAccessRequestApproveRequest: {
@@ -3212,6 +3220,28 @@ export interface components {
        * @description The project url-safe slug
        */
       slug: string;
+      /** @description The connector name used to create this project */
+      connector_name?: components['schemas']['ConnectorName'];
+      /**
+       * Organization Slug
+       * @description The organization url-safe slug
+       */
+      organization_slug: string;
+      /**
+       * Organization Name
+       * @description The organization nickname
+       */
+      organization_name: string;
+      /**
+       * Creator Nickname
+       * @description The creator nickname
+       */
+      creator_nickname: string;
+      /**
+       * Creator Picture
+       * @description The creator picture
+       */
+      creator_picture: string;
       /**
        * Og Image
        * @description The datasets opengraph image
@@ -3242,25 +3272,10 @@ export interface components {
        */
       schema?: string;
       /**
-       * Organization Slug
-       * @description The organization url-safe slug
+       * Connector Details
+       * @description The connector details for this project
        */
-      organization_slug: string;
-      /**
-       * Organization Name
-       * @description The organization nickname
-       */
-      organization_name: string;
-      /**
-       * Creator Nickname
-       * @description The creator nickname
-       */
-      creator_nickname: string;
-      /**
-       * Creator Picture
-       * @description The creator picture
-       */
-      creator_picture: string;
+      connector_details?: components['schemas']['ConnectorDatasetDetails'];
     };
     /** ProjectCreatedResponse */
     ProjectCreatedResponse: {
@@ -3402,12 +3417,12 @@ export interface components {
       description: string;
       /**
        * Is Public
-       * @description Is the project viewable without being in the organization?
+       * @description Is the project viewable without being in the organzation?
        */
       is_public: boolean;
       /**
        * Is Public To Org
-       * @description Is the project public to the organization?
+       * @description Is the project viewable to the organization?
        */
       is_public_to_org: boolean;
       /**
@@ -3437,20 +3452,12 @@ export interface components {
        */
       created_timestamp: string;
       /**
-       * Nickname
-       * @description The nickname who created this project.
-       */
-      nickname: string;
-      /**
-       * Thumbnail
-       * @description The project display thumbnail.
-       */
-      thumbnail: string;
-      /**
        * Slug
        * @description The project url-safe slug
        */
       slug: string;
+      /** @description The connector name used to create this project */
+      connector_name?: components['schemas']['ConnectorName'];
       /**
        * Organization Slug
        * @description The organization url-safe slug
@@ -3471,6 +3478,16 @@ export interface components {
        * @description The creator picture
        */
       creator_picture: string;
+      /**
+       * Nickname
+       * @description The nickname who created this project.
+       */
+      nickname: string;
+      /**
+       * Thumbnail
+       * @description The project display thumbnail.
+       */
+      thumbnail: string;
     };
     /** ProjectNameSearchRequest */
     ProjectNameSearchRequest: {
@@ -3903,29 +3920,6 @@ export interface components {
        */
       users: components['schemas']['SearchUserModel'][];
     };
-    /** SetOrganizationLimitsRequest */
-    SetOrganizationLimitsRequest: {
-      /**
-       * Max Datums
-       * @description The datapoint usage limit to set for the organization
-       */
-      max_datums: number;
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description Organization id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
-    };
-    /** SetOrganizationLimitsResponse */
-    SetOrganizationLimitsResponse: {
-      /**
-       * Max Datums
-       * @description The new datapoint usage limit
-       */
-      max_datums: number;
-    };
     /** StripeSubscriptionCancelRequest */
     StripeSubscriptionCancelRequest: {
       /**
@@ -3955,6 +3949,12 @@ export interface components {
        * @description Promotion code
        */
       promo_code?: string;
+      /**
+       * Enable Free Trial
+       * @description Should a free trial period be enabled for the plan.
+       * @default false
+       */
+      enable_free_trial?: boolean;
     };
     /** StripeSubscriptionCreateResponse */
     StripeSubscriptionCreateResponse: {
@@ -4236,29 +4236,6 @@ export interface components {
        * @description A new website for the organization.
        */
       new_organization_website?: string;
-    };
-    /** UpdateProjectIndicesRequest */
-    UpdateProjectIndicesRequest: {
-      /**
-       * Project Id
-       * Format: uuid
-       * @description The id of the project to update
-       */
-      project_id: string;
-      /**
-       * Rebuild Topic Models
-       * @description Whether or not to rebuild topic models
-       * @default false
-       */
-      rebuild_topic_models?: boolean;
-    };
-    /** UpdateProjectIndicesResponse */
-    UpdateProjectIndicesResponse: {
-      /**
-       * Job Ids
-       * @description The job ids cerated for each index update operation
-       */
-      job_ids: string[];
     };
     /** UpdateTagDefinitionRequest */
     UpdateTagDefinitionRequest: {
@@ -5356,22 +5333,11 @@ export interface operations {
    * @description Updates the indices in a project that has unindexed progressively added data
    */
   update_project_indices_v1_project_update_indices_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['UpdateProjectIndicesRequest'];
-      };
-    };
     responses: {
       /** @description Successful Response */
       200: {
         content: {
-          'application/json': components['schemas']['UpdateProjectIndicesResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          'application/json': unknown;
         };
       };
     };
@@ -6679,22 +6645,11 @@ export interface operations {
    * @description Updates the indices in a project that has unindexed progressively added data
    */
   update_project_indices_v1_dataset_update_indices_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['UpdateProjectIndicesRequest'];
-      };
-    };
     responses: {
       /** @description Successful Response */
       200: {
         content: {
-          'application/json': components['schemas']['UpdateProjectIndicesResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          'application/json': unknown;
         };
       };
     };
@@ -7719,33 +7674,8 @@ export interface operations {
     };
   };
   /**
-   * Set Organization Billing Limits
-   * @description Sets the organization billing limits
-   */
-  set_organization_billing_limits_v1_stripe_set_organization_limits_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['SetOrganizationLimitsRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SetOrganizationLimitsResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
    * Cancel Stripe Subscription
-   * @description Create stripe subscription checkout session url and send it to front end
+   * @description Cancels a stripe subscription. Used internally for unit tests.
    */
   cancel_stripe_subscription_v1_stripe_cancel_post: {
     requestBody: {
