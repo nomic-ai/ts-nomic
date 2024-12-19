@@ -1051,6 +1051,25 @@ export interface paths {
     /** Creates a resource */
     post: operations['create_sketch_resource__dataset_id__create_post'];
   };
+  '/sketch/map/{quadtree_id}/create': {
+    /** Creates a map */
+    post: operations['create_sketch_map__quadtree_id__create_post'];
+  };
+  '/sketch/map/{map_id}/schema': {
+    /** Retrieves the quadtree schema */
+    get: operations['fetch_map_schema_sketch_map__map_id__schema_get'];
+  };
+  '/sketch/map/{quadtree_id}/{quadtree_key}': {
+    /**
+     * Fetch Quadtree Tile
+     * @description Fetches a quadtree tile to the front-end.
+     */
+    get: operations['fetch_quadtree_tile_sketch_map__quadtree_id___quadtree_key__get'];
+  };
+  '/sketch/map/{quadtree_id}/manifest.feather': {
+    /** Quadtree Manifest */
+    get: operations['quadtree_manifest_sketch_map__quadtree_id__manifest_feather_get'];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -1377,6 +1396,27 @@ export interface components {
        */
       images?: string[];
     };
+    /** ClusterCreateArgs */
+    ClusterCreateArgs: {
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'CLUSTER_ASSIGNMENT';
+      /** Identifiers for all resources this resource depends on. */
+      dependencies: {
+        [key: string]: string | components['schemas']['DatasetResourceParams'];
+      };
+      /** Dataset Id */
+      dataset_id: string;
+      /** Cluster Method */
+      cluster_method?: string;
+      /**
+       * Enforce Hierarchy
+       * @default true
+       */
+      enforce_hierarchy?: boolean;
+    };
     /** ConnectorCreateRequest */
     ConnectorCreateRequest: {
       connector_name: components['schemas']['ConnectorName'];
@@ -1421,7 +1461,7 @@ export interface components {
      * @description An enumeration.
      * @enum {string}
      */
-    ConnectorName: 'huggingface' | 'gong';
+    ConnectorName: 'huggingface' | 'gong' | 'zendesk';
     /** ConnectorResponse */
     ConnectorResponse: {
       /**
@@ -1630,6 +1670,11 @@ export interface components {
        */
       is_public?: boolean;
       /**
+       * Is Public To Org
+       * @description Is the project public to the organization?
+       */
+      is_public_to_org?: boolean;
+      /**
        * Slug
        * @description The desired url slug for the project
        */
@@ -1732,6 +1777,17 @@ export interface components {
        * @description The user email
        */
       email: string;
+    };
+    /** DatasetResourceParams */
+    DatasetResourceParams: {
+      /** Resource Type */
+      resource_type?: unknown;
+      /** Identifiers for all resources this resource depends on. */
+      dependencies: {
+        [key: string]: string | components['schemas']['DatasetResourceParams'];
+      };
+      /** Dataset Id */
+      dataset_id: string;
     };
     /**
      * DatasetRole
@@ -2026,6 +2082,15 @@ export interface components {
     };
     /** EmbeddingSetCreateArgs */
     EmbeddingSetCreateArgs: {
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'EMBEDDING_SET';
+      /** Identifiers for all resources this resource depends on. */
+      dependencies: {
+        [key: string]: string | components['schemas']['DatasetResourceParams'];
+      };
       /** Dataset Id */
       dataset_id: string;
       /**
@@ -2033,11 +2098,6 @@ export interface components {
        * @default embedding
        */
       embedding_target?: string;
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'EMBEDDING_SET';
     };
     /** EmbeddingTopicRequest */
     EmbeddingTopicRequest: {
@@ -2206,10 +2266,17 @@ export interface components {
     };
     /** HNSWIndexCreateArgs */
     HNSWIndexCreateArgs: {
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'HNSW_INDEX';
+      /** Identifiers for all resources this resource depends on. */
+      dependencies: {
+        [key: string]: string | components['schemas']['DatasetResourceParams'];
+      };
       /** Dataset Id */
       dataset_id: string;
-      /** The ID of the embedding set to use */
-      embedding_set_id: string;
       /**
        * N Neighbors
        * @default 15
@@ -2230,11 +2297,6 @@ export interface components {
        * @default 32
        */
       local_neighborhood_size?: number;
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'HNSW_INDEX';
     };
     /** HTTPValidationError */
     HTTPValidationError: {
@@ -2534,12 +2596,17 @@ export interface components {
     };
     /** NomicProjectV1CoordinateSetCreateArgs */
     NomicProjectV1CoordinateSetCreateArgs: {
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'NPV1_COORDINATE_SET';
+      /** Identifiers for all resources this resource depends on. */
+      dependencies: {
+        [key: string]: string | components['schemas']['DatasetResourceParams'];
+      };
       /** Dataset Id */
       dataset_id: string;
-      /** The ID of the embedding set to use */
-      nn_index_id: string;
-      /** The ID of the initialization */
-      initialization_id: string;
       /** Number of contrastive samples */
       n_noise?: number;
       /**
@@ -2547,20 +2614,20 @@ export interface components {
        * @default 50
        */
       n_epochs?: number;
+    };
+    /** NomicProjectV2CoordinateSetCreateArgs */
+    NomicProjectV2CoordinateSetCreateArgs: {
       /**
        * Resource Type
        * @enum {string}
        */
-      resource_type: 'NPV1_COORDINATE_SET';
-    };
-    /** NomicProjectV2CoordinateSetCreateArgs */
-    NomicProjectV2CoordinateSetCreateArgs: {
+      resource_type: 'NPV2_COORDINATE_SET';
+      /** Identifiers for all resources this resource depends on. */
+      dependencies: {
+        [key: string]: string | components['schemas']['DatasetResourceParams'];
+      };
       /** Dataset Id */
       dataset_id: string;
-      /** The ID of the embedding set to use */
-      nn_index_id: string;
-      /** The ID of the initialization */
-      initialization_id: string;
       /** Number of contrastive samples */
       n_noise?: number;
       /**
@@ -2573,11 +2640,6 @@ export interface components {
        * @default 0.6
        */
       rho?: number;
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'NPV2_COORDINATE_SET';
     };
     /**
      * NomicTextEmbeddingModel
@@ -3020,20 +3082,22 @@ export interface components {
     };
     /** PCACoordinateSetCreateArgs */
     PCACoordinateSetCreateArgs: {
-      /** Dataset Id */
-      dataset_id: string;
-      /** The ID of the embedding set to use */
-      embedding_set_id: string;
-      /**
-       * PCA's n_components
-       * @default 2
-       */
-      n_components?: number;
       /**
        * Resource Type
        * @enum {string}
        */
       resource_type: 'PCA_COORDINATE_SET';
+      /** Identifiers for all resources this resource depends on. */
+      dependencies: {
+        [key: string]: string | components['schemas']['DatasetResourceParams'];
+      };
+      /** Dataset Id */
+      dataset_id: string;
+      /**
+       * PCA's n_components
+       * @default 2
+       */
+      n_components?: number;
     };
     /** PagedEmbeddingRequest */
     PagedEmbeddingRequest: {
@@ -3737,15 +3801,39 @@ export interface components {
        */
       website?: string;
     };
-    /** RandomCoordinateSetCreateArgs */
-    RandomCoordinateSetCreateArgs: {
+    /** QuadtreeCreateArgs */
+    QuadtreeCreateArgs: {
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'QUADTREE';
+      /** Identifiers for all resources this resource depends on. */
+      dependencies: {
+        [key: string]: string | components['schemas']['DatasetResourceParams'];
+      };
       /** Dataset Id */
       dataset_id: string;
+      /**
+       * Colorable Fields
+       * @description The fields that can be colored by.
+       * @default []
+       */
+      colorable_fields?: string[];
+    };
+    /** RandomCoordinateSetCreateArgs */
+    RandomCoordinateSetCreateArgs: {
       /**
        * Resource Type
        * @enum {string}
        */
       resource_type: 'RANDOM_COORDINATE_SET';
+      /** Identifiers for all resources this resource depends on. */
+      dependencies: {
+        [key: string]: string | components['schemas']['DatasetResourceParams'];
+      };
+      /** Dataset Id */
+      dataset_id: string;
     };
     /** RemoveIndexRequest */
     RemoveIndexRequest: {
@@ -3784,7 +3872,15 @@ export interface components {
         | components['schemas']['PCACoordinateSetCreateArgs']
         | components['schemas']['SVDCoordinateSetCreateArgs']
         | components['schemas']['NomicProjectV1CoordinateSetCreateArgs']
-        | components['schemas']['NomicProjectV2CoordinateSetCreateArgs'];
+        | components['schemas']['NomicProjectV2CoordinateSetCreateArgs']
+        | components['schemas']['QuadtreeCreateArgs']
+        | components['schemas']['TagDuplicatesCreateArgs']
+        | components['schemas']['ClusterCreateArgs']
+        | components['schemas']['WriteTileManifestCreateArgs']
+        | components['schemas']['WriteQuadtreeManifestCreateArgs']
+        | components['schemas']['WriteEmbeddingsSidecarsCreateArgs']
+        | components['schemas']['WriteDataSidecarCreateArgs']
+        | components['schemas']['WriteClusterSidecarsCreateArgs'];
       /**
        * Dataset
        * @description Dataset associated to the resource
@@ -3793,8 +3889,11 @@ export interface components {
     };
     /** ResourceResponse */
     ResourceResponse: {
-      /** @description Resource type. */
-      type: components['schemas']['ResourceType'];
+      /**
+       * Type
+       * @description Resource type.
+       */
+      type: string;
       /**
        * Id
        * Format: uuid
@@ -3821,37 +3920,24 @@ export interface components {
      * @enum {unknown}
      */
     ResourceStatus: 'COMPLETED' | 'FAILED' | 'BUILDING' | 'WAITING';
-    /**
-     * ResourceType
-     * @description An enumeration.
-     * @enum {unknown}
-     */
-    ResourceType:
-      | 'EMBEDDING_SET'
-      | 'HNSW_INDEX'
-      | 'RANDOM_COORDINATE_SET'
-      | 'PCA_COORDINATE_SET'
-      | 'SVD_COORDINATE_SET'
-      | 'TSNE_COORDINATE_SET'
-      | 'UMAP_COORDINATE_SET'
-      | 'NPV1_COORDINATE_SET'
-      | 'NPV2_COORDINATE_SET';
     /** SVDCoordinateSetCreateArgs */
     SVDCoordinateSetCreateArgs: {
-      /** Dataset Id */
-      dataset_id: string;
-      /** The ID of the embedding set to use */
-      embedding_set_id: string;
-      /**
-       * SVD's n_components
-       * @default 2
-       */
-      n_components?: number;
       /**
        * Resource Type
        * @enum {string}
        */
       resource_type: 'SVD_COORDINATE_SET';
+      /** Identifiers for all resources this resource depends on. */
+      dependencies: {
+        [key: string]: string | components['schemas']['DatasetResourceParams'];
+      };
+      /** Dataset Id */
+      dataset_id: string;
+      /**
+       * SVD's n_components
+       * @default 2
+       */
+      n_components?: number;
     };
     /** SearchDatasetsResponse */
     SearchDatasetsResponse: {
@@ -3989,20 +4075,41 @@ export interface components {
     };
     /** TSNECoordinateSetCreateArgs */
     TSNECoordinateSetCreateArgs: {
-      /** Dataset Id */
-      dataset_id: string;
-      /** The ID of the embedding set to use */
-      embedding_set_id: string;
-      /**
-       * TSNE's perplexity
-       * @default 30
-       */
-      perplexity?: number;
       /**
        * Resource Type
        * @enum {string}
        */
       resource_type: 'TSNE_COORDINATE_SET';
+      /** Identifiers for all resources this resource depends on. */
+      dependencies: {
+        [key: string]: string | components['schemas']['DatasetResourceParams'];
+      };
+      /** Dataset Id */
+      dataset_id: string;
+      /**
+       * TSNE's perplexity
+       * @default 30
+       */
+      perplexity?: number;
+    };
+    /** TagDuplicatesCreateArgs */
+    TagDuplicatesCreateArgs: {
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'DUPLICATES';
+      /** Identifiers for all resources this resource depends on. */
+      dependencies: {
+        [key: string]: string | components['schemas']['DatasetResourceParams'];
+      };
+      /** Dataset Id */
+      dataset_id: string;
+      /**
+       * Duplicate cut-off
+       * @default 0.1
+       */
+      duplicate_cutoff?: number;
     };
     /** TagRequest */
     TagRequest: {
@@ -4177,10 +4284,17 @@ export interface components {
     };
     /** UMAPCoordinateSetCreateArgs */
     UMAPCoordinateSetCreateArgs: {
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'UMAP_COORDINATE_SET';
+      /** Identifiers for all resources this resource depends on. */
+      dependencies: {
+        [key: string]: string | components['schemas']['DatasetResourceParams'];
+      };
       /** Dataset Id */
       dataset_id: string;
-      /** The ID of the embedding set to use */
-      embedding_set_id: string;
       /**
        * UMAP's min_dist
        * @default 0.4
@@ -4191,11 +4305,6 @@ export interface components {
        * @default 15
        */
       n_neighbors?: number;
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'UMAP_COORDINATE_SET';
     };
     /** UpdateOrganizationRequest */
     UpdateOrganizationRequest: {
@@ -4331,6 +4440,78 @@ export interface components {
       msg: string;
       /** Error Type */
       type: string;
+    };
+    /** WriteClusterSidecarsCreateArgs */
+    WriteClusterSidecarsCreateArgs: {
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'WRITE_CLUSTER_SIDECARS';
+      /** Identifiers for all resources this resource depends on. */
+      dependencies: {
+        [key: string]: string | components['schemas']['DatasetResourceParams'];
+      };
+      /** Dataset Id */
+      dataset_id: string;
+    };
+    /** WriteDataSidecarCreateArgs */
+    WriteDataSidecarCreateArgs: {
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'DATA_SIDECAR';
+      /** Identifiers for all resources this resource depends on. */
+      dependencies: {
+        [key: string]: string | components['schemas']['DatasetResourceParams'];
+      };
+      /** Dataset Id */
+      dataset_id: string;
+      /** Columns to add as sidecars */
+      column_names: string[];
+    };
+    /** WriteEmbeddingsSidecarsCreateArgs */
+    WriteEmbeddingsSidecarsCreateArgs: {
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'WRITE_EMBEDDINGS_SIDECARS';
+      /** Identifiers for all resources this resource depends on. */
+      dependencies: {
+        [key: string]: string | components['schemas']['DatasetResourceParams'];
+      };
+      /** Dataset Id */
+      dataset_id: string;
+    };
+    /** WriteQuadtreeManifestCreateArgs */
+    WriteQuadtreeManifestCreateArgs: {
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'WRITE_QUADTREE_MANIFEST';
+      /** Identifiers for all resources this resource depends on. */
+      dependencies: {
+        [key: string]: string | components['schemas']['DatasetResourceParams'];
+      };
+      /** Dataset Id */
+      dataset_id: string;
+    };
+    /** WriteTileManifestCreateArgs */
+    WriteTileManifestCreateArgs: {
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'WRITE_TILE_MANIFEST';
+      /** Identifiers for all resources this resource depends on. */
+      dependencies: {
+        [key: string]: string | components['schemas']['DatasetResourceParams'];
+      };
+      /** Dataset Id */
+      dataset_id: string;
     };
   };
   responses: never;
@@ -8260,6 +8441,98 @@ export interface operations {
     responses: {
       /** @description Successful Response */
       201: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Creates a map */
+  create_sketch_map__quadtree_id__create_post: {
+    parameters: {
+      path: {
+        quadtree_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Retrieves the quadtree schema */
+  fetch_map_schema_sketch_map__map_id__schema_get: {
+    parameters: {
+      path: {
+        map_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Fetch Quadtree Tile
+   * @description Fetches a quadtree tile to the front-end.
+   */
+  fetch_quadtree_tile_sketch_map__quadtree_id___quadtree_key__get: {
+    parameters: {
+      path: {
+        quadtree_id: string;
+        quadtree_key: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Quadtree Manifest */
+  quadtree_manifest_sketch_map__quadtree_id__manifest_feather_get: {
+    parameters: {
+      path: {
+        quadtree_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
         content: {
           'application/json': unknown;
         };
