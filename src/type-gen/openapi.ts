@@ -1031,6 +1031,11 @@ export interface paths {
      */
     get: operations['get_connector_handler_v1_connector__connector_id__get'];
     /**
+     * Update Connector Handler
+     * @description Update a specific connector.
+     */
+    put: operations['update_connector_handler_v1_connector__connector_id__put'];
+    /**
      * Delete Connector Handler
      * @description Delete a specific connector.
      */
@@ -1419,7 +1424,8 @@ export interface components {
     };
     /** ConnectorCreateRequest */
     ConnectorCreateRequest: {
-      connector_name: components['schemas']['ConnectorName'];
+      /** Connector Name */
+      connector_name: string;
       /**
        * Organization Id
        * Format: uuid
@@ -1427,15 +1433,13 @@ export interface components {
       organization_id: string;
       /** Creation Params */
       creation_params: Record<string, unknown>;
-      /**
-       * Secrets
-       * Format: binary
-       */
+      /** Secrets */
       secrets?: string;
     };
     /** ConnectorDatasetCreateRequest */
     ConnectorDatasetCreateRequest: {
-      connector_name: components['schemas']['ConnectorName'];
+      /** Connector Name */
+      connector_name: string;
       /** Creation Params */
       creation_params: Record<string, unknown>;
       create_dataset_params: components['schemas']['CreateProjectRequest'];
@@ -1456,12 +1460,6 @@ export interface components {
       /** Creation Params */
       creation_params: Record<string, unknown>;
     };
-    /**
-     * ConnectorName
-     * @description An enumeration.
-     * @enum {string}
-     */
-    ConnectorName: 'huggingface' | 'gong' | 'zendesk';
     /** ConnectorResponse */
     ConnectorResponse: {
       /**
@@ -1469,11 +1467,14 @@ export interface components {
        * Format: uuid
        */
       id: string;
-      connector_name: components['schemas']['ConnectorName'];
+      /** Connector Name */
+      connector_name: string;
       /** Metadata */
       metadata?: Record<string, unknown>;
       /** Creation Params */
       creation_params: Record<string, unknown>;
+      /** Secrets */
+      secrets?: string;
       /** Created Timestamp */
       created_timestamp: string;
       datasets: components['schemas']['ConnectorResponseDatasetList'];
@@ -1482,6 +1483,13 @@ export interface components {
     ConnectorResponseDatasetList: {
       /** Data */
       data: string[];
+    };
+    /** ConnectorUpdateRequest */
+    ConnectorUpdateRequest: {
+      /** Creation Params */
+      creation_params?: Record<string, unknown>;
+      /** Secrets */
+      secrets?: string;
     };
     /** CreateAtlasIndexRequest */
     CreateAtlasIndexRequest: {
@@ -3284,8 +3292,11 @@ export interface components {
        * @description The project url-safe slug
        */
       slug: string;
-      /** @description The connector name used to create this project */
-      connector_name?: components['schemas']['ConnectorName'];
+      /**
+       * Connector Name
+       * @description The connector name used to create this project
+       */
+      connector_name?: string;
       /**
        * Organization Slug
        * @description The organization url-safe slug
@@ -3520,8 +3531,11 @@ export interface components {
        * @description The project url-safe slug
        */
       slug: string;
-      /** @description The connector name used to create this project */
-      connector_name?: components['schemas']['ConnectorName'];
+      /**
+       * Connector Name
+       * @description The connector name used to create this project
+       */
+      connector_name?: string;
       /**
        * Organization Slug
        * @description The organization url-safe slug
@@ -4087,10 +4101,27 @@ export interface components {
       /** Dataset Id */
       dataset_id: string;
       /**
-       * TSNE's perplexity
+       * Affects the tradeoff between global and local relationship presentation
        * @default 30
        */
       perplexity?: number;
+      /**
+       * Affects the spacing between clusters and their cohesion.
+       * @default auto
+       */
+      early_exaggeration?: number | string;
+      /**
+       * Number of iterations with early exaggeration
+       * @default 250
+       */
+      early_exaggeration_iter?: number;
+      /**
+       * Number of iterations
+       * @default 500
+       */
+      n_iter?: number;
+      /** Affects the spacing between clusters in the final layout. */
+      exaggeration?: number;
     };
     /** TagDuplicatesCreateArgs */
     TagDuplicatesCreateArgs: {
@@ -4296,15 +4327,20 @@ export interface components {
       /** Dataset Id */
       dataset_id: string;
       /**
-       * UMAP's min_dist
+       * How tightly UMAP should pack points together.
        * @default 0.4
        */
       min_dist?: number;
       /**
-       * UMAP's n_neighbors
+       * How many neighbors to consider for each point.
        * @default 15
        */
       n_neighbors?: number;
+      /**
+       * The metric to use for distance computation.
+       * @default euclidean
+       */
+      metric?: string;
     };
     /** UpdateOrganizationRequest */
     UpdateOrganizationRequest: {
@@ -8338,6 +8374,36 @@ export interface operations {
       200: {
         content: {
           'application/json': components['schemas']['ConnectorResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Update Connector Handler
+   * @description Update a specific connector.
+   */
+  update_connector_handler_v1_connector__connector_id__put: {
+    parameters: {
+      path: {
+        connector_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConnectorUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['SuccessResponse'];
         };
       };
       /** @description Validation Error */
