@@ -200,6 +200,10 @@ export interface paths {
      */
     get: operations['fetch_project_v1_project__project_id__get'];
   };
+  '/v1/project/{project_id}/resources': {
+    /** List all resources that have been created on a dataset */
+    get: operations['list_resources_v1_project__project_id__resources_get'];
+  };
   '/v1/project/sidebar/list': {
     /**
      * Fetch All Project
@@ -512,6 +516,10 @@ export interface paths {
      * @description Fetches all details about a project.
      */
     get: operations['fetch_project_v1_dataset__project_id__get'];
+  };
+  '/v1/dataset/{project_id}/resources': {
+    /** List all resources that have been created on a dataset */
+    get: operations['list_resources_v1_dataset__project_id__resources_get'];
   };
   '/v1/dataset/sidebar/list': {
     /**
@@ -1048,6 +1056,10 @@ export interface paths {
      */
     post: operations['create_connector_dataset_handler_v1_connector__connector_id__dataset_post'];
   };
+  '/sketch/resource/{dataset_id}/list': {
+    /** List all resources that have been created on a dataset */
+    get: operations['list_resources_sketch_resource__dataset_id__list_get'];
+  };
   '/sketch/resource/{dataset_id}/{resource_id}': {
     /** Returns the resource info */
     get: operations['resource_info_sketch_resource__dataset_id___resource_id__get'];
@@ -1055,6 +1067,10 @@ export interface paths {
   '/sketch/resource/{dataset_id}/create': {
     /** Creates a resource */
     post: operations['create_sketch_resource__dataset_id__create_post'];
+  };
+  '/sketch/resource/{dataset_id}/topic_model/{topic_model_id}': {
+    /** Retrieve topic model info */
+    get: operations['fetch_topic_info_sketch_resource__dataset_id__topic_model__topic_model_id__get'];
   };
   '/sketch/map/{quadtree_id}/create': {
     /** Creates a map */
@@ -2008,6 +2024,28 @@ export interface components {
        */
       hyperparameters: Record<string, unknown>;
     };
+    /** EmbeddingDerived2dCoordinateSetCreateArgs */
+    EmbeddingDerived2dCoordinateSetCreateArgs: {
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'EMBEDDING_DERIVED_2D_COORDINATE_SET';
+      /** Identifiers for all resources this resource depends on. */
+      dependencies: {
+        [key: string]: string | components['schemas']['DatasetResourceParams'];
+      };
+      /** Dataset Id */
+      dataset_id: string;
+      /**
+       * The embedding dimensions to use for x, y in the coordinate set.
+       * @default [
+       *   0,
+       *   1
+       * ]
+       */
+      dims?: number[];
+    };
     /** EmbeddingModelInferenceUsage */
     EmbeddingModelInferenceUsage: {
       /**
@@ -2102,7 +2140,17 @@ export interface components {
       /** Dataset Id */
       dataset_id: string;
       /**
-       * The column to retrieve embeddings from.
+       * Dataset Version
+       * @description Dataset version to read (required to read Lance datasets)
+       */
+      dataset_version?: number;
+      /**
+       * Upload Checkpoint
+       * @description checkpoint indentifier, resolves to the earliest version that has ingested data up to specified point
+       */
+      upload_checkpoint?: number;
+      /**
+       * The column to retrieve embeddings from, or None for the unnamed embedding column.
        * @default embedding
        */
       embedding_target?: string;
@@ -2488,6 +2536,41 @@ export interface components {
        */
       priority?: number;
     };
+    /** KeyWordsTopicLabelCreateArgs */
+    KeyWordsTopicLabelCreateArgs: {
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'KEYWORDS_TOPIC_LABEL';
+      /** Identifiers for all resources this resource depends on. */
+      dependencies: {
+        [key: string]: string | components['schemas']['DatasetResourceParams'];
+      };
+      /** Dataset Id */
+      dataset_id: string;
+      /** Field to extract keywords from */
+      target_field: string;
+      /**
+       * Jaccard similarity threshold
+       * @default 0.62
+       */
+      jaccard_similarity_threshold?: number;
+    };
+    /** LLMTopicLabelCreateArgs */
+    LLMTopicLabelCreateArgs: {
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'LLM_TOPIC_LABEL';
+      /** Identifiers for all resources this resource depends on. */
+      dependencies: {
+        [key: string]: string | components['schemas']['DatasetResourceParams'];
+      };
+      /** Dataset Id */
+      dataset_id: string;
+    };
     /**
      * LineString
      * @description LineString Model
@@ -2508,6 +2591,29 @@ export interface components {
      * @enum {unknown}
      */
     LongTextHandlingMode: 'truncate' | 'mean';
+    /** MapInfo */
+    MapInfo: {
+      /**
+       * Id
+       * Format: uuid
+       * @description Map ID
+       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
+       */
+      id: string;
+      /**
+       * Quadtree Id
+       * Format: uuid
+       * @description Quadtree ID
+       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
+       */
+      quadtree_id: string;
+      /**
+       * Created Timestamp
+       * Format: date-time
+       * @description The timestamp this map was created.
+       */
+      created_timestamp: string;
+    };
     /** ModifyUserRequest */
     ModifyUserRequest: {
       /**
@@ -3351,6 +3457,11 @@ export interface components {
        * @description The connector details for this project
        */
       connector_details?: components['schemas']['ConnectorDatasetDetails'];
+      /**
+       * Maps
+       * @description The maps associated with this project
+       */
+      maps: components['schemas']['MapInfo'][];
     };
     /** ProjectCreatedResponse */
     ProjectCreatedResponse: {
@@ -3703,6 +3814,21 @@ export interface components {
        * @description list of topic model metadata
        */
       topic_model_metadatas: Record<string, unknown>[];
+      /**
+       * Embedding Field
+       * @description The data field from which the 2d embeddings were derived
+       */
+      embedding_field?: string;
+      /**
+       * Embedding Model
+       * @description The embedding model used to create the embeddings, if they were generated inside the Atlas system
+       */
+      embedding_model?: string;
+      /**
+       * Embedding Hyperparameters
+       * @description Hyperparameters passed to the embedding model
+       */
+      embedding_hyperparameters?: Record<string, unknown>;
     };
     /** ProjectsResponse */
     ProjectsResponse: {
@@ -3881,6 +4007,7 @@ export interface components {
         | components['schemas']['EmbeddingSetCreateArgs']
         | components['schemas']['HNSWIndexCreateArgs']
         | components['schemas']['RandomCoordinateSetCreateArgs']
+        | components['schemas']['EmbeddingDerived2dCoordinateSetCreateArgs']
         | components['schemas']['UMAPCoordinateSetCreateArgs']
         | components['schemas']['TSNECoordinateSetCreateArgs']
         | components['schemas']['PCACoordinateSetCreateArgs']
@@ -3894,7 +4021,10 @@ export interface components {
         | components['schemas']['WriteQuadtreeManifestCreateArgs']
         | components['schemas']['WriteEmbeddingsSidecarsCreateArgs']
         | components['schemas']['WriteDataSidecarCreateArgs']
-        | components['schemas']['WriteClusterSidecarsCreateArgs'];
+        | components['schemas']['WriteClusterSidecarsCreateArgs']
+        | components['schemas']['KeyWordsTopicLabelCreateArgs']
+        | components['schemas']['WriteGeoJsonCreateArgs']
+        | components['schemas']['LLMTopicLabelCreateArgs'];
       /**
        * Dataset
        * @description Dataset associated to the resource
@@ -4313,6 +4443,34 @@ export interface components {
        */
       results: Record<string, unknown>[];
     };
+    /** TopicModelResponse */
+    TopicModelResponse: {
+      /**
+       * Topic Models
+       * @description List of topic model geojsons
+       */
+      topic_models: components['schemas']['FeatureCollection'][];
+      /**
+       * Topic Model Metadatas
+       * @description list of topic model metadata
+       */
+      topic_model_metadatas: Record<string, unknown>[];
+      /**
+       * Embedding Field
+       * @description The data field from which the 2d embeddings were derived
+       */
+      embedding_field?: string;
+      /**
+       * Embedding Model
+       * @description The embedding model used to create the embeddings, if they were generated inside the Atlas system
+       */
+      embedding_model?: string;
+      /**
+       * Embedding Hyperparameters
+       * @description Hyperparameters passed to the embedding model
+       */
+      embedding_hyperparameters?: Record<string, unknown>;
+    };
     /** UMAPCoordinateSetCreateArgs */
     UMAPCoordinateSetCreateArgs: {
       /**
@@ -4514,6 +4672,20 @@ export interface components {
        * @enum {string}
        */
       resource_type: 'WRITE_EMBEDDINGS_SIDECARS';
+      /** Identifiers for all resources this resource depends on. */
+      dependencies: {
+        [key: string]: string | components['schemas']['DatasetResourceParams'];
+      };
+      /** Dataset Id */
+      dataset_id: string;
+    };
+    /** WriteGeoJsonCreateArgs */
+    WriteGeoJsonCreateArgs: {
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'TOPIC_LABEL_POSITIONS';
       /** Identifiers for all resources this resource depends on. */
       dependencies: {
         [key: string]: string | components['schemas']['DatasetResourceParams'];
@@ -5305,6 +5477,28 @@ export interface operations {
       200: {
         content: {
           'application/json': components['schemas']['Project'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** List all resources that have been created on a dataset */
+  list_resources_v1_project__project_id__resources_get: {
+    parameters: {
+      path: {
+        project_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['ResourceResponse'][];
         };
       };
       /** @description Validation Error */
@@ -6617,6 +6811,28 @@ export interface operations {
       200: {
         content: {
           'application/json': components['schemas']['Project'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** List all resources that have been created on a dataset */
+  list_resources_v1_dataset__project_id__resources_get: {
+    parameters: {
+      path: {
+        project_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['ResourceResponse'][];
         };
       };
       /** @description Validation Error */
@@ -8469,6 +8685,28 @@ export interface operations {
       };
     };
   };
+  /** List all resources that have been created on a dataset */
+  list_resources_sketch_resource__dataset_id__list_get: {
+    parameters: {
+      path: {
+        dataset_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['ResourceResponse'][];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
   /** Returns the resource info */
   resource_info_sketch_resource__dataset_id___resource_id__get: {
     parameters: {
@@ -8509,6 +8747,29 @@ export interface operations {
       201: {
         content: {
           'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Retrieve topic model info */
+  fetch_topic_info_sketch_resource__dataset_id__topic_model__topic_model_id__get: {
+    parameters: {
+      path: {
+        dataset_id: string;
+        topic_model_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['TopicModelResponse'];
         };
       };
       /** @description Validation Error */
