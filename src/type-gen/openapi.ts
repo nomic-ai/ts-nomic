@@ -185,6 +185,12 @@ export interface paths {
     /** Logout */
     get: operations['logout_v1_user_logout_get'];
   };
+  '/v1/user/profile': {
+    /** Get User Profile */
+    get: operations['get_user_profile_v1_user_profile_get'];
+    /** Post User Profile */
+    post: operations['post_user_profile_v1_user_profile_post'];
+  };
   '/v1/project/tags/{project_id}': {
     /** Get Tags For Project */
     get: operations['get_tags_for_project_v1_project_tags__project_id__get'];
@@ -1080,6 +1086,13 @@ export interface paths {
     /** Retrieves the quadtree schema */
     get: operations['fetch_map_schema_sketch_map__map_id__schema_get'];
   };
+  '/sketch/map/{map_id}/register_as_projection': {
+    /**
+     * Registers the map as a projection. For short term testing only.
+     * @deprecated
+     */
+    post: operations['register_map_as_projection_sketch_map__map_id__register_as_projection_post'];
+  };
   '/sketch/map/{quadtree_id}/{quadtree_key}': {
     /**
      * Fetch Quadtree Tile
@@ -1191,6 +1204,16 @@ export interface components {
       | 'EXTERNAL'
       | 'GUEST'
       | 'NONE';
+    /** AddArrowSuccessResponse */
+    AddArrowSuccessResponse: {
+      /**
+       * Result
+       * @default ok
+       */
+      result?: string;
+      /** Checkpoint */
+      checkpoint?: number;
+    };
     /** AddBlobResponse */
     AddBlobResponse: {
       /**
@@ -1608,6 +1631,17 @@ export interface components {
        * @default false
        */
       build_from_versioned_dataset?: boolean;
+      /**
+       * Build Map Using Resources
+       * @description Build map using resources
+       * @default false
+       */
+      build_map_using_resources?: boolean;
+      /**
+       * Upload Checkpoint
+       * @description checkpoint indentifier, resolves to the earliest version that has ingested data up to specified point
+       */
+      upload_checkpoint?: number;
     };
     /** CreateAtlasIndexResponse */
     CreateAtlasIndexResponse: {
@@ -2154,6 +2188,43 @@ export interface components {
        * @default embedding
        */
       embedding_target?: string;
+    };
+    /** EmbeddingSetInferredCreateArgs */
+    EmbeddingSetInferredCreateArgs: {
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: 'EMBEDDING_SET_INFERRED';
+      /** Identifiers for all resources this resource depends on. */
+      dependencies: {
+        [key: string]: string | components['schemas']['DatasetResourceParams'];
+      };
+      /** Dataset Id */
+      dataset_id: string;
+      /**
+       * Dataset Version
+       * @description Dataset version to read (required to read Lance datasets)
+       */
+      dataset_version?: number;
+      /**
+       * Upload Checkpoint
+       * @description checkpoint indentifier, resolves to the earliest version that has ingested data up to specified point
+       */
+      upload_checkpoint?: number;
+      /**
+       * Source Column
+       * @description The text column to generate embeddings from
+       */
+      source_column: string;
+      /**
+       * Embedding Model
+       * @description Which text embedding model to use
+       */
+      embedding_model:
+        | 'nomic-embed-text-v1.5'
+        | 'nomic-embed-text-v1'
+        | 'gte-multilingual-base';
     };
     /** EmbeddingTopicRequest */
     EmbeddingTopicRequest: {
@@ -2728,6 +2799,21 @@ export interface components {
        * @default 50
        */
       n_epochs?: number;
+      /**
+       * Spread of the embedding
+       * @default 1
+       */
+      spread?: number;
+      /**
+       * Minimum distance between points
+       * @default 0.4
+       */
+      min_dist?: number;
+      /**
+       * Number of epochs for initialization
+       * @default 20
+       */
+      n_init_epochs?: number;
     };
     /** NomicProjectV2CoordinateSetCreateArgs */
     NomicProjectV2CoordinateSetCreateArgs: {
@@ -2749,6 +2835,21 @@ export interface components {
        * @default 50
        */
       n_epochs?: number;
+      /**
+       * Spread of the embedding
+       * @default 1
+       */
+      spread?: number;
+      /**
+       * Minimum distance between points
+       * @default 0.4
+       */
+      min_dist?: number;
+      /**
+       * Number of epochs for initialization
+       * @default 20
+       */
+      n_init_epochs?: number;
       /**
        * Controls local structure optimizing step for `nomic-project-v2`. Min value: `0`; max value: `1`
        * @default 0.6
@@ -3824,11 +3925,6 @@ export interface components {
        * @description The embedding model used to create the embeddings, if they were generated inside the Atlas system
        */
       embedding_model?: string;
-      /**
-       * Embedding Hyperparameters
-       * @description Hyperparameters passed to the embedding model
-       */
-      embedding_hyperparameters?: Record<string, unknown>;
     };
     /** ProjectsResponse */
     ProjectsResponse: {
@@ -4005,6 +4101,7 @@ export interface components {
       /** Resource */
       resource:
         | components['schemas']['EmbeddingSetCreateArgs']
+        | components['schemas']['EmbeddingSetInferredCreateArgs']
         | components['schemas']['HNSWIndexCreateArgs']
         | components['schemas']['RandomCoordinateSetCreateArgs']
         | components['schemas']['EmbeddingDerived2dCoordinateSetCreateArgs']
@@ -4455,21 +4552,6 @@ export interface components {
        * @description list of topic model metadata
        */
       topic_model_metadatas: Record<string, unknown>[];
-      /**
-       * Embedding Field
-       * @description The data field from which the 2d embeddings were derived
-       */
-      embedding_field?: string;
-      /**
-       * Embedding Model
-       * @description The embedding model used to create the embeddings, if they were generated inside the Atlas system
-       */
-      embedding_model?: string;
-      /**
-       * Embedding Hyperparameters
-       * @description Hyperparameters passed to the embedding model
-       */
-      embedding_hyperparameters?: Record<string, unknown>;
     };
     /** UMAPCoordinateSetCreateArgs */
     UMAPCoordinateSetCreateArgs: {
@@ -5388,6 +5470,28 @@ export interface operations {
       };
     };
   };
+  /** Get User Profile */
+  get_user_profile_v1_user_profile_get: {
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+    };
+  };
+  /** Post User Profile */
+  post_user_profile_v1_user_profile_post: {
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+    };
+  };
   /** Get Tags For Project */
   get_tags_for_project_v1_project_tags__project_id__get: {
     parameters: {
@@ -5839,7 +5943,7 @@ export interface operations {
       /** @description Successful Response */
       200: {
         content: {
-          'application/json': components['schemas']['SuccessResponse'];
+          'application/json': components['schemas']['AddArrowSuccessResponse'];
         };
       };
     };
@@ -7173,7 +7277,7 @@ export interface operations {
       /** @description Successful Response */
       200: {
         content: {
-          'application/json': components['schemas']['SuccessResponse'];
+          'application/json': components['schemas']['AddArrowSuccessResponse'];
         };
       };
     };
@@ -8812,6 +8916,31 @@ export interface operations {
     responses: {
       /** @description Successful Response */
       200: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Registers the map as a projection. For short term testing only.
+   * @deprecated
+   */
+  register_map_as_projection_sketch_map__map_id__register_as_projection_post: {
+    parameters: {
+      path: {
+        map_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
         content: {
           'application/json': unknown;
         };
