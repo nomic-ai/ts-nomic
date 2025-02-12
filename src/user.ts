@@ -89,8 +89,10 @@ export abstract class BaseAtlasClass<
    *
    */
 
-  async withLoadedAttributes(): Promise<LoadedObject<this, AttributesType>> {
-    await this.fetchAttributes(true);
+  async withLoadedAttributes(
+    bustCache = false
+  ): Promise<LoadedObject<this, AttributesType>> {
+    await this.fetchAttributes(bustCache);
     return this as LoadedObject<this, AttributesType>;
   }
 
