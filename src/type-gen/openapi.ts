@@ -36,6 +36,10 @@ export interface paths {
      */
     get: operations['fetch_organization_usage_v1_organization__organization_id_or_slug__usage_get'];
   };
+  '/v1/organization/{organization_id_or_slug}/usage/{usage_type}/within_limit': {
+    /** Check Organization Usage Totals Within Limit */
+    get: operations['check_organization_usage_totals_within_limit_v1_organization__organization_id_or_slug__usage__usage_type__within_limit_get'];
+  };
   '/v1/organization/search/{slug}': {
     /**
      * Fetch Organization Id By Slug
@@ -105,41 +109,6 @@ export interface paths {
      */
     post: operations['modify_organization_member_v1_organization_members_modify_post'];
   };
-  '/v1/organization/{organization_id_or_slug}/access-requests': {
-    /**
-     * Get Organization Access Requests Handler
-     * @description Get organization access requests
-     */
-    get: operations['get_organization_access_requests_handler_v1_organization__organization_id_or_slug__access_requests_get'];
-  };
-  '/v1/organization/access-requests': {
-    /**
-     * Create Organization Access Request Handler
-     * @description Request access to organization
-     */
-    post: operations['create_organization_access_request_handler_v1_organization_access_requests_post'];
-  };
-  '/v1/organization/access-requests/accept': {
-    /**
-     * Accept Organization Access Request Handler
-     * @description Approve a request to access an organization
-     */
-    post: operations['accept_organization_access_request_handler_v1_organization_access_requests_accept_post'];
-  };
-  '/v1/organization/access-requests/reject': {
-    /**
-     * Reject Organization Access Request Handler
-     * @description Reject a request to access an organization
-     */
-    post: operations['reject_organization_access_request_handler_v1_organization_access_requests_reject_post'];
-  };
-  '/v1/organization/access-requests/cancel': {
-    /**
-     * Cancel Organization Access Request Handler
-     * @description Cancel a request to access an organization
-     */
-    post: operations['cancel_organization_access_request_handler_v1_organization_access_requests_cancel_post'];
-  };
   '/v1/user/': {
     /** Fetch Current User */
     get: operations['fetch_current_user_v1_user__get'];
@@ -191,14 +160,6 @@ export interface paths {
     /** Post User Profile */
     post: operations['post_user_profile_v1_user_profile_post'];
   };
-  '/v1/project/tags/{project_id}': {
-    /** Get Tags For Project */
-    get: operations['get_tags_for_project_v1_project_tags__project_id__get'];
-    /** Add Tag To Project */
-    post: operations['add_tag_to_project_v1_project_tags__project_id__post'];
-    /** Delete Tag From Project */
-    delete: operations['delete_tag_from_project_v1_project_tags__project_id__delete'];
-  };
   '/v1/project/{project_id}': {
     /**
      * Fetch Project
@@ -235,6 +196,7 @@ export interface paths {
   '/v1/project/update/{project_id}': {
     /**
      * Update Project Metadata
+     * @deprecated
      * @description Edit project metadata.
      */
     post: operations['update_project_metadata_v1_project_update__project_id__post'];
@@ -246,10 +208,6 @@ export interface paths {
   '/v1/project/search/id': {
     /** Search Semantic Id */
     get: operations['search_semantic_id_v1_project_search_id_get'];
-  };
-  '/v1/project/search/name': {
-    /** Project Name Search */
-    post: operations['project_name_search_v1_project_search_name_post'];
   };
   '/v1/project/create': {
     /**
@@ -289,27 +247,19 @@ export interface paths {
      */
     post: operations['data_delete_v1_project_data_delete_post'];
   };
-  '/v1/project/data/update': {
-    /**
-     * Data Update
-     * @description Updates the requested datums. Does not reflect in project/index state until an
-     * index update call if made (transaction commit)
-     */
-    post: operations['data_update_v1_project_data_update_post'];
-  };
-  '/v1/project/data/get/arrow': {
-    /**
-     * Data Get Arrow
-     * @description Export data as arrow format for a project and/or index
-     */
-    post: operations['data_get_arrow_v1_project_data_get_arrow_post'];
-  };
   '/v1/project/data/add/arrow': {
     /**
      * Add Arrow
      * @description Add data to a project in arrow format.
      */
     post: operations['add_arrow_v1_project_data_add_arrow_post'];
+  };
+  '/v1/project/{dataset_id}/last_modified': {
+    /**
+     * Get Last Upload Timestamp
+     * @description Get the last timestamp for a change to lance dataset.
+     */
+    get: operations['get_last_upload_timestamp_v1_project__dataset_id__last_modified_get'];
   };
   '/v1/project/data/add/blobs': {
     /**
@@ -326,24 +276,9 @@ export interface paths {
     /** Nearest Neighbors By Embedding */
     post: operations['nearest_neighbors_by_embedding_v1_project_data_get_nearest_neighbors_by_embedding_post'];
   };
-  '/v1/project/data/get/arrow/nearest_neighbors/by_id': {
-    /** Nearest Neighbors By Ids Arrow */
-    post: operations['nearest_neighbors_by_ids_arrow_v1_project_data_get_arrow_nearest_neighbors_by_id_post'];
-  };
   '/v1/project/data/get/nearest_neighbors/by_id': {
     /** Nearest Neighbors By Ids */
     post: operations['nearest_neighbors_by_ids_v1_project_data_get_nearest_neighbors_by_id_post'];
-  };
-  '/v1/project/data/get/embedding/topic': {
-    /** Data Topic Query */
-    post: operations['data_topic_query_v1_project_data_get_embedding_topic_post'];
-  };
-  '/v1/project/data/get/embedding/paged': {
-    /**
-     * Get Embedding Page Endpoint
-     * @description Get a page of embedding data for a project
-     */
-    post: operations['get_embedding_page_endpoint_v1_project_data_get_embedding_paged_post'];
   };
   '/v1/project/projection/{map_id}/datums': {
     /**
@@ -351,6 +286,11 @@ export interface paths {
      * @description Get a table of datums for a map
      */
     get: operations['datum_table_v1_project_projection__map_id__datums_get'];
+    /**
+     * Datum Table Post
+     * @description Get a table of datums for a map via POST request
+     */
+    post: operations['datum_table_post_v1_project_projection__map_id__datums_post'];
   };
   '/v1/project/data/get': {
     /** Get Datums By Ids Handler */
@@ -405,10 +345,6 @@ export interface paths {
     /** Fetch Schema */
     get: operations['fetch_schema_v1_project_projection__projection_id__schema_get'];
   };
-  '/v1/project/{atlas_index_id}/topic_density': {
-    /** Topic Density */
-    post: operations['topic_density_v1_project__atlas_index_id__topic_density_post'];
-  };
   '/v1/project/{project_id}/index/projection/{projection_id}': {
     /**
      * Fetch Map Information
@@ -446,14 +382,6 @@ export interface paths {
      */
     post: operations['update_topic_model_v1_project_topics_update__topic_model_id__post'];
   };
-  '/v1/project/search/user': {
-    /**
-     * Search User
-     * @description Searches against users by nickname and email who are non in the organization of the user performing search.
-     * This endpoint is used when attempting to invite users to an organization.
-     */
-    post: operations['search_user_v1_project_search_user_post'];
-  };
   '/v1/project/{organization_slug}/project/{project_slug}': {
     /**
      * Fetch Project By Slug
@@ -486,6 +414,18 @@ export interface paths {
     /** Get Project Id From Map Id */
     get: operations['get_project_id_from_map_id_v1_project_projection__map_id__get_dataset_id_get'];
   };
+  '/v1/project/analyst/log': {
+    /** Log Analyst Request */
+    post: operations['log_analyst_request_v1_project_analyst_log_post'];
+  };
+  '/v1/project/analyst/log/{log_id}/rating': {
+    /** Update Analyst Log Rating */
+    put: operations['update_analyst_log_rating_v1_project_analyst_log__log_id__rating_put'];
+  };
+  '/v1/project/analyst/log/{log_id}/flag': {
+    /** Update Analyst Log Flag */
+    put: operations['update_analyst_log_flag_v1_project_analyst_log__log_id__flag_put'];
+  };
   '/v1/project/{dataset_id}/members/': {
     /**
      * Get Dataset Members
@@ -507,14 +447,6 @@ export interface paths {
      * @description Remove a dataset member
      */
     post: operations['remove_dataset_member_v1_project__dataset_id__members_delete_post'];
-  };
-  '/v1/dataset/tags/{project_id}': {
-    /** Get Tags For Project */
-    get: operations['get_tags_for_project_v1_dataset_tags__project_id__get'];
-    /** Add Tag To Project */
-    post: operations['add_tag_to_project_v1_dataset_tags__project_id__post'];
-    /** Delete Tag From Project */
-    delete: operations['delete_tag_from_project_v1_dataset_tags__project_id__delete'];
   };
   '/v1/dataset/{project_id}': {
     /**
@@ -552,6 +484,7 @@ export interface paths {
   '/v1/dataset/update/{project_id}': {
     /**
      * Update Project Metadata
+     * @deprecated
      * @description Edit project metadata.
      */
     post: operations['update_project_metadata_v1_dataset_update__project_id__post'];
@@ -563,10 +496,6 @@ export interface paths {
   '/v1/dataset/search/id': {
     /** Search Semantic Id */
     get: operations['search_semantic_id_v1_dataset_search_id_get'];
-  };
-  '/v1/dataset/search/name': {
-    /** Project Name Search */
-    post: operations['project_name_search_v1_dataset_search_name_post'];
   };
   '/v1/dataset/create': {
     /**
@@ -606,27 +535,19 @@ export interface paths {
      */
     post: operations['data_delete_v1_dataset_data_delete_post'];
   };
-  '/v1/dataset/data/update': {
-    /**
-     * Data Update
-     * @description Updates the requested datums. Does not reflect in project/index state until an
-     * index update call if made (transaction commit)
-     */
-    post: operations['data_update_v1_dataset_data_update_post'];
-  };
-  '/v1/dataset/data/get/arrow': {
-    /**
-     * Data Get Arrow
-     * @description Export data as arrow format for a project and/or index
-     */
-    post: operations['data_get_arrow_v1_dataset_data_get_arrow_post'];
-  };
   '/v1/dataset/data/add/arrow': {
     /**
      * Add Arrow
      * @description Add data to a project in arrow format.
      */
     post: operations['add_arrow_v1_dataset_data_add_arrow_post'];
+  };
+  '/v1/dataset/{dataset_id}/last_modified': {
+    /**
+     * Get Last Upload Timestamp
+     * @description Get the last timestamp for a change to lance dataset.
+     */
+    get: operations['get_last_upload_timestamp_v1_dataset__dataset_id__last_modified_get'];
   };
   '/v1/dataset/data/add/blobs': {
     /**
@@ -643,24 +564,9 @@ export interface paths {
     /** Nearest Neighbors By Embedding */
     post: operations['nearest_neighbors_by_embedding_v1_dataset_data_get_nearest_neighbors_by_embedding_post'];
   };
-  '/v1/dataset/data/get/arrow/nearest_neighbors/by_id': {
-    /** Nearest Neighbors By Ids Arrow */
-    post: operations['nearest_neighbors_by_ids_arrow_v1_dataset_data_get_arrow_nearest_neighbors_by_id_post'];
-  };
   '/v1/dataset/data/get/nearest_neighbors/by_id': {
     /** Nearest Neighbors By Ids */
     post: operations['nearest_neighbors_by_ids_v1_dataset_data_get_nearest_neighbors_by_id_post'];
-  };
-  '/v1/dataset/data/get/embedding/topic': {
-    /** Data Topic Query */
-    post: operations['data_topic_query_v1_dataset_data_get_embedding_topic_post'];
-  };
-  '/v1/dataset/data/get/embedding/paged': {
-    /**
-     * Get Embedding Page Endpoint
-     * @description Get a page of embedding data for a project
-     */
-    post: operations['get_embedding_page_endpoint_v1_dataset_data_get_embedding_paged_post'];
   };
   '/v1/dataset/projection/{map_id}/datums': {
     /**
@@ -668,6 +574,11 @@ export interface paths {
      * @description Get a table of datums for a map
      */
     get: operations['datum_table_v1_dataset_projection__map_id__datums_get'];
+    /**
+     * Datum Table Post
+     * @description Get a table of datums for a map via POST request
+     */
+    post: operations['datum_table_post_v1_dataset_projection__map_id__datums_post'];
   };
   '/v1/dataset/data/get': {
     /** Get Datums By Ids Handler */
@@ -722,10 +633,6 @@ export interface paths {
     /** Fetch Schema */
     get: operations['fetch_schema_v1_dataset_projection__projection_id__schema_get'];
   };
-  '/v1/dataset/{atlas_index_id}/topic_density': {
-    /** Topic Density */
-    post: operations['topic_density_v1_dataset__atlas_index_id__topic_density_post'];
-  };
   '/v1/dataset/{project_id}/index/projection/{projection_id}': {
     /**
      * Fetch Map Information
@@ -763,14 +670,6 @@ export interface paths {
      */
     post: operations['update_topic_model_v1_dataset_topics_update__topic_model_id__post'];
   };
-  '/v1/dataset/search/user': {
-    /**
-     * Search User
-     * @description Searches against users by nickname and email who are non in the organization of the user performing search.
-     * This endpoint is used when attempting to invite users to an organization.
-     */
-    post: operations['search_user_v1_dataset_search_user_post'];
-  };
   '/v1/dataset/{organization_slug}/project/{project_slug}': {
     /**
      * Fetch Project By Slug
@@ -802,6 +701,18 @@ export interface paths {
   '/v1/dataset/projection/{map_id}/get/dataset_id': {
     /** Get Project Id From Map Id */
     get: operations['get_project_id_from_map_id_v1_dataset_projection__map_id__get_dataset_id_get'];
+  };
+  '/v1/dataset/analyst/log': {
+    /** Log Analyst Request */
+    post: operations['log_analyst_request_v1_dataset_analyst_log_post'];
+  };
+  '/v1/dataset/analyst/log/{log_id}/rating': {
+    /** Update Analyst Log Rating */
+    put: operations['update_analyst_log_rating_v1_dataset_analyst_log__log_id__rating_put'];
+  };
+  '/v1/dataset/analyst/log/{log_id}/flag': {
+    /** Update Analyst Log Flag */
+    put: operations['update_analyst_log_flag_v1_dataset_analyst_log__log_id__flag_put'];
   };
   '/v1/dataset/{dataset_id}/members/': {
     /**
@@ -1020,10 +931,6 @@ export interface paths {
     /** Tag Projection Job Request */
     post: operations['tag_projection_job_request_v1_project_projection_tags_robotag_post'];
   };
-  '/v1/reduce/': {
-    /** Reduce Dimensionality By Embedding */
-    post: operations['reduce_dimensionality_by_embedding_v1_reduce__post'];
-  };
   '/v1/search/datasets': {
     /**
      * Fetch Datasets By Query
@@ -1074,13 +981,13 @@ export interface paths {
     /** Creates a resource */
     post: operations['create_sketch_resource__dataset_id__create_post'];
   };
-  '/sketch/resource/{dataset_id}/topic_model/{topic_model_id}': {
+  '/sketch/resource/{dataset_id}/topic_model/{topic_model_id}/{coordinate_set_id}': {
     /** Retrieve topic model info */
-    get: operations['fetch_topic_info_sketch_resource__dataset_id__topic_model__topic_model_id__get'];
+    get: operations['fetch_topic_info_sketch_resource__dataset_id__topic_model__topic_model_id___coordinate_set_id__get'];
   };
-  '/sketch/map/{quadtree_id}/create': {
+  '/sketch/map/create/quadtree/{quadtree_id}': {
     /** Creates a map */
-    post: operations['create_sketch_map__quadtree_id__create_post'];
+    post: operations['create_sketch_map_create_quadtree__quadtree_id__post'];
   };
   '/sketch/map/{map_id}/schema': {
     /** Retrieves the quadtree schema */
@@ -1093,16 +1000,20 @@ export interface paths {
      */
     post: operations['register_map_as_projection_sketch_map__map_id__register_as_projection_post'];
   };
-  '/sketch/map/{quadtree_id}/{quadtree_key}': {
+  '/sketch/map/quadtree/{quadtree_id}/tile/{quadtree_key}': {
     /**
      * Fetch Quadtree Tile
      * @description Fetches a quadtree tile to the front-end.
      */
-    get: operations['fetch_quadtree_tile_sketch_map__quadtree_id___quadtree_key__get'];
+    get: operations['fetch_quadtree_tile_sketch_map_quadtree__quadtree_id__tile__quadtree_key__get'];
   };
-  '/sketch/map/{quadtree_id}/manifest.feather': {
+  '/sketch/map/quadtree/{quadtree_id}/manifest.feather': {
     /** Quadtree Manifest */
-    get: operations['quadtree_manifest_sketch_map__quadtree_id__manifest_feather_get'];
+    get: operations['quadtree_manifest_sketch_map_quadtree__quadtree_id__manifest_feather_get'];
+  };
+  '/sketch/map/{map_id}/projection': {
+    /** Get Projection Info For Map */
+    get: operations['get_projection_info_for_map_sketch_map__map_id__projection_get'];
   };
 }
 
@@ -1213,6 +1124,11 @@ export interface components {
       result?: string;
       /** Checkpoint */
       checkpoint?: number;
+      /**
+       * Latest Addition Timestamp
+       * @description The timestamp of the added file in epoch time
+       */
+      latest_addition_timestamp: number;
     };
     /** AddBlobResponse */
     AddBlobResponse: {
@@ -1248,6 +1164,16 @@ export interface components {
        * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       organization_id: string;
+    };
+    /** AnalystLogUpdateFlagRequest */
+    AnalystLogUpdateFlagRequest: {
+      /** Response Flag */
+      response_flag?: string;
+    };
+    /** AnalystLogUpdateRatingRequest */
+    AnalystLogUpdateRatingRequest: {
+      /** Response Rating */
+      response_rating?: number;
     };
     /** AtlasIndex */
     AtlasIndex: {
@@ -1339,19 +1265,11 @@ export interface components {
       organization_seats: number;
       /** Embedding Models */
       embedding_models: components['schemas']['EmbeddingModelInferenceUsage'][];
-    };
-    /**
-     * AtlasViewer
-     * @description We may not really want this, but I'd feel mucy safer if we had an internal model
-     * indicating the user who is accessing the data; this would allow us to be
-     * more fine-grained in our access controls. We have used this model of attaching the
-     * viewer to the class in atlas-next and it has worked well.
-     *
-     * It's optional in this PR, though.
-     */
-    AtlasViewer: {
-      /** Id */
-      id: string;
+      /**
+       * Advanced Analysis Usage
+       * @description The number of advanced analysis calls used.
+       */
+      advanced_analysis_usage?: number;
     };
     /** AtomsRequest */
     AtomsRequest: {
@@ -1440,27 +1358,6 @@ export interface components {
        */
       images?: string[];
     };
-    /** ClusterCreateArgs */
-    ClusterCreateArgs: {
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'CLUSTER_ASSIGNMENT';
-      /** Identifiers for all resources this resource depends on. */
-      dependencies: {
-        [key: string]: string | components['schemas']['DatasetResourceParams'];
-      };
-      /** Dataset Id */
-      dataset_id: string;
-      /** Cluster Method */
-      cluster_method?: string;
-      /**
-       * Enforce Hierarchy
-       * @default true
-       */
-      enforce_hierarchy?: boolean;
-    };
     /** ConnectorCreateRequest */
     ConnectorCreateRequest: {
       /** Connector Name */
@@ -1534,7 +1431,6 @@ export interface components {
     CreateAtlasIndexRequest: {
       /**
        * Project Id
-       * Format: uuid
        * @description Unique project id
        * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
@@ -1634,7 +1530,6 @@ export interface components {
       /**
        * Build Map Using Resources
        * @description Build map using resources
-       * @default false
        */
       build_map_using_resources?: boolean;
       /**
@@ -1642,15 +1537,24 @@ export interface components {
        * @description checkpoint indentifier, resolves to the earliest version that has ingested data up to specified point
        */
       upload_checkpoint?: number;
+      /**
+       * Latest Addition Timestamp
+       * @description timestamp of the latest addition to the dataset, used to determine the upload checkpoint
+       */
+      latest_addition_timestamp?: number;
     };
     /** CreateAtlasIndexResponse */
     CreateAtlasIndexResponse: {
       /**
        * Job Id
-       * Format: uuid
        * @description The job id of the index creation job.
        */
       job_id: string;
+      /**
+       * Projection Id
+       * @description The projection id created by a resource-path map.
+       */
+      projection_id?: string;
     };
     /** CreateOrganizationRequest */
     CreateOrganizationRequest: {
@@ -1751,15 +1655,6 @@ export interface components {
        */
       deepscatter_api?: string;
     };
-    /**
-     * Dataset
-     * @description A dataset is a collection of resources, built around user-uploaded data.
-     */
-    Dataset: {
-      /** Id */
-      id: string;
-      viewer?: components['schemas']['AtlasViewer'];
-    };
     /** DatasetMemberCreateRequest */
     DatasetMemberCreateRequest: {
       /**
@@ -1842,7 +1737,10 @@ export interface components {
       resource_type?: unknown;
       /** Identifiers for all resources this resource depends on. */
       dependencies: {
-        [key: string]: string | components['schemas']['DatasetResourceParams'];
+        [key: string]:
+          | string
+          | (string | components['schemas']['DatasetResourceParams'])[]
+          | components['schemas']['DatasetResourceParams'];
       };
       /** Dataset Id */
       dataset_id: string;
@@ -1931,42 +1829,23 @@ export interface components {
        */
       index_job_end_timestamp: string;
     };
-    /**
-     * DimensionalityReductionModel
-     * @description An enumeration.
-     * @enum {string}
-     */
-    DimensionalityReductionModel:
-      | 'nomic-project-v1'
-      | 'nomic-project-v2'
-      | 'umap'
-      | 'pca'
-      | 'svd';
-    /** DimensionalityReductionRequest */
-    DimensionalityReductionRequest: {
+    /** DatumTableRequest */
+    DatumTableRequest: {
       /**
-       * Embeddings
-       * @description The embeddings you want to project.
+       * Response Type
+       * @description Response type, either 'arrow' or 'json'
        */
-      embeddings: number[][];
+      response_type: string;
       /**
-       * N Neighbors
-       * @description Number of neighbors for projection
+       * Qids
+       * @description Array of quadtree-row IDs (e.g. ['13-264', '13-265'])
        */
-      n_neighbors: number;
+      qids: string[];
       /**
-       * @description The model to use when projecting.
-       * @default nomic-project-v1
+       * Columns
+       * @description Optional array of column names to fetch
        */
-      model?: components['schemas']['DimensionalityReductionModel'];
-    };
-    /** DimensionalityReductionResponse */
-    DimensionalityReductionResponse: {
-      /**
-       * Projection
-       * @description Projection of embeddings
-       */
-      projection: number[][];
+      columns?: string[];
     };
     /** EditProjectRequest */
     EditProjectRequest: {
@@ -2058,28 +1937,6 @@ export interface components {
        */
       hyperparameters: Record<string, unknown>;
     };
-    /** EmbeddingDerived2dCoordinateSetCreateArgs */
-    EmbeddingDerived2dCoordinateSetCreateArgs: {
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'EMBEDDING_DERIVED_2D_COORDINATE_SET';
-      /** Identifiers for all resources this resource depends on. */
-      dependencies: {
-        [key: string]: string | components['schemas']['DatasetResourceParams'];
-      };
-      /** Dataset Id */
-      dataset_id: string;
-      /**
-       * The embedding dimensions to use for x, y in the coordinate set.
-       * @default [
-       *   0,
-       *   1
-       * ]
-       */
-      dims?: number[];
-    };
     /** EmbeddingModelInferenceUsage */
     EmbeddingModelInferenceUsage: {
       /**
@@ -2159,105 +2016,6 @@ export interface components {
        * @description distances of the neighbors to queries
        */
       distances: number[][];
-    };
-    /** EmbeddingSetCreateArgs */
-    EmbeddingSetCreateArgs: {
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'EMBEDDING_SET';
-      /** Identifiers for all resources this resource depends on. */
-      dependencies: {
-        [key: string]: string | components['schemas']['DatasetResourceParams'];
-      };
-      /** Dataset Id */
-      dataset_id: string;
-      /**
-       * Dataset Version
-       * @description Dataset version to read (required to read Lance datasets)
-       */
-      dataset_version?: number;
-      /**
-       * Upload Checkpoint
-       * @description checkpoint indentifier, resolves to the earliest version that has ingested data up to specified point
-       */
-      upload_checkpoint?: number;
-      /**
-       * The column to retrieve embeddings from, or None for the unnamed embedding column.
-       * @default embedding
-       */
-      embedding_target?: string;
-    };
-    /** EmbeddingSetInferredCreateArgs */
-    EmbeddingSetInferredCreateArgs: {
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'EMBEDDING_SET_INFERRED';
-      /** Identifiers for all resources this resource depends on. */
-      dependencies: {
-        [key: string]: string | components['schemas']['DatasetResourceParams'];
-      };
-      /** Dataset Id */
-      dataset_id: string;
-      /**
-       * Dataset Version
-       * @description Dataset version to read (required to read Lance datasets)
-       */
-      dataset_version?: number;
-      /**
-       * Upload Checkpoint
-       * @description checkpoint indentifier, resolves to the earliest version that has ingested data up to specified point
-       */
-      upload_checkpoint?: number;
-      /**
-       * Source Column
-       * @description The text column to generate embeddings from
-       */
-      source_column: string;
-      /**
-       * Embedding Model
-       * @description Which text embedding model to use
-       */
-      embedding_model:
-        | 'nomic-embed-text-v1.5'
-        | 'nomic-embed-text-v1'
-        | 'gte-multilingual-base';
-    };
-    /** EmbeddingTopicRequest */
-    EmbeddingTopicRequest: {
-      /**
-       * Atlas Index Id
-       * Format: uuid
-       * @description Unique atlas index id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      atlas_index_id: string;
-      /**
-       * Queries
-       * @description The bytes of a batch of embeddings to get topics for
-       */
-      queries: string;
-      /**
-       * Topic Model Id
-       * @description The topic model to search under
-       * @default
-       */
-      topic_model_id?: string;
-      /**
-       * K
-       * @description Number of neighbors to use when inferring topics
-       * @default 32
-       */
-      k?: number;
-      /**
-       * Depth
-       * @description The depth at which you want to estimate a topic
-       * @default 1
-       */
-      depth?: number;
     };
     /** EmbeddingUsageModel */
     EmbeddingUsageModel: {
@@ -2390,40 +2148,6 @@ export interface components {
        * @description Value of alias
        */
       alias_value: string;
-    };
-    /** HNSWIndexCreateArgs */
-    HNSWIndexCreateArgs: {
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'HNSW_INDEX';
-      /** Identifiers for all resources this resource depends on. */
-      dependencies: {
-        [key: string]: string | components['schemas']['DatasetResourceParams'];
-      };
-      /** Dataset Id */
-      dataset_id: string;
-      /**
-       * N Neighbors
-       * @default 15
-       */
-      n_neighbors?: number;
-      /**
-       * Ef Construction
-       * @default 64
-       */
-      ef_construction?: number;
-      /**
-       * M
-       * @default 32
-       */
-      M?: number;
-      /**
-       * Local Neighborhood Size
-       * @default 32
-       */
-      local_neighborhood_size?: number;
     };
     /** HTTPValidationError */
     HTTPValidationError: {
@@ -2607,41 +2331,6 @@ export interface components {
        */
       priority?: number;
     };
-    /** KeyWordsTopicLabelCreateArgs */
-    KeyWordsTopicLabelCreateArgs: {
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'KEYWORDS_TOPIC_LABEL';
-      /** Identifiers for all resources this resource depends on. */
-      dependencies: {
-        [key: string]: string | components['schemas']['DatasetResourceParams'];
-      };
-      /** Dataset Id */
-      dataset_id: string;
-      /** Field to extract keywords from */
-      target_field: string;
-      /**
-       * Jaccard similarity threshold
-       * @default 0.62
-       */
-      jaccard_similarity_threshold?: number;
-    };
-    /** LLMTopicLabelCreateArgs */
-    LLMTopicLabelCreateArgs: {
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'LLM_TOPIC_LABEL';
-      /** Identifiers for all resources this resource depends on. */
-      dependencies: {
-        [key: string]: string | components['schemas']['DatasetResourceParams'];
-      };
-      /** Dataset Id */
-      dataset_id: string;
-    };
     /**
      * LineString
      * @description LineString Model
@@ -2656,6 +2345,58 @@ export interface components {
       /** Coordinates */
       coordinates: ([number, number] | [number, number, number])[];
     };
+    /** LogAnalystRequest */
+    LogAnalystRequest: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Projection Id
+       * Format: uuid
+       */
+      projection_id: string;
+      /**
+       * Billed Organization Id
+       * Format: uuid
+       */
+      billed_organization_id?: string;
+      /** User Id */
+      user_id?: string;
+      /** Type */
+      type?: string;
+      /** System Prompt */
+      system_prompt: string;
+      /** Question */
+      question?: string;
+      /** Is Custom Question */
+      is_custom_question?: boolean;
+      /** Provided Context */
+      provided_context?: Record<string, unknown>;
+      /** Dynamic Prompt */
+      dynamic_prompt: string;
+      /** Response */
+      response?: string;
+      /** Response Rating */
+      response_rating?: number;
+      /** Response Flag */
+      response_flag?: string;
+      /** Response Metadata */
+      response_metadata?: Record<string, unknown>;
+      /** Model */
+      model: string;
+      /** Platform Request Id */
+      platform_request_id?: string;
+      /** Exec Ms */
+      exec_ms?: number;
+      /** Input Token Usage */
+      input_token_usage?: number;
+      /** Output Token Usage */
+      output_token_usage?: number;
+      /** Platform Metadata */
+      platform_metadata?: Record<string, unknown>;
+    };
     /**
      * LongTextHandlingMode
      * @description An enumeration.
@@ -2665,25 +2406,39 @@ export interface components {
     /** MapInfo */
     MapInfo: {
       /**
-       * Id
-       * Format: uuid
-       * @description Map ID
+       * Map Id
+       * @description Map ID (or None for index-path maps)
        * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
-      id: string;
+      map_id?: string;
       /**
-       * Quadtree Id
-       * Format: uuid
-       * @description Quadtree ID
+       * Projection Id
+       * @description Projection ID
        * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
-      quadtree_id: string;
+      projection_id: string;
       /**
        * Created Timestamp
        * Format: date-time
        * @description The timestamp this map was created.
        */
       created_timestamp: string;
+      /**
+       * Modified Timestamp
+       * Format: date-time
+       * @description The timestamp this map was last modified.
+       */
+      modified_timestamp: string;
+      /**
+       * Ready
+       * @description Whether the map is ready to use.
+       */
+      ready: boolean;
+      /**
+       * Error
+       * @description The error message if the map is permanently errored.
+       */
+      error?: string;
     };
     /** ModifyUserRequest */
     ModifyUserRequest: {
@@ -2779,83 +2534,6 @@ export interface components {
        */
       atom_strategies: string[];
     };
-    /** NomicProjectV1CoordinateSetCreateArgs */
-    NomicProjectV1CoordinateSetCreateArgs: {
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'NPV1_COORDINATE_SET';
-      /** Identifiers for all resources this resource depends on. */
-      dependencies: {
-        [key: string]: string | components['schemas']['DatasetResourceParams'];
-      };
-      /** Dataset Id */
-      dataset_id: string;
-      /** Number of contrastive samples */
-      n_noise?: number;
-      /**
-       * Number of epochs
-       * @default 50
-       */
-      n_epochs?: number;
-      /**
-       * Spread of the embedding
-       * @default 1
-       */
-      spread?: number;
-      /**
-       * Minimum distance between points
-       * @default 0.4
-       */
-      min_dist?: number;
-      /**
-       * Number of epochs for initialization
-       * @default 20
-       */
-      n_init_epochs?: number;
-    };
-    /** NomicProjectV2CoordinateSetCreateArgs */
-    NomicProjectV2CoordinateSetCreateArgs: {
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'NPV2_COORDINATE_SET';
-      /** Identifiers for all resources this resource depends on. */
-      dependencies: {
-        [key: string]: string | components['schemas']['DatasetResourceParams'];
-      };
-      /** Dataset Id */
-      dataset_id: string;
-      /** Number of contrastive samples */
-      n_noise?: number;
-      /**
-       * Number of epochs
-       * @default 50
-       */
-      n_epochs?: number;
-      /**
-       * Spread of the embedding
-       * @default 1
-       */
-      spread?: number;
-      /**
-       * Minimum distance between points
-       * @default 0.4
-       */
-      min_dist?: number;
-      /**
-       * Number of epochs for initialization
-       * @default 20
-       */
-      n_init_epochs?: number;
-      /**
-       * Controls local structure optimizing step for `nomic-project-v2`. Min value: `0`; max value: `1`
-       * @default 0.6
-       */
-      rho?: number;
-    };
     /**
      * NomicTextEmbeddingModel
      * @description An enumeration.
@@ -2935,6 +2613,16 @@ export interface components {
        * @default 0
        */
       free_seats?: number;
+      /**
+       * Max Advanced Analysis Calls
+       * @default 3
+       */
+      max_advanced_analysis_calls?: number;
+      /**
+       * Max Advanced Analysis Calls Per Billing Period
+       * @default 0
+       */
+      max_advanced_analysis_calls_per_billing_period?: number;
       /**
        * Id
        * Format: uuid
@@ -3046,105 +2734,6 @@ export interface components {
        * @description The connectors this organization has enabled
        */
       connectors: components['schemas']['ConnectorResponse'][];
-    };
-    /** OrganizationAccessRequestApproveRequest */
-    OrganizationAccessRequestApproveRequest: {
-      /**
-       * Organization ID
-       * Format: uuid
-       * @description The ID of the organization to add the user to
-       */
-      organization_id: string;
-      /**
-       * User ID
-       * @description The user ID to approve the request for
-       */
-      user_id: string;
-    };
-    /** OrganizationAccessRequestCancelRequest */
-    OrganizationAccessRequestCancelRequest: {
-      /**
-       * Organization ID
-       * Format: uuid
-       * @description The ID of the organization to add the user to
-       */
-      organization_id: string;
-      /**
-       * User ID
-       * @description The user ID to approve the request for
-       */
-      user_id: string;
-    };
-    /** OrganizationAccessRequestCreateRequest */
-    OrganizationAccessRequestCreateRequest: {
-      /**
-       * Organization ID
-       * Format: uuid
-       * @description The ID of the organization to add the user to
-       */
-      organization_id: string;
-    };
-    /** OrganizationAccessRequestRejectRequest */
-    OrganizationAccessRequestRejectRequest: {
-      /**
-       * Organization ID
-       * Format: uuid
-       * @description The ID of the organization to add the user to
-       */
-      organization_id: string;
-      /**
-       * User ID
-       * @description The user ID to approve the request for
-       */
-      user_id: string;
-    };
-    /** OrganizationAccessRequestResponse */
-    OrganizationAccessRequestResponse: {
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description The ID of the organization.
-       * @example df4dcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
-      /**
-       * Organization Nickname
-       * @description The nickname of the organization.
-       * @example MyOrganization
-       */
-      organization_nickname: string;
-      /**
-       * User Id
-       * @description Unique user id
-       * @example auth0|12345678
-       */
-      user_id: string;
-      /**
-       * User Nickname
-       * @description User nickname
-       * @example JohnDoe
-       */
-      user_nickname: string;
-      /**
-       * Email
-       * @description User email
-       * @example Email id of the user
-       */
-      email: string;
-      /**
-       * Created At
-       * Format: date-time
-       * @description The timestamp this request was created.
-       */
-      created_at: string;
-    };
-    /** OrganizationAccessRequestsResponse */
-    OrganizationAccessRequestsResponse: {
-      /**
-       * Organization Access Requests
-       * @description Organization access requests
-       */
-      organization_access_requests: components['schemas']['OrganizationAccessRequestResponse'][];
     };
     /** OrganizationIDResponse */
     OrganizationIDResponse: {
@@ -3295,45 +2884,20 @@ export interface components {
       seats: components['schemas']['UsageRecord'];
       storage: components['schemas']['UsageRecord'];
     };
-    /** PCACoordinateSetCreateArgs */
-    PCACoordinateSetCreateArgs: {
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'PCA_COORDINATE_SET';
-      /** Identifiers for all resources this resource depends on. */
-      dependencies: {
-        [key: string]: string | components['schemas']['DatasetResourceParams'];
-      };
-      /** Dataset Id */
-      dataset_id: string;
-      /**
-       * PCA's n_components
-       * @default 2
-       */
-      n_components?: number;
-    };
-    /** PagedEmbeddingRequest */
-    PagedEmbeddingRequest: {
-      /**
-       * Projection Id
-       * Format: uuid
-       * @description Unique projection id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      projection_id: string;
-      /**
-       * Last File
-       * @description The previous page token to start from; or undefined to start from the beginning.
-       */
-      last_file?: string;
-      /**
-       * Page Size
-       * @description The number of embeddings to return in each page.
-       * @default 10000
-       */
-      page_size?: number;
+    /** OrganizationUsageTotalLimit */
+    OrganizationUsageTotalLimit: {
+      /** Organization To Charge Slug */
+      organization_to_charge_slug?: string;
+      usage_type: components['schemas']['UsageType'];
+      /** Within Limit */
+      within_limit: boolean;
+      /** Total With Update */
+      total_with_update: number;
+      /** Limit */
+      limit: number;
+      /** Organization To Charge Id */
+      organization_to_charge_id?: string;
+      plan_type?: components['schemas']['OrganizationPlan'];
     };
     /**
      * Point
@@ -3580,47 +3144,6 @@ export interface components {
        */
       slug: string;
     };
-    /** ProjectDataArrowExportRequest */
-    ProjectDataArrowExportRequest: {
-      /**
-       * Id
-       * Format: uuid
-       * @description Project ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      id: string;
-      /**
-       * Index Id
-       * Format: uuid
-       * @description Atlas index ID--needed for index-specific data
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      index_id?: string;
-      /**
-       * Tags
-       * @description Whether to export tags
-       * @default false
-       */
-      tags?: boolean;
-      /**
-       * Metadata
-       * @description Whether to export the core metadata (aside from tags, embeddings)
-       * @default false
-       */
-      metadata?: boolean;
-      /**
-       * Embeddings
-       * @description Whether to export embeddings
-       * @default false
-       */
-      embeddings?: boolean;
-      /**
-       * Topics
-       * @description Whether to export topics
-       * @default false
-       */
-      topics?: boolean;
-    };
     /** ProjectDataDeleteRequest */
     ProjectDataDeleteRequest: {
       /**
@@ -3628,21 +3151,6 @@ export interface components {
        * @description The datum ids to delete
        */
       datum_ids: string[];
-      /**
-       * Project Id
-       * Format: uuid
-       * @description The project id
-       * @example df4dcf85-84ed-4e3a-9519-17c72682f905
-       */
-      project_id: string;
-    };
-    /** ProjectDataUpdateRequest */
-    ProjectDataUpdateRequest: {
-      /**
-       * Datums
-       * @description The datums to update
-       */
-      datums: Record<string, unknown>[];
       /**
        * Project Id
        * Format: uuid
@@ -3779,59 +3287,6 @@ export interface components {
        */
       thumbnail: string;
     };
-    /** ProjectNameSearchRequest */
-    ProjectNameSearchRequest: {
-      /**
-       * Project Name
-       * @description The name of your project
-       */
-      project_name: string;
-      /**
-       * Organization Name
-       * @description The organization with-in which you are searching.
-       */
-      organization_name?: string;
-    };
-    /** ProjectNameSearchResponse */
-    ProjectNameSearchResponse: {
-      /**
-       * Results
-       * @description A list of projects matching your search query.
-       */
-      results: components['schemas']['ProjectSearchItem'][];
-    };
-    /** ProjectSearchItem */
-    ProjectSearchItem: {
-      /**
-       * Id
-       * Format: uuid
-       * @description Project ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      id: string;
-      /**
-       * Owner
-       * @description The nickname of the organization that owns this project.
-       * @example 43adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      owner: string;
-      /**
-       * Project Name
-       * @description The name of this project
-       * @example example_project
-       */
-      project_name: string;
-      /**
-       * Creator
-       * @description The nickname of the user who created this project.
-       */
-      creator: string;
-      /**
-       * Description
-       * @description A description for this project.
-       */
-      description: string;
-    };
     /** Projection */
     Projection: {
       /**
@@ -3915,6 +3370,41 @@ export interface components {
        * @description list of topic model metadata
        */
       topic_model_metadatas: Record<string, unknown>[];
+      /**
+       * Resources
+       * @description All resources used to build the associated map
+       * @default []
+       */
+      resources?: components['schemas']['ResourceResponse'][];
+      /**
+       * Embedding Field
+       * @description The data field from which the 2d embeddings were derived
+       */
+      embedding_field?: string;
+      /**
+       * Embedding Model
+       * @description The embedding model used to create the embeddings, if they were generated inside the Atlas system
+       */
+      embedding_model?: string;
+    };
+    /** ProjectionResponseNoGeoJSON */
+    ProjectionResponseNoGeoJSON: {
+      /**
+       * Topic Models
+       * @description List of topic model geojsons
+       */
+      topic_models: unknown[];
+      /**
+       * Topic Model Metadatas
+       * @description list of topic model metadata
+       */
+      topic_model_metadatas: Record<string, unknown>[];
+      /**
+       * Resources
+       * @description All resources used to build the associated map
+       * @default []
+       */
+      resources?: components['schemas']['ResourceResponse'][];
       /**
        * Embedding Field
        * @description The data field from which the 2d embeddings were derived
@@ -4037,40 +3527,6 @@ export interface components {
        */
       website?: string;
     };
-    /** QuadtreeCreateArgs */
-    QuadtreeCreateArgs: {
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'QUADTREE';
-      /** Identifiers for all resources this resource depends on. */
-      dependencies: {
-        [key: string]: string | components['schemas']['DatasetResourceParams'];
-      };
-      /** Dataset Id */
-      dataset_id: string;
-      /**
-       * Colorable Fields
-       * @description The fields that can be colored by.
-       * @default []
-       */
-      colorable_fields?: string[];
-    };
-    /** RandomCoordinateSetCreateArgs */
-    RandomCoordinateSetCreateArgs: {
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'RANDOM_COORDINATE_SET';
-      /** Identifiers for all resources this resource depends on. */
-      dependencies: {
-        [key: string]: string | components['schemas']['DatasetResourceParams'];
-      };
-      /** Dataset Id */
-      dataset_id: string;
-    };
     /** RemoveIndexRequest */
     RemoveIndexRequest: {
       /**
@@ -4095,38 +3551,6 @@ export interface components {
        * @example example-project
        */
       project_id: string;
-    };
-    /** Resource */
-    Resource: {
-      /** Resource */
-      resource:
-        | components['schemas']['EmbeddingSetCreateArgs']
-        | components['schemas']['EmbeddingSetInferredCreateArgs']
-        | components['schemas']['HNSWIndexCreateArgs']
-        | components['schemas']['RandomCoordinateSetCreateArgs']
-        | components['schemas']['EmbeddingDerived2dCoordinateSetCreateArgs']
-        | components['schemas']['UMAPCoordinateSetCreateArgs']
-        | components['schemas']['TSNECoordinateSetCreateArgs']
-        | components['schemas']['PCACoordinateSetCreateArgs']
-        | components['schemas']['SVDCoordinateSetCreateArgs']
-        | components['schemas']['NomicProjectV1CoordinateSetCreateArgs']
-        | components['schemas']['NomicProjectV2CoordinateSetCreateArgs']
-        | components['schemas']['QuadtreeCreateArgs']
-        | components['schemas']['TagDuplicatesCreateArgs']
-        | components['schemas']['ClusterCreateArgs']
-        | components['schemas']['WriteTileManifestCreateArgs']
-        | components['schemas']['WriteQuadtreeManifestCreateArgs']
-        | components['schemas']['WriteEmbeddingsSidecarsCreateArgs']
-        | components['schemas']['WriteDataSidecarCreateArgs']
-        | components['schemas']['WriteClusterSidecarsCreateArgs']
-        | components['schemas']['KeyWordsTopicLabelCreateArgs']
-        | components['schemas']['WriteGeoJsonCreateArgs']
-        | components['schemas']['LLMTopicLabelCreateArgs'];
-      /**
-       * Dataset
-       * @description Dataset associated to the resource
-       */
-      dataset: components['schemas']['Dataset'];
     };
     /** ResourceResponse */
     ResourceResponse: {
@@ -4161,25 +3585,6 @@ export interface components {
      * @enum {unknown}
      */
     ResourceStatus: 'COMPLETED' | 'FAILED' | 'BUILDING' | 'WAITING';
-    /** SVDCoordinateSetCreateArgs */
-    SVDCoordinateSetCreateArgs: {
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'SVD_COORDINATE_SET';
-      /** Identifiers for all resources this resource depends on. */
-      dependencies: {
-        [key: string]: string | components['schemas']['DatasetResourceParams'];
-      };
-      /** Dataset Id */
-      dataset_id: string;
-      /**
-       * SVD's n_components
-       * @default 2
-       */
-      n_components?: number;
-    };
     /** SearchDatasetsResponse */
     SearchDatasetsResponse: {
       /**
@@ -4201,28 +3606,6 @@ export interface components {
        * @description User id
        */
       id: string;
-    };
-    /** SearchUserProjectRequest */
-    SearchUserProjectRequest: {
-      /**
-       * Search Word
-       * @description Search word to find user
-       */
-      search_word: string;
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description Inviter organization id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
-      /**
-       * Project Id
-       * Format: uuid
-       * @description Inviter project id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      project_id: string;
     };
     /** SearchUserRequest */
     SearchUserRequest: {
@@ -4313,61 +3696,6 @@ export interface components {
        * @default ok
        */
       result?: string;
-    };
-    /** TSNECoordinateSetCreateArgs */
-    TSNECoordinateSetCreateArgs: {
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'TSNE_COORDINATE_SET';
-      /** Identifiers for all resources this resource depends on. */
-      dependencies: {
-        [key: string]: string | components['schemas']['DatasetResourceParams'];
-      };
-      /** Dataset Id */
-      dataset_id: string;
-      /**
-       * Affects the tradeoff between global and local relationship presentation
-       * @default 30
-       */
-      perplexity?: number;
-      /**
-       * Affects the spacing between clusters and their cohesion.
-       * @default auto
-       */
-      early_exaggeration?: number | string;
-      /**
-       * Number of iterations with early exaggeration
-       * @default 250
-       */
-      early_exaggeration_iter?: number;
-      /**
-       * Number of iterations
-       * @default 500
-       */
-      n_iter?: number;
-      /** Affects the spacing between clusters in the final layout. */
-      exaggeration?: number;
-    };
-    /** TagDuplicatesCreateArgs */
-    TagDuplicatesCreateArgs: {
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'DUPLICATES';
-      /** Identifiers for all resources this resource depends on. */
-      dependencies: {
-        [key: string]: string | components['schemas']['DatasetResourceParams'];
-      };
-      /** Dataset Id */
-      dataset_id: string;
-      /**
-       * Duplicate cut-off
-       * @default 0.1
-       */
-      duplicate_cutoff?: number;
     };
     /** TagRequest */
     TagRequest: {
@@ -4512,34 +3840,6 @@ export interface components {
       /** @description The model used to produce the embeddings. */
       model: components['schemas']['NomicTextEmbeddingModel'];
     };
-    /** TopicDensityRequest */
-    TopicDensityRequest: {
-      /**
-       * Start
-       * Format: date-time
-       * @description The datetime of window start
-       */
-      start: string;
-      /**
-       * End
-       * Format: date-time
-       * @description The datetime of window end
-       */
-      end: string;
-      /**
-       * Time Field
-       * @description The time field to window against
-       */
-      time_field: string;
-    };
-    /** TopicDensityResponse */
-    TopicDensityResponse: {
-      /**
-       * Results
-       * @description A list of topic metadata, including movement information
-       */
-      results: Record<string, unknown>[];
-    };
     /** TopicModelResponse */
     TopicModelResponse: {
       /**
@@ -4552,35 +3852,6 @@ export interface components {
        * @description list of topic model metadata
        */
       topic_model_metadatas: Record<string, unknown>[];
-    };
-    /** UMAPCoordinateSetCreateArgs */
-    UMAPCoordinateSetCreateArgs: {
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'UMAP_COORDINATE_SET';
-      /** Identifiers for all resources this resource depends on. */
-      dependencies: {
-        [key: string]: string | components['schemas']['DatasetResourceParams'];
-      };
-      /** Dataset Id */
-      dataset_id: string;
-      /**
-       * How tightly UMAP should pack points together.
-       * @default 0.4
-       */
-      min_dist?: number;
-      /**
-       * How many neighbors to consider for each point.
-       * @default 15
-       */
-      n_neighbors?: number;
-      /**
-       * The metric to use for distance computation.
-       * @default euclidean
-       */
-      metric?: string;
     };
     /** UpdateOrganizationRequest */
     UpdateOrganizationRequest: {
@@ -4695,6 +3966,12 @@ export interface components {
        */
       billable?: string;
     };
+    /**
+     * UsageType
+     * @description An enumeration.
+     * @enum {string}
+     */
+    UsageType: 'advanced_analysis' | 'text_tokens' | 'image_embeddings';
     /** ValidatePromoCodeRequest */
     ValidatePromoCodeRequest: {
       /**
@@ -4716,92 +3993,6 @@ export interface components {
       msg: string;
       /** Error Type */
       type: string;
-    };
-    /** WriteClusterSidecarsCreateArgs */
-    WriteClusterSidecarsCreateArgs: {
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'WRITE_CLUSTER_SIDECARS';
-      /** Identifiers for all resources this resource depends on. */
-      dependencies: {
-        [key: string]: string | components['schemas']['DatasetResourceParams'];
-      };
-      /** Dataset Id */
-      dataset_id: string;
-    };
-    /** WriteDataSidecarCreateArgs */
-    WriteDataSidecarCreateArgs: {
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'DATA_SIDECAR';
-      /** Identifiers for all resources this resource depends on. */
-      dependencies: {
-        [key: string]: string | components['schemas']['DatasetResourceParams'];
-      };
-      /** Dataset Id */
-      dataset_id: string;
-      /** Columns to add as sidecars */
-      column_names: string[];
-    };
-    /** WriteEmbeddingsSidecarsCreateArgs */
-    WriteEmbeddingsSidecarsCreateArgs: {
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'WRITE_EMBEDDINGS_SIDECARS';
-      /** Identifiers for all resources this resource depends on. */
-      dependencies: {
-        [key: string]: string | components['schemas']['DatasetResourceParams'];
-      };
-      /** Dataset Id */
-      dataset_id: string;
-    };
-    /** WriteGeoJsonCreateArgs */
-    WriteGeoJsonCreateArgs: {
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'TOPIC_LABEL_POSITIONS';
-      /** Identifiers for all resources this resource depends on. */
-      dependencies: {
-        [key: string]: string | components['schemas']['DatasetResourceParams'];
-      };
-      /** Dataset Id */
-      dataset_id: string;
-    };
-    /** WriteQuadtreeManifestCreateArgs */
-    WriteQuadtreeManifestCreateArgs: {
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'WRITE_QUADTREE_MANIFEST';
-      /** Identifiers for all resources this resource depends on. */
-      dependencies: {
-        [key: string]: string | components['schemas']['DatasetResourceParams'];
-      };
-      /** Dataset Id */
-      dataset_id: string;
-    };
-    /** WriteTileManifestCreateArgs */
-    WriteTileManifestCreateArgs: {
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'WRITE_TILE_MANIFEST';
-      /** Identifiers for all resources this resource depends on. */
-      dependencies: {
-        [key: string]: string | components['schemas']['DatasetResourceParams'];
-      };
-      /** Dataset Id */
-      dataset_id: string;
     };
   };
   responses: never;
@@ -4916,6 +4107,33 @@ export interface operations {
       200: {
         content: {
           'application/json': components['schemas']['AtlasUsageResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Check Organization Usage Totals Within Limit */
+  check_organization_usage_totals_within_limit_v1_organization__organization_id_or_slug__usage__usage_type__within_limit_get: {
+    parameters: {
+      query?: {
+        offset_number?: number;
+        limit?: number;
+      };
+      path: {
+        usage_type: components['schemas']['UsageType'];
+        organization_id_or_slug: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['OrganizationUsageTotalLimit'];
         };
       };
       /** @description Validation Error */
@@ -5175,135 +4393,6 @@ export interface operations {
       };
     };
   };
-  /**
-   * Get Organization Access Requests Handler
-   * @description Get organization access requests
-   */
-  get_organization_access_requests_handler_v1_organization__organization_id_or_slug__access_requests_get: {
-    parameters: {
-      query?: {
-        offset_number?: number;
-        limit?: number;
-      };
-      path: {
-        organization_id_or_slug: string;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['OrganizationAccessRequestsResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Create Organization Access Request Handler
-   * @description Request access to organization
-   */
-  create_organization_access_request_handler_v1_organization_access_requests_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['OrganizationAccessRequestCreateRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      201: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Accept Organization Access Request Handler
-   * @description Approve a request to access an organization
-   */
-  accept_organization_access_request_handler_v1_organization_access_requests_accept_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['OrganizationAccessRequestApproveRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Reject Organization Access Request Handler
-   * @description Reject a request to access an organization
-   */
-  reject_organization_access_request_handler_v1_organization_access_requests_reject_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['OrganizationAccessRequestRejectRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Cancel Organization Access Request Handler
-   * @description Cancel a request to access an organization
-   */
-  cancel_organization_access_request_handler_v1_organization_access_requests_cancel_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['OrganizationAccessRequestCancelRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
   /** Fetch Current User */
   fetch_current_user_v1_user__get: {
     responses: {
@@ -5492,80 +4581,6 @@ export interface operations {
       };
     };
   };
-  /** Get Tags For Project */
-  get_tags_for_project_v1_project_tags__project_id__get: {
-    parameters: {
-      path: {
-        project_id: string;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /** Add Tag To Project */
-  add_tag_to_project_v1_project_tags__project_id__post: {
-    parameters: {
-      query: {
-        /** @description The dataset tag to be added to the project */
-        tag: string;
-      };
-      path: {
-        project_id: string;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      201: {
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /** Delete Tag From Project */
-  delete_tag_from_project_v1_project_tags__project_id__delete: {
-    parameters: {
-      query: {
-        /** @description The dataset tag to be deleted from the project */
-        tag: string;
-      };
-      path: {
-        project_id: string;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
   /**
    * Fetch Project
    * @description Fetches all details about a project.
@@ -5674,6 +4689,7 @@ export interface operations {
   };
   /**
    * Update Project Metadata
+   * @deprecated
    * @description Edit project metadata.
    */
   update_project_metadata_v1_project_update__project_id__post: {
@@ -5734,28 +4750,6 @@ export interface operations {
       200: {
         content: {
           'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /** Project Name Search */
-  project_name_search_v1_project_search_name_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ProjectNameSearchRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['ProjectNameSearchResponse'];
         };
       };
       /** @description Validation Error */
@@ -5884,57 +4878,6 @@ export interface operations {
     };
   };
   /**
-   * Data Update
-   * @description Updates the requested datums. Does not reflect in project/index state until an
-   * index update call if made (transaction commit)
-   */
-  data_update_v1_project_data_update_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ProjectDataUpdateRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Data Get Arrow
-   * @description Export data as arrow format for a project and/or index
-   */
-  data_get_arrow_v1_project_data_get_arrow_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ProjectDataArrowExportRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
    * Add Arrow
    * @description Add data to a project in arrow format.
    */
@@ -5944,6 +4887,31 @@ export interface operations {
       200: {
         content: {
           'application/json': components['schemas']['AddArrowSuccessResponse'];
+        };
+      };
+    };
+  };
+  /**
+   * Get Last Upload Timestamp
+   * @description Get the last timestamp for a change to lance dataset.
+   */
+  get_last_upload_timestamp_v1_project__dataset_id__last_modified_get: {
+    parameters: {
+      path: {
+        dataset_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['AddArrowSuccessResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
         };
       };
     };
@@ -6018,28 +4986,6 @@ export interface operations {
       };
     };
   };
-  /** Nearest Neighbors By Ids Arrow */
-  nearest_neighbors_by_ids_arrow_v1_project_data_get_arrow_nearest_neighbors_by_id_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['EmbeddingNeighborByIDRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
   /** Nearest Neighbors By Ids */
   nearest_neighbors_by_ids_v1_project_data_get_nearest_neighbors_by_id_post: {
     requestBody: {
@@ -6052,53 +4998,6 @@ export interface operations {
       200: {
         content: {
           'application/json': components['schemas']['EmbeddingNeighborResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /** Data Topic Query */
-  data_topic_query_v1_project_data_get_embedding_topic_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['EmbeddingTopicRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Get Embedding Page Endpoint
-   * @description Get a page of embedding data for a project
-   */
-  get_embedding_page_endpoint_v1_project_data_get_embedding_paged_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['PagedEmbeddingRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': unknown;
         };
       };
       /** @description Validation Error */
@@ -6124,13 +5023,46 @@ export interface operations {
          */
         qid: string[];
         /** @description The response type, either 'arrow' or 'json' */
-        response_type?: string;
+        response_type?: 'arrow' | 'json';
         /** @description The columns to fetch */
         columns?: string[];
         summary?: unknown;
       };
       path: {
         map_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Datum Table Post
+   * @description Get a table of datums for a map via POST request
+   */
+  datum_table_post_v1_project_projection__map_id__datums_post: {
+    parameters: {
+      query?: {
+        summary?: unknown;
+      };
+      path: {
+        map_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DatumTableRequest'];
       };
     };
     responses: {
@@ -6388,33 +5320,6 @@ export interface operations {
       };
     };
   };
-  /** Topic Density */
-  topic_density_v1_project__atlas_index_id__topic_density_post: {
-    parameters: {
-      path: {
-        atlas_index_id: string;
-      };
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['TopicDensityRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['TopicDensityResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
   /**
    * Fetch Map Information
    * @description Fetches all information about a map such as topics, defaults, etc.
@@ -6559,32 +5464,6 @@ export interface operations {
     };
   };
   /**
-   * Search User
-   * @description Searches against users by nickname and email who are non in the organization of the user performing search.
-   * This endpoint is used when attempting to invite users to an organization.
-   */
-  search_user_v1_project_search_user_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['SearchUserProjectRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SearchUserResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
    * Fetch Project By Slug
    * @description Fetches all details about a project.
    */
@@ -6717,6 +5596,82 @@ export interface operations {
       };
     };
   };
+  /** Log Analyst Request */
+  log_analyst_request_v1_project_analyst_log_post: {
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['LogAnalystRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Update Analyst Log Rating */
+  update_analyst_log_rating_v1_project_analyst_log__log_id__rating_put: {
+    parameters: {
+      path: {
+        log_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AnalystLogUpdateRatingRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Update Analyst Log Flag */
+  update_analyst_log_flag_v1_project_analyst_log__log_id__flag_put: {
+    parameters: {
+      path: {
+        log_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AnalystLogUpdateFlagRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
   /**
    * Get Dataset Members
    * @description Fetches all dataset members
@@ -6816,80 +5771,6 @@ export interface operations {
       200: {
         content: {
           'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /** Get Tags For Project */
-  get_tags_for_project_v1_dataset_tags__project_id__get: {
-    parameters: {
-      path: {
-        project_id: string;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /** Add Tag To Project */
-  add_tag_to_project_v1_dataset_tags__project_id__post: {
-    parameters: {
-      query: {
-        /** @description The dataset tag to be added to the project */
-        tag: string;
-      };
-      path: {
-        project_id: string;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      201: {
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /** Delete Tag From Project */
-  delete_tag_from_project_v1_dataset_tags__project_id__delete: {
-    parameters: {
-      query: {
-        /** @description The dataset tag to be deleted from the project */
-        tag: string;
-      };
-      path: {
-        project_id: string;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
         };
       };
       /** @description Validation Error */
@@ -7008,6 +5889,7 @@ export interface operations {
   };
   /**
    * Update Project Metadata
+   * @deprecated
    * @description Edit project metadata.
    */
   update_project_metadata_v1_dataset_update__project_id__post: {
@@ -7068,28 +5950,6 @@ export interface operations {
       200: {
         content: {
           'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /** Project Name Search */
-  project_name_search_v1_dataset_search_name_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ProjectNameSearchRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['ProjectNameSearchResponse'];
         };
       };
       /** @description Validation Error */
@@ -7218,57 +6078,6 @@ export interface operations {
     };
   };
   /**
-   * Data Update
-   * @description Updates the requested datums. Does not reflect in project/index state until an
-   * index update call if made (transaction commit)
-   */
-  data_update_v1_dataset_data_update_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ProjectDataUpdateRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Data Get Arrow
-   * @description Export data as arrow format for a project and/or index
-   */
-  data_get_arrow_v1_dataset_data_get_arrow_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ProjectDataArrowExportRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
    * Add Arrow
    * @description Add data to a project in arrow format.
    */
@@ -7278,6 +6087,31 @@ export interface operations {
       200: {
         content: {
           'application/json': components['schemas']['AddArrowSuccessResponse'];
+        };
+      };
+    };
+  };
+  /**
+   * Get Last Upload Timestamp
+   * @description Get the last timestamp for a change to lance dataset.
+   */
+  get_last_upload_timestamp_v1_dataset__dataset_id__last_modified_get: {
+    parameters: {
+      path: {
+        dataset_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['AddArrowSuccessResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
         };
       };
     };
@@ -7352,28 +6186,6 @@ export interface operations {
       };
     };
   };
-  /** Nearest Neighbors By Ids Arrow */
-  nearest_neighbors_by_ids_arrow_v1_dataset_data_get_arrow_nearest_neighbors_by_id_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['EmbeddingNeighborByIDRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
   /** Nearest Neighbors By Ids */
   nearest_neighbors_by_ids_v1_dataset_data_get_nearest_neighbors_by_id_post: {
     requestBody: {
@@ -7386,53 +6198,6 @@ export interface operations {
       200: {
         content: {
           'application/json': components['schemas']['EmbeddingNeighborResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /** Data Topic Query */
-  data_topic_query_v1_dataset_data_get_embedding_topic_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['EmbeddingTopicRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Get Embedding Page Endpoint
-   * @description Get a page of embedding data for a project
-   */
-  get_embedding_page_endpoint_v1_dataset_data_get_embedding_paged_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['PagedEmbeddingRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': unknown;
         };
       };
       /** @description Validation Error */
@@ -7458,13 +6223,46 @@ export interface operations {
          */
         qid: string[];
         /** @description The response type, either 'arrow' or 'json' */
-        response_type?: string;
+        response_type?: 'arrow' | 'json';
         /** @description The columns to fetch */
         columns?: string[];
         summary?: unknown;
       };
       path: {
         map_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Datum Table Post
+   * @description Get a table of datums for a map via POST request
+   */
+  datum_table_post_v1_dataset_projection__map_id__datums_post: {
+    parameters: {
+      query?: {
+        summary?: unknown;
+      };
+      path: {
+        map_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DatumTableRequest'];
       };
     };
     responses: {
@@ -7722,33 +6520,6 @@ export interface operations {
       };
     };
   };
-  /** Topic Density */
-  topic_density_v1_dataset__atlas_index_id__topic_density_post: {
-    parameters: {
-      path: {
-        atlas_index_id: string;
-      };
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['TopicDensityRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['TopicDensityResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
   /**
    * Fetch Map Information
    * @description Fetches all information about a map such as topics, defaults, etc.
@@ -7893,32 +6664,6 @@ export interface operations {
     };
   };
   /**
-   * Search User
-   * @description Searches against users by nickname and email who are non in the organization of the user performing search.
-   * This endpoint is used when attempting to invite users to an organization.
-   */
-  search_user_v1_dataset_search_user_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['SearchUserProjectRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SearchUserResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
    * Fetch Project By Slug
    * @description Fetches all details about a project.
    */
@@ -8039,6 +6784,82 @@ export interface operations {
     responses: {
       /** @description Successful Response */
       200: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Log Analyst Request */
+  log_analyst_request_v1_dataset_analyst_log_post: {
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['LogAnalystRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Update Analyst Log Rating */
+  update_analyst_log_rating_v1_dataset_analyst_log__log_id__rating_put: {
+    parameters: {
+      path: {
+        log_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AnalystLogUpdateRatingRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Update Analyst Log Flag */
+  update_analyst_log_flag_v1_dataset_analyst_log__log_id__flag_put: {
+    parameters: {
+      path: {
+        log_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AnalystLogUpdateFlagRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
         content: {
           'application/json': unknown;
         };
@@ -8606,28 +7427,6 @@ export interface operations {
       };
     };
   };
-  /** Reduce Dimensionality By Embedding */
-  reduce_dimensionality_by_embedding_v1_reduce__post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DimensionalityReductionRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['DimensionalityReductionResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
   /**
    * Fetch Datasets By Query
    * @description Fetches datasets based on query parameters
@@ -8843,7 +7642,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['Resource'];
+        'application/json': components['schemas']['DatasetResourceParams'];
       };
     };
     responses: {
@@ -8862,11 +7661,12 @@ export interface operations {
     };
   };
   /** Retrieve topic model info */
-  fetch_topic_info_sketch_resource__dataset_id__topic_model__topic_model_id__get: {
+  fetch_topic_info_sketch_resource__dataset_id__topic_model__topic_model_id___coordinate_set_id__get: {
     parameters: {
       path: {
         dataset_id: string;
         topic_model_id: string;
+        coordinate_set_id: string;
       };
     };
     responses: {
@@ -8885,7 +7685,7 @@ export interface operations {
     };
   };
   /** Creates a map */
-  create_sketch_map__quadtree_id__create_post: {
+  create_sketch_map_create_quadtree__quadtree_id__post: {
     parameters: {
       path: {
         quadtree_id: string;
@@ -8957,7 +7757,7 @@ export interface operations {
    * Fetch Quadtree Tile
    * @description Fetches a quadtree tile to the front-end.
    */
-  fetch_quadtree_tile_sketch_map__quadtree_id___quadtree_key__get: {
+  fetch_quadtree_tile_sketch_map_quadtree__quadtree_id__tile__quadtree_key__get: {
     parameters: {
       path: {
         quadtree_id: string;
@@ -8980,7 +7780,7 @@ export interface operations {
     };
   };
   /** Quadtree Manifest */
-  quadtree_manifest_sketch_map__quadtree_id__manifest_feather_get: {
+  quadtree_manifest_sketch_map_quadtree__quadtree_id__manifest_feather_get: {
     parameters: {
       path: {
         quadtree_id: string;
@@ -8991,6 +7791,28 @@ export interface operations {
       200: {
         content: {
           'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Get Projection Info For Map */
+  get_projection_info_for_map_sketch_map__map_id__projection_get: {
+    parameters: {
+      path: {
+        map_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['ProjectionResponseNoGeoJSON'];
         };
       };
       /** @description Validation Error */
