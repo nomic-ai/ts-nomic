@@ -10,11 +10,7 @@ export type OrganizationInfo =
   | components['schemas']['PublicOrganizationResponse']
   | components['schemas']['Organization'];
 
-type ProjectInitOptions = {
-  project_name: string;
-  unique_id_field: string;
-  modality: 'text' | 'embedding';
-};
+type ProjectInitOptions = components['schemas']['CreateProjectRequest'];
 
 export class AtlasOrganization extends BaseAtlasClass<OrganizationInfo> {
   id: UUID;
