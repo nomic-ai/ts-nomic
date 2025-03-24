@@ -170,6 +170,14 @@ export interface paths {
   '/v1/project/{project_id}/resources': {
     /** List all resources that have been created on a dataset */
     get: operations['list_resources_v1_project__project_id__resources_get'];
+    /**
+     * Create resources for a dataset according to the specified chain
+     * @description Create a chain of resources for a dataset.
+     *
+     * This endpoint allows you to specify a list of resources to create, with their dependencies.
+     * Resources will be created in the correct order based on their dependencies.
+     */
+    post: operations['create_resources_v1_project__project_id__resources_post'];
   };
   '/v1/project/sidebar/list': {
     /**
@@ -295,6 +303,10 @@ export interface paths {
   '/v1/project/data/get': {
     /** Get Datums By Ids Handler */
     post: operations['get_datums_by_ids_handler_v1_project_data_get_post'];
+  };
+  '/v1/project/{dataset_id}/data/get': {
+    /** Get Datums By Field Name */
+    get: operations['get_datums_by_field_name_v1_project__dataset_id__data_get_get'];
   };
   '/v1/project/atoms/get': {
     /** Atoms Get */
@@ -426,6 +438,13 @@ export interface paths {
     /** Update Analyst Log Flag */
     put: operations['update_analyst_log_flag_v1_project_analyst_log__log_id__flag_put'];
   };
+  '/v1/project/projection/from_index/{index_id}': {
+    /**
+     * Get Projection From Index
+     * @description Get the projection ID associated with an atlas index ID.
+     */
+    get: operations['get_projection_from_index_v1_project_projection_from_index__index_id__get'];
+  };
   '/v1/project/{dataset_id}/members/': {
     /**
      * Get Dataset Members
@@ -458,6 +477,14 @@ export interface paths {
   '/v1/dataset/{project_id}/resources': {
     /** List all resources that have been created on a dataset */
     get: operations['list_resources_v1_dataset__project_id__resources_get'];
+    /**
+     * Create resources for a dataset according to the specified chain
+     * @description Create a chain of resources for a dataset.
+     *
+     * This endpoint allows you to specify a list of resources to create, with their dependencies.
+     * Resources will be created in the correct order based on their dependencies.
+     */
+    post: operations['create_resources_v1_dataset__project_id__resources_post'];
   };
   '/v1/dataset/sidebar/list': {
     /**
@@ -583,6 +610,10 @@ export interface paths {
   '/v1/dataset/data/get': {
     /** Get Datums By Ids Handler */
     post: operations['get_datums_by_ids_handler_v1_dataset_data_get_post'];
+  };
+  '/v1/dataset/{dataset_id}/data/get': {
+    /** Get Datums By Field Name */
+    get: operations['get_datums_by_field_name_v1_dataset__dataset_id__data_get_get'];
   };
   '/v1/dataset/atoms/get': {
     /** Atoms Get */
@@ -713,6 +744,13 @@ export interface paths {
   '/v1/dataset/analyst/log/{log_id}/flag': {
     /** Update Analyst Log Flag */
     put: operations['update_analyst_log_flag_v1_dataset_analyst_log__log_id__flag_put'];
+  };
+  '/v1/dataset/projection/from_index/{index_id}': {
+    /**
+     * Get Projection From Index
+     * @description Get the projection ID associated with an atlas index ID.
+     */
+    get: operations['get_projection_from_index_v1_dataset_projection_from_index__index_id__get'];
   };
   '/v1/dataset/{dataset_id}/members/': {
     /**
@@ -1654,6 +1692,14 @@ export interface components {
        * @description The JSON serialization of the deepscatter API call
        */
       deepscatter_api?: string;
+    };
+    /** DataPointResponse */
+    DataPointResponse: {
+      /**
+       * Data
+       * @description The returned data points.
+       */
+      data: Record<string, unknown>[];
     };
     /** DatasetMemberCreateRequest */
     DatasetMemberCreateRequest: {
@@ -2734,6 +2780,13 @@ export interface components {
        * @description The connectors this organization has enabled
        */
       connectors: components['schemas']['ConnectorResponse'][];
+      /**
+       * Ai Subprocessor
+       * @description The AI subprocessor for the organization.
+       * @example openai
+       * @enum {string}
+       */
+      ai_subprocessor: 'openai' | 'aws-bedrock';
     };
     /** OrganizationIDResponse */
     OrganizationIDResponse: {
@@ -3358,6 +3411,14 @@ export interface components {
        */
       projection_id: string;
     };
+    /** ProjectionIdResponse */
+    ProjectionIdResponse: {
+      /**
+       * Projection Id
+       * @description The projection ID
+       */
+      projection_id: string;
+    };
     /** ProjectionResponse */
     ProjectionResponse: {
       /**
@@ -3552,6 +3613,39 @@ export interface components {
        */
       project_id: string;
     };
+    /**
+     * RequestedResource
+     * @description This is the type that is passed in through the public API.
+     */
+    RequestedResource: {
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *                                           A mapping of resource types to the ids of the resources that must be created before this one. We will look in three different places for the string values here:
+       *
+       *                                           First, in the refs field of the passed list of resources.
+       *                                           Second, in the resource_type fields of the passed list of resources. (If there is just one embedding set, you can just put 'EMBEDDING_SET' in the dependencies field of any resource building on it.)
+       *                                           Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+    };
     /** ResourceResponse */
     ResourceResponse: {
       /**
@@ -3561,7 +3655,6 @@ export interface components {
       type: string;
       /**
        * Id
-       * Format: uuid
        * @description The resource id.
        */
       id: string;
@@ -3892,6 +3985,13 @@ export interface components {
        * @description A new website for the organization.
        */
       new_organization_website?: string;
+      /**
+       * Ai Subprocessor
+       * @description The AI subprocessor for the organization.
+       * @example openai
+       * @enum {string}
+       */
+      ai_subprocessor?: 'openai' | 'aws-bedrock';
     };
     /** UpdateTagDefinitionRequest */
     UpdateTagDefinitionRequest: {
@@ -4629,6 +4729,39 @@ export interface operations {
     };
   };
   /**
+   * Create resources for a dataset according to the specified chain
+   * @description Create a chain of resources for a dataset.
+   *
+   * This endpoint allows you to specify a list of resources to create, with their dependencies.
+   * Resources will be created in the correct order based on their dependencies.
+   */
+  create_resources_v1_project__project_id__resources_post: {
+    parameters: {
+      path: {
+        project_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RequestedResource'][];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['ResourceResponse'][];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
    * Fetch All Project
    * @deprecated
    * @description Fetches all project for authenticated user.
@@ -5092,6 +5225,28 @@ export interface operations {
       200: {
         content: {
           'application/json': components['schemas']['GetDatumResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Get Datums By Field Name */
+  get_datums_by_field_name_v1_project__dataset_id__data_get_get: {
+    parameters: {
+      path: {
+        dataset_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['DataPointResponse'];
         };
       };
       /** @description Validation Error */
@@ -5673,6 +5828,31 @@ export interface operations {
     };
   };
   /**
+   * Get Projection From Index
+   * @description Get the projection ID associated with an atlas index ID.
+   */
+  get_projection_from_index_v1_project_projection_from_index__index_id__get: {
+    parameters: {
+      path: {
+        index_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['ProjectionIdResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
    * Get Dataset Members
    * @description Fetches all dataset members
    */
@@ -5811,6 +5991,39 @@ export interface operations {
     parameters: {
       path: {
         project_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['ResourceResponse'][];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Create resources for a dataset according to the specified chain
+   * @description Create a chain of resources for a dataset.
+   *
+   * This endpoint allows you to specify a list of resources to create, with their dependencies.
+   * Resources will be created in the correct order based on their dependencies.
+   */
+  create_resources_v1_dataset__project_id__resources_post: {
+    parameters: {
+      path: {
+        project_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RequestedResource'][];
       };
     };
     responses: {
@@ -6292,6 +6505,28 @@ export interface operations {
       200: {
         content: {
           'application/json': components['schemas']['GetDatumResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Get Datums By Field Name */
+  get_datums_by_field_name_v1_dataset__dataset_id__data_get_get: {
+    parameters: {
+      path: {
+        dataset_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['DataPointResponse'];
         };
       };
       /** @description Validation Error */
@@ -6862,6 +7097,31 @@ export interface operations {
       201: {
         content: {
           'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Get Projection From Index
+   * @description Get the projection ID associated with an atlas index ID.
+   */
+  get_projection_from_index_v1_dataset_projection_from_index__index_id__get: {
+    parameters: {
+      path: {
+        index_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['ProjectionIdResponse'];
         };
       };
       /** @description Validation Error */
