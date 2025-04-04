@@ -1007,51 +1007,12 @@ export interface paths {
      */
     post: operations['create_connector_dataset_handler_v1_connector__connector_id__dataset_post'];
   };
-  '/sketch/resource/{dataset_id}/list': {
-    /** List all resources that have been created on a dataset */
-    get: operations['list_resources_sketch_resource__dataset_id__list_get'];
-  };
-  '/sketch/resource/{dataset_id}/{resource_id}': {
-    /** Returns the resource info */
-    get: operations['resource_info_sketch_resource__dataset_id___resource_id__get'];
-  };
-  '/sketch/resource/{dataset_id}/create': {
-    /** Creates a resource */
-    post: operations['create_sketch_resource__dataset_id__create_post'];
-  };
-  '/sketch/resource/{dataset_id}/topic_model/{topic_model_id}/{coordinate_set_id}': {
-    /** Retrieve topic model info */
-    get: operations['fetch_topic_info_sketch_resource__dataset_id__topic_model__topic_model_id___coordinate_set_id__get'];
-  };
-  '/sketch/map/create/quadtree/{quadtree_id}': {
-    /** Creates a map */
-    post: operations['create_sketch_map_create_quadtree__quadtree_id__post'];
-  };
-  '/sketch/map/{map_id}/schema': {
-    /** Retrieves the quadtree schema */
-    get: operations['fetch_map_schema_sketch_map__map_id__schema_get'];
-  };
-  '/sketch/map/{map_id}/register_as_projection': {
+  '/v1/connector/{connector_id}/dataset/{dataset_id}': {
     /**
-     * Registers the map as a projection. For short term testing only.
-     * @deprecated
+     * Update Connector Dataset Handler
+     * @description Update a specific connector dataset's metadata.
      */
-    post: operations['register_map_as_projection_sketch_map__map_id__register_as_projection_post'];
-  };
-  '/sketch/map/quadtree/{quadtree_id}/tile/{quadtree_key}': {
-    /**
-     * Fetch Quadtree Tile
-     * @description Fetches a quadtree tile to the front-end.
-     */
-    get: operations['fetch_quadtree_tile_sketch_map_quadtree__quadtree_id__tile__quadtree_key__get'];
-  };
-  '/sketch/map/quadtree/{quadtree_id}/manifest.feather': {
-    /** Quadtree Manifest */
-    get: operations['quadtree_manifest_sketch_map_quadtree__quadtree_id__manifest_feather_get'];
-  };
-  '/sketch/map/{map_id}/projection': {
-    /** Get Projection Info For Map */
-    get: operations['get_projection_info_for_map_sketch_map__map_id__projection_get'];
+    put: operations['update_connector_dataset_handler_v1_connector__connector_id__dataset__dataset_id__put'];
   };
 }
 
@@ -1202,6 +1163,27 @@ export interface components {
        * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       organization_id: string;
+    };
+    /** AnalystInfo */
+    AnalystInfo: {
+      /**
+       * Billed Organization Id
+       * @description The billed organization id. None for anonymous users.
+       */
+      billed_organization_id?: string;
+      /**
+       * Ai Subprocessor
+       * @description The model to use for analysis
+       * @default openai
+       * @enum {string}
+       */
+      ai_subprocessor?: 'openai' | 'aws-bedrock';
+      /**
+       * Remaining Queries
+       * @description The number of requests remaining for the month
+       * @default 0
+       */
+      remaining_queries?: number;
     };
     /** AnalystLogUpdateFlagRequest */
     AnalystLogUpdateFlagRequest: {
@@ -1417,6 +1399,12 @@ export interface components {
       /** Creation Params */
       creation_params: Record<string, unknown>;
       create_dataset_params: components['schemas']['CreateProjectRequest'];
+      /**
+       * Metadata
+       * @description Metadata with which to initialize the connector
+       * @default {}
+       */
+      metadata?: Record<string, unknown>;
     };
     /** ConnectorDatasetDetails */
     ConnectorDatasetDetails: {
@@ -1427,12 +1415,25 @@ export interface components {
       id: string;
       /** Creation Params */
       creation_params: Record<string, unknown>;
+      /** Metadata */
+      metadata: Record<string, unknown>;
     };
     /** ConnectorDatasetResponse */
     ConnectorDatasetResponse: {
       created_dataset: components['schemas']['ProjectCreatedResponse'];
       /** Creation Params */
       creation_params: Record<string, unknown>;
+      /** Metadata */
+      metadata: Record<string, unknown>;
+    };
+    /** ConnectorDatasetUpdateRequest */
+    ConnectorDatasetUpdateRequest: {
+      /**
+       * Metadata
+       * @description New key-value pairs to assign in the connector
+       * @default {}
+       */
+      metadata?: Record<string, unknown>;
     };
     /** ConnectorResponse */
     ConnectorResponse: {
@@ -1654,9 +1655,9 @@ export interface components {
       modality?: string;
       /**
        * Unique Id Field
-       * @description The unique ID field of the project.
+       * @description DEPRECATED: The unique ID field of the project.
        */
-      unique_id_field: string;
+      unique_id_field?: string;
       /**
        * Description
        * @description A description of your project.
@@ -1776,20 +1777,6 @@ export interface components {
        * @description The user email
        */
       email: string;
-    };
-    /** DatasetResourceParams */
-    DatasetResourceParams: {
-      /** Resource Type */
-      resource_type?: unknown;
-      /** Identifiers for all resources this resource depends on. */
-      dependencies: {
-        [key: string]:
-          | string
-          | (string | components['schemas']['DatasetResourceParams'])[]
-          | components['schemas']['DatasetResourceParams'];
-      };
-      /** Dataset Id */
-      dataset_id: string;
     };
     /**
      * DatasetRole
@@ -3092,9 +3079,9 @@ export interface components {
       project_fields: string[];
       /**
        * Unique Id Field
-       * @description The field that contains a unique id for each document.
+       * @description DEPRECATED: A field that contains a unique id for each document.
        */
-      unique_id_field: string;
+      unique_id_field?: string;
       /**
        * Modality
        * @description The project modality
@@ -3180,6 +3167,11 @@ export interface components {
        * @description The maps associated with this project
        */
       maps: components['schemas']['MapInfo'][];
+      /**
+       * Analyst Info
+       * @description The analyst info for this project
+       */
+      analyst_info: components['schemas']['AnalystInfo'];
     };
     /** ProjectCreatedResponse */
     ProjectCreatedResponse: {
@@ -3280,9 +3272,9 @@ export interface components {
       project_fields: string[];
       /**
        * Unique Id Field
-       * @description The field that contains a unique id for each document.
+       * @description DEPRECATED: A field that contains a unique id for each document.
        */
-      unique_id_field: string;
+      unique_id_field?: string;
       /**
        * Modality
        * @description The project modality
@@ -3426,35 +3418,6 @@ export interface components {
        * @description List of topic model geojsons
        */
       topic_models: components['schemas']['FeatureCollection'][];
-      /**
-       * Topic Model Metadatas
-       * @description list of topic model metadata
-       */
-      topic_model_metadatas: Record<string, unknown>[];
-      /**
-       * Resources
-       * @description All resources used to build the associated map
-       * @default []
-       */
-      resources?: components['schemas']['ResourceResponse'][];
-      /**
-       * Embedding Field
-       * @description The data field from which the 2d embeddings were derived
-       */
-      embedding_field?: string;
-      /**
-       * Embedding Model
-       * @description The embedding model used to create the embeddings, if they were generated inside the Atlas system
-       */
-      embedding_model?: string;
-    };
-    /** ProjectionResponseNoGeoJSON */
-    ProjectionResponseNoGeoJSON: {
-      /**
-       * Topic Models
-       * @description List of topic model geojsons
-       */
-      topic_models: unknown[];
       /**
        * Topic Model Metadatas
        * @description list of topic model metadata
@@ -3932,19 +3895,6 @@ export interface components {
       usage: components['schemas']['EmbeddingUsageModel'];
       /** @description The model used to produce the embeddings. */
       model: components['schemas']['NomicTextEmbeddingModel'];
-    };
-    /** TopicModelResponse */
-    TopicModelResponse: {
-      /**
-       * Topic Models
-       * @description List of topic model geojsons
-       */
-      topic_models: components['schemas']['FeatureCollection'][];
-      /**
-       * Topic Model Metadatas
-       * @description list of topic model metadata
-       */
-      topic_model_metadatas: Record<string, unknown>[];
     };
     /** UpdateOrganizationRequest */
     UpdateOrganizationRequest: {
@@ -7848,231 +7798,27 @@ export interface operations {
       };
     };
   };
-  /** List all resources that have been created on a dataset */
-  list_resources_sketch_resource__dataset_id__list_get: {
+  /**
+   * Update Connector Dataset Handler
+   * @description Update a specific connector dataset's metadata.
+   */
+  update_connector_dataset_handler_v1_connector__connector_id__dataset__dataset_id__put: {
     parameters: {
       path: {
-        dataset_id: string;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['ResourceResponse'][];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /** Returns the resource info */
-  resource_info_sketch_resource__dataset_id___resource_id__get: {
-    parameters: {
-      path: {
-        dataset_id: string;
-        resource_id: string;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['ResourceResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /** Creates a resource */
-  create_sketch_resource__dataset_id__create_post: {
-    parameters: {
-      path: {
+        connector_id: string;
         dataset_id: string;
       };
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DatasetResourceParams'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      201: {
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /** Retrieve topic model info */
-  fetch_topic_info_sketch_resource__dataset_id__topic_model__topic_model_id___coordinate_set_id__get: {
-    parameters: {
-      path: {
-        dataset_id: string;
-        topic_model_id: string;
-        coordinate_set_id: string;
+        'application/json': components['schemas']['ConnectorDatasetUpdateRequest'];
       };
     };
     responses: {
       /** @description Successful Response */
       200: {
         content: {
-          'application/json': components['schemas']['TopicModelResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /** Creates a map */
-  create_sketch_map_create_quadtree__quadtree_id__post: {
-    parameters: {
-      path: {
-        quadtree_id: string;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /** Retrieves the quadtree schema */
-  fetch_map_schema_sketch_map__map_id__schema_get: {
-    parameters: {
-      path: {
-        map_id: string;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Registers the map as a projection. For short term testing only.
-   * @deprecated
-   */
-  register_map_as_projection_sketch_map__map_id__register_as_projection_post: {
-    parameters: {
-      path: {
-        map_id: string;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      201: {
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Fetch Quadtree Tile
-   * @description Fetches a quadtree tile to the front-end.
-   */
-  fetch_quadtree_tile_sketch_map_quadtree__quadtree_id__tile__quadtree_key__get: {
-    parameters: {
-      path: {
-        quadtree_id: string;
-        quadtree_key: string;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /** Quadtree Manifest */
-  quadtree_manifest_sketch_map_quadtree__quadtree_id__manifest_feather_get: {
-    parameters: {
-      path: {
-        quadtree_id: string;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /** Get Projection Info For Map */
-  get_projection_info_for_map_sketch_map__map_id__projection_get: {
-    parameters: {
-      path: {
-        map_id: string;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['ProjectionResponseNoGeoJSON'];
+          'application/json': components['schemas']['SuccessResponse'];
         };
       };
       /** @description Validation Error */
