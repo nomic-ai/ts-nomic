@@ -160,6 +160,14 @@ export interface paths {
     /** Post User Profile */
     post: operations['post_user_profile_v1_user_profile_post'];
   };
+  '/v1/project/{dataset_id}/data/upload/start': {
+    /** Start a multipart upload and returns presigned urls for each part */
+    post: operations['start_upload_v1_project__dataset_id__data_upload_start_post'];
+  };
+  '/v1/project/{dataset_id}/data/upload/complete': {
+    /** Complete a multipart upload */
+    post: operations['complete_upload_v1_project__dataset_id__data_upload_complete_post'];
+  };
   '/v1/project/{project_id}': {
     /**
      * Fetch Project
@@ -466,6 +474,14 @@ export interface paths {
      * @description Remove a dataset member
      */
     post: operations['remove_dataset_member_v1_project__dataset_id__members_delete_post'];
+  };
+  '/v1/dataset/{dataset_id}/data/upload/start': {
+    /** Start a multipart upload and returns presigned urls for each part */
+    post: operations['start_upload_v1_dataset__dataset_id__data_upload_start_post'];
+  };
+  '/v1/dataset/{dataset_id}/data/upload/complete': {
+    /** Complete a multipart upload */
+    post: operations['complete_upload_v1_dataset__dataset_id__data_upload_complete_post'];
   };
   '/v1/dataset/{project_id}': {
     /**
@@ -2536,6 +2552,31 @@ export interface components {
       /** Coordinates */
       coordinates: ([number, number] | [number, number, number])[][][];
     };
+    /** MultipartUploadComplete */
+    MultipartUploadComplete: {
+      /** Upload Id */
+      upload_id: string;
+      /** Object Id */
+      object_id: string;
+      /** Part Etags */
+      part_etags: {
+        [key: string]: string;
+      }[];
+      /** File Type */
+      file_type: string;
+    };
+    /** MultipartUploadStart */
+    MultipartUploadStart: {
+      /** File Type */
+      file_type: string;
+      /** File Size */
+      file_size: number;
+      /**
+       * Part Size
+       * @default 16777216
+       */
+      part_size?: number;
+    };
     /** NearestNeighborIndex */
     NearestNeighborIndex: {
       /**
@@ -2594,8 +2635,143 @@ export interface components {
        */
       code: string;
     };
-    /** Organization */
-    Organization: {
+    /** OrganizationIDResponse */
+    OrganizationIDResponse: {
+      /**
+       * Organization Id
+       * Format: uuid
+       * @description Organization ID
+       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
+       */
+      organization_id: string;
+    };
+    /** OrganizationMemberDeleteRequest */
+    OrganizationMemberDeleteRequest: {
+      /**
+       * User Id
+       * @description Unique user id
+       * @example auth0|12345678
+       */
+      user_id: string;
+      /**
+       * Organization Id
+       * Format: uuid
+       * @description Unique organization id
+       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
+       */
+      organization_id: string;
+    };
+    /** OrganizationMembership */
+    OrganizationMembership: {
+      /**
+       * Organization Id
+       * Format: uuid
+       * @description Organization ID
+       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
+       */
+      organization_id: string;
+      /**
+       * Nickname
+       * @description Organization name
+       * @example MyOrganization
+       */
+      nickname: string;
+      /**
+       * User Id
+       * @description Unique user id
+       * @example auth0|12345678
+       */
+      user_id: string;
+      /**
+       * @description User access role in organization
+       * @example VIEWER
+       */
+      access_role: components['schemas']['AccessRole'];
+      /**
+       * @description Plan type
+       * @example enterprise
+       */
+      plan_type: components['schemas']['OrganizationPlan'];
+      /**
+       * Permissions
+       * @description User permissions in organization
+       */
+      permissions: {
+        [key: string]: boolean;
+      };
+      /**
+       * Slug
+       * @description The organization url-safe slug
+       */
+      slug: string;
+    };
+    /** OrganizationMembershipWithPicture */
+    OrganizationMembershipWithPicture: {
+      /**
+       * Organization Id
+       * Format: uuid
+       * @description Organization ID
+       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
+       */
+      organization_id: string;
+      /**
+       * Nickname
+       * @description Organization name
+       * @example MyOrganization
+       */
+      nickname: string;
+      /**
+       * Picture
+       * @description The users profile image
+       */
+      picture?: string;
+      /**
+       * User Id
+       * @description Unique user id
+       * @example auth0|12345678
+       */
+      user_id: string;
+      /**
+       * Access Role
+       * @description User access role in organization
+       * @example member
+       */
+      access_role: string;
+      /**
+       * Permissions
+       * @description User permissions in organization
+       */
+      permissions: {
+        [key: string]: boolean;
+      };
+      /**
+       * Email
+       * @description User email
+       * @example nomic@gmail.com
+       */
+      email: string;
+    };
+    /**
+     * OrganizationPlan
+     * @description The list of available plans for organizations.
+     * @enum {unknown}
+     */
+    OrganizationPlan:
+      | 'atlas_demo'
+      | 'atlas_enterprise'
+      | 'atlas_team'
+      | 'atlas_research'
+      | 'atlas_starter'
+      | 'atlas_startup'
+      | 'atlas_pro'
+      | 'mock'
+      | 'free_test_user'
+      | 'pro'
+      | 'enterprise'
+      | 'free'
+      | 'research';
+    /** OrganizationResponse */
+    OrganizationResponse: {
       /** @description The plan type this organization is on. */
       plan_type: components['schemas']['OrganizationPlan'];
       /** Max Datums Per Project */
@@ -2758,6 +2934,12 @@ export interface components {
        */
       stripe_subscription_end_timestamp: string;
       /**
+       * Stripe Trial End Timestamp
+       * Format: date-time
+       * @description The timestamp the stripe trial period ends
+       */
+      stripe_trial_end_timestamp: string;
+      /**
        * Project Count
        * @description The total number of projects of this organization
        */
@@ -2775,141 +2957,6 @@ export interface components {
        */
       ai_subprocessor: 'openai' | 'aws-bedrock';
     };
-    /** OrganizationIDResponse */
-    OrganizationIDResponse: {
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description Organization ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
-    };
-    /** OrganizationMemberDeleteRequest */
-    OrganizationMemberDeleteRequest: {
-      /**
-       * User Id
-       * @description Unique user id
-       * @example auth0|12345678
-       */
-      user_id: string;
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description Unique organization id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
-    };
-    /** OrganizationMembership */
-    OrganizationMembership: {
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description Organization ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
-      /**
-       * Nickname
-       * @description Organization name
-       * @example MyOrganization
-       */
-      nickname: string;
-      /**
-       * User Id
-       * @description Unique user id
-       * @example auth0|12345678
-       */
-      user_id: string;
-      /**
-       * @description User access role in organization
-       * @example VIEWER
-       */
-      access_role: components['schemas']['AccessRole'];
-      /**
-       * @description Plan type
-       * @example enterprise
-       */
-      plan_type: components['schemas']['OrganizationPlan'];
-      /**
-       * Permissions
-       * @description User permissions in organization
-       */
-      permissions: {
-        [key: string]: boolean;
-      };
-      /**
-       * Slug
-       * @description The organization url-safe slug
-       */
-      slug: string;
-    };
-    /** OrganizationMembershipWithPicture */
-    OrganizationMembershipWithPicture: {
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description Organization ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
-      /**
-       * Nickname
-       * @description Organization name
-       * @example MyOrganization
-       */
-      nickname: string;
-      /**
-       * Picture
-       * @description The users profile image
-       */
-      picture?: string;
-      /**
-       * User Id
-       * @description Unique user id
-       * @example auth0|12345678
-       */
-      user_id: string;
-      /**
-       * Access Role
-       * @description User access role in organization
-       * @example member
-       */
-      access_role: string;
-      /**
-       * Permissions
-       * @description User permissions in organization
-       */
-      permissions: {
-        [key: string]: boolean;
-      };
-      /**
-       * Email
-       * @description User email
-       * @example nomic@gmail.com
-       */
-      email: string;
-    };
-    /**
-     * OrganizationPlan
-     * @description The list of available plans for organizations.
-     * @enum {unknown}
-     */
-    OrganizationPlan:
-      | 'atlas_demo'
-      | 'atlas_enterprise'
-      | 'atlas_team'
-      | 'atlas_research'
-      | 'atlas_starter'
-      | 'atlas_startup'
-      | 'atlas_pro'
-      | 'mock'
-      | 'free_test_user'
-      | 'pro'
-      | 'enterprise'
-      | 'free'
-      | 'research';
     /** OrganizationUsageResponse */
     OrganizationUsageResponse: {
       /** Plan Type */
@@ -3623,8 +3670,7 @@ export interface components {
       id: string;
       /**
        * Dataset Id
-       * Format: uuid
-       * @description The dataset id ass
+       * @description The dataset id associated with the resource.
        */
       dataset_id: string;
       /** @description The resource status. */
@@ -3734,6 +3780,12 @@ export interface components {
        * @description The stripe client secret for the payment entering session
        */
       client_secret: string;
+      /**
+       * Intent Type
+       * @description The type of intent to create
+       * @enum {string}
+       */
+      intent_type: 'payment' | 'setup';
       /**
        * Applied Promo Code
        * @description The applied promo code, if successful
@@ -4092,7 +4144,7 @@ export interface operations {
       200: {
         content: {
           'application/json':
-            | components['schemas']['Organization']
+            | components['schemas']['OrganizationResponse']
             | components['schemas']['PublicOrganizationResponse'];
         };
       };
@@ -4627,6 +4679,60 @@ export interface operations {
       200: {
         content: {
           'application/json': unknown;
+        };
+      };
+    };
+  };
+  /** Start a multipart upload and returns presigned urls for each part */
+  start_upload_v1_project__dataset_id__data_upload_start_post: {
+    parameters: {
+      path: {
+        dataset_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['MultipartUploadStart'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Complete a multipart upload */
+  complete_upload_v1_project__dataset_id__data_upload_complete_post: {
+    parameters: {
+      path: {
+        dataset_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['MultipartUploadComplete'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
         };
       };
     };
@@ -5899,6 +6005,60 @@ export interface operations {
     responses: {
       /** @description Successful Response */
       200: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Start a multipart upload and returns presigned urls for each part */
+  start_upload_v1_dataset__dataset_id__data_upload_start_post: {
+    parameters: {
+      path: {
+        dataset_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['MultipartUploadStart'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Complete a multipart upload */
+  complete_upload_v1_dataset__dataset_id__data_upload_complete_post: {
+    parameters: {
+      path: {
+        dataset_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['MultipartUploadComplete'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
         content: {
           'application/json': unknown;
         };
