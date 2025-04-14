@@ -8,7 +8,7 @@ type UUID = string;
 // The response here depends on the authorization
 export type OrganizationInfo =
   | components['schemas']['PublicOrganizationResponse']
-  | components['schemas']['Organization'];
+  | components['schemas']['OrganizationResponse'];
 
 type ProjectInitOptions = components['schemas']['CreateProjectRequest'];
 

@@ -155,7 +155,8 @@ export class AtlasUser extends BaseAtlasClass<
    * @returns All projects that the user has access to.
    */
   async projects() {
-    const all_projects: components['schemas']['Organization']['projects'] = [];
+    const all_projects: components['schemas']['OrganizationResponse']['projects'] =
+      [];
     for (const org of await this.organizations()) {
       const projects = await org.projects();
       all_projects.push(...projects);
