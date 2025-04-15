@@ -1696,6 +1696,12 @@ export interface components {
        * @description The desired url slug for the project
        */
       slug?: string;
+      /**
+       * Privacy
+       * @description The privacy of the project
+       * @enum {string}
+       */
+      privacy?: 'public' | 'with_link' | 'private' | 'restricted';
     };
     /** CreateProjectionViewRequest */
     CreateProjectionViewRequest: {
@@ -1930,6 +1936,12 @@ export interface components {
        * @description A new slug to use in project urls.
        */
       slug?: string;
+      /**
+       * Privacy
+       * @description The privacy of the project
+       * @enum {string}
+       */
+      privacy?: 'public' | 'with_link' | 'private' | 'restricted';
     };
     /** EditProjectionAliasRequest */
     EditProjectionAliasRequest: {
@@ -3120,6 +3132,12 @@ export interface components {
        */
       is_public_to_org: boolean;
       /**
+       * Privacy
+       * @description The privacy settings for who can view the project.
+       * @enum {string}
+       */
+      privacy: 'public' | 'with_link' | 'private' | 'restricted';
+      /**
        * Project Fields
        * @description The list of fields a datum in the project may contain.
        */
@@ -3312,6 +3330,12 @@ export interface components {
        * @description Is the project viewable to the organization?
        */
       is_public_to_org: boolean;
+      /**
+       * Privacy
+       * @description The privacy settings for who can view the project.
+       * @enum {string}
+       */
+      privacy: 'public' | 'with_link' | 'private' | 'restricted';
       /**
        * Project Fields
        * @description The list of fields a datum in the project may contain.
