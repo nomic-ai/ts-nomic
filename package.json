@@ -17,6 +17,7 @@
     "pretest": "npm run build",
     "test": "vitest",
     "build-types": "openapi-typescript https://staging-api-atlas.nomic.ai/v1/api-reference/openapi.json -o ./src/type-gen/openapi.ts --empty-objects-unknown | npx prettier ./src/type-gen/openapi.ts --write",
+    "build-types-local": "openapi-typescript http://localhost:8080/v1/api-reference/openapi.json -o ./src/type-gen/openapi.ts --empty-objects-unknown | npx prettier ./src/type-gen/openapi.ts --write",
     "build": "tsc",
     "build:watch": "tsc -w",
     "insert-version": "node -e \"const fs = require('fs'); const pkg = require('./package.json'); fs.writeFileSync('./src/version.ts', 'export const version = \\'' + pkg.version + '\\';');\"",
