@@ -1030,6 +1030,44 @@ export interface paths {
      */
     put: operations['update_connector_dataset_handler_v1_connector__connector_id__dataset__dataset_id__put'];
   };
+  '/v1/recurring_jobs/dataset/{dataset_id}': {
+    /**
+     * Get Dataset Recurring Jobs
+     * @description Get all recurring jobs for a dataset.
+     */
+    get: operations['get_dataset_recurring_jobs_v1_recurring_jobs_dataset__dataset_id__get'];
+    /**
+     * Create Dataset Recurring Job
+     * @description Create a new recurring job for a dataset.
+     */
+    post: operations['create_dataset_recurring_job_v1_recurring_jobs_dataset__dataset_id__post'];
+  };
+  '/v1/recurring_jobs/dataset/{dataset_id}/{job_id}': {
+    /**
+     * Delete Dataset Recurring Job
+     * @description Delete a recurring job for a dataset.
+     */
+    delete: operations['delete_dataset_recurring_job_v1_recurring_jobs_dataset__dataset_id___job_id__delete'];
+    /**
+     * Update Dataset Recurring Job
+     * @description Update a recurring job for a dataset.
+     */
+    patch: operations['update_dataset_recurring_job_v1_recurring_jobs_dataset__dataset_id___job_id__patch'];
+  };
+  '/v1/recurring_jobs/create/zendesk_connector': {
+    /**
+     * Create Recurring Connector Builds
+     * @description Create a recurring job for a zendesk connector.
+     */
+    post: operations['create_recurring_connector_builds_v1_recurring_jobs_create_zendesk_connector_post'];
+  };
+  '/v1/recurring_jobs/dataset/{dataset_id}/recurring_map_builds': {
+    /**
+     * Get Recurring Map Builds
+     * @description Get all recurring map builds for a dataset.
+     */
+    get: operations['get_recurring_map_builds_v1_recurring_jobs_dataset__dataset_id__recurring_map_builds_get'];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -2501,6 +2539,17 @@ export interface components {
        */
       error?: string;
     };
+    /**
+     * MapbBuildKickOffStatus
+     * @description An enumeration.
+     * @enum {unknown}
+     */
+    MapbBuildKickOffStatus:
+      | 'pending'
+      | 'ready'
+      | 'failed'
+      | 'complete'
+      | 'skipped';
     /** ModifyUserRequest */
     ModifyUserRequest: {
       /**
@@ -2684,8 +2733,8 @@ export interface components {
       organization_id: string;
       /**
        * Nickname
-       * @description Organization name
-       * @example MyOrganization
+       * @description User nickname
+       * @example alice
        */
       nickname: string;
       /**
@@ -2720,6 +2769,11 @@ export interface components {
     /** OrganizationMembershipWithPicture */
     OrganizationMembershipWithPicture: {
       /**
+       * Picture
+       * @description The users profile image
+       */
+      picture?: string;
+      /**
        * Organization Id
        * Format: uuid
        * @description Organization ID
@@ -2728,27 +2782,10 @@ export interface components {
       organization_id: string;
       /**
        * Nickname
-       * @description Organization name
-       * @example MyOrganization
+       * @description User nickname
+       * @example alice
        */
       nickname: string;
-      /**
-       * Picture
-       * @description The users profile image
-       */
-      picture?: string;
-      /**
-       * User Id
-       * @description Unique user id
-       * @example auth0|12345678
-       */
-      user_id: string;
-      /**
-       * Access Role
-       * @description User access role in organization
-       * @example member
-       */
-      access_role: string;
       /**
        * Permissions
        * @description User permissions in organization
@@ -2762,6 +2799,18 @@ export interface components {
        * @example nomic@gmail.com
        */
       email: string;
+      /**
+       * User Id
+       * @description Unique user id
+       * @example auth0|12345678
+       */
+      user_id: string;
+      /**
+       * Access Role
+       * @description User access role in organization
+       * @example member
+       */
+      access_role: string;
     };
     /**
      * OrganizationPlan
@@ -2772,6 +2821,7 @@ export interface components {
       | 'atlas_demo'
       | 'atlas_enterprise'
       | 'atlas_team'
+      | 'atlas_plus'
       | 'atlas_research'
       | 'atlas_starter'
       | 'atlas_startup'
@@ -2809,10 +2859,7 @@ export interface components {
       max_premium_api_calls?: number;
       /** Max Non Embedding Projects */
       max_non_embedding_projects?: number;
-      /**
-       * Features
-       * @description The features this organization is allowed to utilize.
-       */
+      /** Features */
       features: string[];
       /**
        * Free Text Tokens Per Seat
@@ -3522,6 +3569,11 @@ export interface components {
     /** PublicOrganizationMembershipWithPicture */
     PublicOrganizationMembershipWithPicture: {
       /**
+       * Picture
+       * @description The users profile image
+       */
+      picture?: string;
+      /**
        * Organization Id
        * Format: uuid
        * @description Organization ID
@@ -3530,15 +3582,10 @@ export interface components {
       organization_id: string;
       /**
        * Nickname
-       * @description Organization name
-       * @example MyOrganization
+       * @description User nickname
+       * @example alice
        */
       nickname: string;
-      /**
-       * Picture
-       * @description The users profile image
-       */
-      picture?: string;
     };
     /** PublicOrganizationResponse */
     PublicOrganizationResponse: {
@@ -3622,6 +3669,143 @@ export interface components {
        */
       website?: string;
     };
+    /** RecurringJob */
+    RecurringJob: {
+      /**
+       * Id
+       * @description The id of the recurring job
+       */
+      id: string;
+      /**
+       * Run Interval In Seconds
+       * @description The run interval for the recurring job in seconds
+       */
+      run_interval_in_seconds: number;
+      /**
+       * Metadata
+       * @description Any additional job data the job needs as JSON serialized dict
+       */
+      metadata: string;
+      /**
+       * Job Type
+       * @description The type of job to run
+       */
+      job_type: string;
+      /**
+       * Created At
+       * Format: date-time
+       * @description The date and time the recurring job was created
+       */
+      created_at: string;
+      /**
+       * Updated At
+       * Format: date-time
+       * @description The date and time the recurring job was last updated
+       */
+      updated_at: string;
+      /**
+       * Last Run
+       * Format: date-time
+       * @description The date and time the recurring job was last run
+       */
+      last_run?: string;
+      /**
+       * Next Run
+       * Format: date-time
+       * @description The date and time the recurring job will next run
+       */
+      next_run?: string;
+      /**
+       * Active
+       * @description Whether the recurring job is active
+       */
+      active: boolean;
+      /**
+       * Last Run Job Id
+       * @description The id of the job that last ran the recurring job
+       */
+      last_run_job_id?: string;
+    };
+    /** RecurringJobRequest */
+    RecurringJobRequest: {
+      /**
+       * Run Interval In Seconds
+       * @description The run interval for the recurring job in seconds
+       */
+      run_interval_in_seconds: number;
+      /**
+       * Metadata
+       * @description Any additional job data the job needs as JSON serialized dict
+       */
+      metadata: string;
+      /**
+       * Job Type
+       * @description The type of job to run
+       */
+      job_type: string;
+      /**
+       * Next Run
+       * Format: date-time
+       * @description The next run of the job
+       */
+      next_run?: string;
+    };
+    /** RecurringJobUpdate */
+    RecurringJobUpdate: {
+      /**
+       * Run Interval In Seconds
+       * @description The run interval for the recurring job in seconds
+       */
+      run_interval_in_seconds?: number;
+      /**
+       * Metadata
+       * @description Any additional job data the job needs as JSON serialized dict
+       */
+      metadata?: string;
+      /**
+       * Active
+       * @description Whether the job is active
+       */
+      active?: boolean;
+      /**
+       * Next Run
+       * Format: date-time
+       * @description The next run of the job
+       */
+      next_run?: string;
+    };
+    /** RecurringMapBuild */
+    RecurringMapBuild: {
+      /**
+       * Id
+       * @description Unique identifier for the recurring map build
+       */
+      id: string;
+      /**
+       * Recurring Job Id
+       * @description ID of the associated recurring job
+       */
+      recurring_job_id: string;
+      /**
+       * Map Checkpoint Id
+       * @description ID of the map checkpoint created by this build, if completed
+       */
+      map_checkpoint_id?: string;
+      /**
+       * Updated At
+       * Format: date-time
+       * @description Timestamp when this record was last updated
+       */
+      updated_at: string;
+      /**
+       * Created At
+       * Format: date-time
+       * @description Timestamp when this record was created
+       */
+      created_at: string;
+      /** @description Current status of the map build (e.g. PENDING, RUNNING, COMPLETED, FAILED, SKIPPED) */
+      status: components['schemas']['MapbBuildKickOffStatus'];
+    };
     /** RemoveIndexRequest */
     RemoveIndexRequest: {
       /**
@@ -3646,39 +3830,6 @@ export interface components {
        * @example example-project
        */
       project_id: string;
-    };
-    /**
-     * RequestedResource
-     * @description This is the type that is passed in through the public API.
-     */
-    RequestedResource: {
-      /**
-       * Ref
-       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
-       */
-      ref: string;
-      /**
-       * Dataset Id
-       * @description The id of the dataset to use for this resource.
-       */
-      dataset_id: string;
-      /**
-       * Resource Type
-       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
-       */
-      resource_type: string;
-      /**
-       * Dependencies
-       * @description
-       *                                           A mapping of resource types to the ids of the resources that must be created before this one. We will look in three different places for the string values here:
-       *
-       *                                           First, in the refs field of the passed list of resources.
-       *                                           Second, in the resource_type fields of the passed list of resources. (If there is just one embedding set, you can just put 'EMBEDDING_SET' in the dependencies field of any resource building on it.)
-       *                                           Finally, this will be treated as the UUID of a resource in the database.
-       */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
     };
     /** ResourceResponse */
     ResourceResponse: {
@@ -4119,6 +4270,1102 @@ export interface components {
       msg: string;
       /** Error Type */
       type: string;
+    };
+    /** ZendeskConnectorRequest */
+    ZendeskConnectorRequest: {
+      /**
+       * Dataset Id
+       * @description ID of the dataset to create connector for
+       */
+      dataset_id: string;
+    };
+    /**
+     * DATASET_CHECKPOINT_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    DATASET_CHECKPOINT_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /** Deserialized subset of the DSL to filter the user data by */
+      composite_filter?: unknown;
+      /** Columns to stream from the checkpoint. If not provided, all columns will be streamed. */
+      columns?: string[];
+      /** Unix timestamp (seconds) from which to serve the dataset */
+      timestamp?: number;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
+     * EMBEDDING_SET_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    EMBEDDING_SET_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * The column to retrieve embeddings from, or None for the unnamed embedding column.
+       * @default embedding
+       */
+      embedding_target?: string;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
+     * EMBEDDING_SET_INFERRED_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    EMBEDDING_SET_INFERRED_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Source Column
+       * @description The text column to generate embeddings from
+       */
+      source_column: string;
+      /**
+       * Embedding Model
+       * @description Which text embedding model to use
+       */
+      embedding_model:
+        | 'nomic-embed-text-v1.5'
+        | 'nomic-embed-text-v1'
+        | 'gte-multilingual-base'
+        | 'nomic-embed-vision-v1.5'
+        | 'nomic-embed-vision-v1';
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
+     * HNSW_INDEX_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    HNSW_INDEX_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * N Neighbors
+       * @default 15
+       */
+      n_neighbors?: number;
+      /**
+       * Ef Construction
+       * @default 64
+       */
+      ef_construction?: number;
+      /**
+       * M
+       * @default 32
+       */
+      M?: number;
+      /**
+       * Local Neighborhood Size
+       * @default 32
+       */
+      local_neighborhood_size?: number;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
+     * EMBEDDING_DERIVED_2D_COORDINATE_SET_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    EMBEDDING_DERIVED_2D_COORDINATE_SET_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * The embedding dimensions to use for x, y in the coordinate set.
+       * @default [
+       *   0,
+       *   1
+       * ]
+       */
+      dims?: number[];
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
+     * RANDOM_COORDINATE_SET_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    RANDOM_COORDINATE_SET_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
+     * UMAP_COORDINATE_SET_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    UMAP_COORDINATE_SET_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * The number of neighbors to use for UMAP.
+       * @default 15
+       */
+      n_neighbors?: number;
+      /**
+       * How tightly UMAP should pack points together.
+       * @default 0.1
+       */
+      min_dist?: number;
+      /**
+       * The metric to use for distance computation.
+       * @default euclidean
+       */
+      metric?: string;
+      /**
+       * Weighting applied to negative samples. Values higher than one will result in greater weight being given to negative samples.
+       * @default 1
+       */
+      repulsion_strength?: number;
+      /**
+       * Number of negative samples to use during training.
+       * @default 5
+       */
+      negative_sample_rate?: number;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
+     * TSNE_COORDINATE_SET_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    TSNE_COORDINATE_SET_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Affects the tradeoff between global and local relationship presentation
+       * @default 30
+       */
+      perplexity?: number;
+      /**
+       * Affects the spacing between clusters and their cohesion.
+       * @default auto
+       */
+      early_exaggeration?: number | string;
+      /**
+       * Number of iterations with early exaggeration
+       * @default 250
+       */
+      early_exaggeration_iter?: number;
+      /**
+       * Number of iterations
+       * @default 500
+       */
+      n_iter?: number;
+      /** Affects the spacing between clusters in the final layout. */
+      exaggeration?: number;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
+     * SVD_COORDINATE_SET_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    SVD_COORDINATE_SET_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * SVD's n_components
+       * @default 2
+       */
+      n_components?: number;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
+     * PCA_COORDINATE_SET_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    PCA_COORDINATE_SET_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * PCA's n_components
+       * @default 2
+       */
+      n_components?: number;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
+     * NPV1_COORDINATE_SET_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    NPV1_COORDINATE_SET_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /** Number of contrastive samples */
+      n_noise?: number;
+      /**
+       * Number of epochs
+       * @default 50
+       */
+      n_epochs?: number;
+      /**
+       * Spread of the embedding
+       * @default 1
+       */
+      spread?: number;
+      /**
+       * Minimum distance between points
+       * @default 0.4
+       */
+      min_dist?: number;
+      /**
+       * Number of epochs for initialization
+       * @default 20
+       */
+      n_init_epochs?: number;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
+     * NPV2_COORDINATE_SET_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    NPV2_COORDINATE_SET_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /** Number of contrastive samples */
+      n_noise?: number;
+      /**
+       * Number of epochs
+       * @default 50
+       */
+      n_epochs?: number;
+      /**
+       * Spread of the embedding
+       * @default 1
+       */
+      spread?: number;
+      /**
+       * Minimum distance between points
+       * @default 0.4
+       */
+      min_dist?: number;
+      /**
+       * Number of epochs for initialization
+       * @default 20
+       */
+      n_init_epochs?: number;
+      /**
+       * Controls local structure optimizing step for `nomic-project-v2`. Min value: `0`; max value: `1`
+       * @default 0.6
+       */
+      rho?: number;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
+     * CLUSTER_ASSIGNMENT_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    CLUSTER_ASSIGNMENT_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /** Cluster Method */
+      cluster_method?: string;
+      /**
+       * Enforce Hierarchy
+       * @default true
+       */
+      enforce_hierarchy?: boolean;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
+     * HDBSCAN_CLUSTER_ASSIGNMENT_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    HDBSCAN_CLUSTER_ASSIGNMENT_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /** Cluster Method */
+      cluster_method?: string;
+      /**
+       * Min Cluster Size
+       * @default 15
+       */
+      min_cluster_size?: number;
+      /**
+       * Min Samples
+       * @default 15
+       */
+      min_samples?: number;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
+     * QUADTREE_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    QUADTREE_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Colorable Fields
+       * @description The fields that can be colored by.
+       * @default []
+       */
+      colorable_fields?: string[];
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
+     * DUPLICATES_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    DUPLICATES_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Duplicate cut-off
+       * @default 0.1
+       */
+      duplicate_cutoff?: number;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
+     * KEYWORDS_TOPIC_LABEL_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    KEYWORDS_TOPIC_LABEL_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /** Field to extract keywords from */
+      target_field: string;
+      /**
+       * Jaccard similarity threshold
+       * @default 0.62
+       */
+      jaccard_similarity_threshold?: number;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
+     * LLM_TOPIC_LABEL_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    LLM_TOPIC_LABEL_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
+     * TOPIC_LABEL_POSITIONS_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    TOPIC_LABEL_POSITIONS_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
+     * MAP_CHECKPOINT_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    MAP_CHECKPOINT_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /** ID of the associated map. If not provided, a new map will be created. */
+      map_id?: string;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
+     * SIDECAR_FROM_PARQUET_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    SIDECAR_FROM_PARQUET_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /** The sidecar name */
+      sidecar_name: string;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
+     * EMBEDDING_SIDECAR_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    EMBEDDING_SIDECAR_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
+     * SIDECAR_FROM_DATA_TABLE_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    SIDECAR_FROM_DATA_TABLE_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /** Columns to add as sidecars */
+      column_names: string[];
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
+     * CLUSTER_SIDECAR_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    CLUSTER_SIDECAR_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
+     * OPENGRAPH_IMAGE_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    OPENGRAPH_IMAGE_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /** Color Column */
+      color_column?: string;
+      /** Map Id */
+      map_id: string;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /** ResourceRequestList */
+    ResourceRequestList: {
+      /** Items */
+      items: (
+        | components['schemas']['DATASET_CHECKPOINT_REQUEST']
+        | components['schemas']['EMBEDDING_SET_REQUEST']
+        | components['schemas']['EMBEDDING_SET_INFERRED_REQUEST']
+        | components['schemas']['HNSW_INDEX_REQUEST']
+        | components['schemas']['EMBEDDING_DERIVED_2D_COORDINATE_SET_REQUEST']
+        | components['schemas']['RANDOM_COORDINATE_SET_REQUEST']
+        | components['schemas']['UMAP_COORDINATE_SET_REQUEST']
+        | components['schemas']['TSNE_COORDINATE_SET_REQUEST']
+        | components['schemas']['SVD_COORDINATE_SET_REQUEST']
+        | components['schemas']['PCA_COORDINATE_SET_REQUEST']
+        | components['schemas']['NPV1_COORDINATE_SET_REQUEST']
+        | components['schemas']['NPV2_COORDINATE_SET_REQUEST']
+        | components['schemas']['CLUSTER_ASSIGNMENT_REQUEST']
+        | components['schemas']['HDBSCAN_CLUSTER_ASSIGNMENT_REQUEST']
+        | components['schemas']['QUADTREE_REQUEST']
+        | components['schemas']['DUPLICATES_REQUEST']
+        | components['schemas']['KEYWORDS_TOPIC_LABEL_REQUEST']
+        | components['schemas']['LLM_TOPIC_LABEL_REQUEST']
+        | components['schemas']['TOPIC_LABEL_POSITIONS_REQUEST']
+        | components['schemas']['MAP_CHECKPOINT_REQUEST']
+        | components['schemas']['SIDECAR_FROM_PARQUET_REQUEST']
+        | components['schemas']['EMBEDDING_SIDECAR_REQUEST']
+        | components['schemas']['SIDECAR_FROM_DATA_TABLE_REQUEST']
+        | components['schemas']['CLUSTER_SIDECAR_REQUEST']
+        | components['schemas']['OPENGRAPH_IMAGE_REQUEST']
+      )[];
     };
   };
   responses: never;
@@ -4823,7 +6070,33 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['RequestedResource'][];
+        'application/json': (
+          | components['schemas']['DATASET_CHECKPOINT_REQUEST']
+          | components['schemas']['EMBEDDING_SET_REQUEST']
+          | components['schemas']['EMBEDDING_SET_INFERRED_REQUEST']
+          | components['schemas']['HNSW_INDEX_REQUEST']
+          | components['schemas']['EMBEDDING_DERIVED_2D_COORDINATE_SET_REQUEST']
+          | components['schemas']['RANDOM_COORDINATE_SET_REQUEST']
+          | components['schemas']['UMAP_COORDINATE_SET_REQUEST']
+          | components['schemas']['TSNE_COORDINATE_SET_REQUEST']
+          | components['schemas']['SVD_COORDINATE_SET_REQUEST']
+          | components['schemas']['PCA_COORDINATE_SET_REQUEST']
+          | components['schemas']['NPV1_COORDINATE_SET_REQUEST']
+          | components['schemas']['NPV2_COORDINATE_SET_REQUEST']
+          | components['schemas']['CLUSTER_ASSIGNMENT_REQUEST']
+          | components['schemas']['HDBSCAN_CLUSTER_ASSIGNMENT_REQUEST']
+          | components['schemas']['QUADTREE_REQUEST']
+          | components['schemas']['DUPLICATES_REQUEST']
+          | components['schemas']['KEYWORDS_TOPIC_LABEL_REQUEST']
+          | components['schemas']['LLM_TOPIC_LABEL_REQUEST']
+          | components['schemas']['TOPIC_LABEL_POSITIONS_REQUEST']
+          | components['schemas']['MAP_CHECKPOINT_REQUEST']
+          | components['schemas']['SIDECAR_FROM_PARQUET_REQUEST']
+          | components['schemas']['EMBEDDING_SIDECAR_REQUEST']
+          | components['schemas']['SIDECAR_FROM_DATA_TABLE_REQUEST']
+          | components['schemas']['CLUSTER_SIDECAR_REQUEST']
+          | components['schemas']['OPENGRAPH_IMAGE_REQUEST']
+        )[];
       };
     };
     responses: {
@@ -6157,7 +7430,33 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['RequestedResource'][];
+        'application/json': (
+          | components['schemas']['DATASET_CHECKPOINT_REQUEST']
+          | components['schemas']['EMBEDDING_SET_REQUEST']
+          | components['schemas']['EMBEDDING_SET_INFERRED_REQUEST']
+          | components['schemas']['HNSW_INDEX_REQUEST']
+          | components['schemas']['EMBEDDING_DERIVED_2D_COORDINATE_SET_REQUEST']
+          | components['schemas']['RANDOM_COORDINATE_SET_REQUEST']
+          | components['schemas']['UMAP_COORDINATE_SET_REQUEST']
+          | components['schemas']['TSNE_COORDINATE_SET_REQUEST']
+          | components['schemas']['SVD_COORDINATE_SET_REQUEST']
+          | components['schemas']['PCA_COORDINATE_SET_REQUEST']
+          | components['schemas']['NPV1_COORDINATE_SET_REQUEST']
+          | components['schemas']['NPV2_COORDINATE_SET_REQUEST']
+          | components['schemas']['CLUSTER_ASSIGNMENT_REQUEST']
+          | components['schemas']['HDBSCAN_CLUSTER_ASSIGNMENT_REQUEST']
+          | components['schemas']['QUADTREE_REQUEST']
+          | components['schemas']['DUPLICATES_REQUEST']
+          | components['schemas']['KEYWORDS_TOPIC_LABEL_REQUEST']
+          | components['schemas']['LLM_TOPIC_LABEL_REQUEST']
+          | components['schemas']['TOPIC_LABEL_POSITIONS_REQUEST']
+          | components['schemas']['MAP_CHECKPOINT_REQUEST']
+          | components['schemas']['SIDECAR_FROM_PARQUET_REQUEST']
+          | components['schemas']['EMBEDDING_SIDECAR_REQUEST']
+          | components['schemas']['SIDECAR_FROM_DATA_TABLE_REQUEST']
+          | components['schemas']['CLUSTER_SIDECAR_REQUEST']
+          | components['schemas']['OPENGRAPH_IMAGE_REQUEST']
+        )[];
       };
     };
     responses: {
@@ -8003,6 +9302,168 @@ export interface operations {
       200: {
         content: {
           'application/json': components['schemas']['SuccessResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Get Dataset Recurring Jobs
+   * @description Get all recurring jobs for a dataset.
+   */
+  get_dataset_recurring_jobs_v1_recurring_jobs_dataset__dataset_id__get: {
+    parameters: {
+      path: {
+        dataset_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['RecurringJob'][];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Create Dataset Recurring Job
+   * @description Create a new recurring job for a dataset.
+   */
+  create_dataset_recurring_job_v1_recurring_jobs_dataset__dataset_id__post: {
+    parameters: {
+      path: {
+        dataset_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RecurringJobRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        content: {
+          'application/json': components['schemas']['RecurringJob'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Delete Dataset Recurring Job
+   * @description Delete a recurring job for a dataset.
+   */
+  delete_dataset_recurring_job_v1_recurring_jobs_dataset__dataset_id___job_id__delete: {
+    parameters: {
+      path: {
+        dataset_id: string;
+        job_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Update Dataset Recurring Job
+   * @description Update a recurring job for a dataset.
+   */
+  update_dataset_recurring_job_v1_recurring_jobs_dataset__dataset_id___job_id__patch: {
+    parameters: {
+      path: {
+        dataset_id: string;
+        job_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RecurringJobUpdate'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['RecurringJob'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Create Recurring Connector Builds
+   * @description Create a recurring job for a zendesk connector.
+   */
+  create_recurring_connector_builds_v1_recurring_jobs_create_zendesk_connector_post: {
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ZendeskConnectorRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['RecurringJob'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Get Recurring Map Builds
+   * @description Get all recurring map builds for a dataset.
+   */
+  get_recurring_map_builds_v1_recurring_jobs_dataset__dataset_id__recurring_map_builds_get: {
+    parameters: {
+      path: {
+        dataset_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['RecurringMapBuild'][];
         };
       };
       /** @description Validation Error */
