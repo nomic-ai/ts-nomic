@@ -134,6 +134,8 @@ export class AtlasViewer {
     if (response.status < 200 || response.status > 299) {
       const responseBody = await response.text();
       throw new APIError(
+        method,
+        url,
         response.status,
         response.statusText,
         response.headers,
@@ -241,22 +243,24 @@ function validateApiHttpResponse(response: Response): Response {
 }
 
 export class APIError extends Error {
+  name = 'APIError';
   status: number;
   statusText: string;
   headers: any;
   responseBody: string | null;
 
   constructor(
+    method: string,
+    url: string,
     status: number,
     statusText: string,
     headers: any,
     responseBody?: string
   ) {
-    super(`Error ${status}: ${statusText}`);
+    super(`${method} ${url} failed with ${status}: ${responseBody}`);
     this.status = status;
     this.statusText = statusText;
     this.headers = headers;
     this.responseBody = responseBody || null;
-    Object.setPrototypeOf(this, APIError.prototype);
   }
 }
