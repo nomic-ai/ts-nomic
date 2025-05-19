@@ -129,7 +129,13 @@ export class AtlasViewer {
       },
       body,
     } as RequestInit;
-    const response = await fetch(url, params);
+
+    let response: Response;
+    try {
+      response = await fetch(url, params);
+    } catch (error) {
+      throw new FetchError(method, url, error as Error);
+    }
 
     if (response.status < 200 || response.status > 299) {
       const responseBody = await response.text();
@@ -240,6 +246,14 @@ function validateApiHttpResponse(response: Response): Response {
     );
   }
   return response;
+}
+
+export class FetchError extends Error {
+  name = 'FetchError';
+
+  constructor(method: string, url: string, error: Error) {
+    super(`${method} ${url} fetch failed: ${error.name}: ${error.message}`);
+  }
 }
 
 export class APIError extends Error {
