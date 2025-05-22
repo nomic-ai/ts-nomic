@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.1](https://github.com/nomic-ai/ts-nomic/compare/v0.12.0...v0.12.1) (2025-05-22)
+
+
+### Bug Fixes
+
+* make withLoadedAttributes not bust cache by default ([#95](https://github.com/nomic-ai/ts-nomic/issues/95)) ([0722b18](https://github.com/nomic-ai/ts-nomic/commit/0722b18282fc5920c1732beeaf277a1b44f7eafd))
+
 ## [0.12.0](https://github.com/nomic-ai/ts-nomic/compare/v0.11.0...v0.12.0) (2024-11-04)
 
 
