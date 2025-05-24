@@ -6,3 +6,4 @@ export { AtlasOrganization } from './organization.js';
 export { AtlasProjection } from './projection.js';
 export { AtlasIndex } from './index.js';
 export { Embedder, embed } from './embedding.js';
+export { Nomic } from './v2/core.js';
