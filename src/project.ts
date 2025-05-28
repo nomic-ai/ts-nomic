@@ -1,25 +1,22 @@
-import type { Schema, Table } from 'apache-arrow';
-import { tableToIPC, tableFromJSON, tableFromIPC } from 'apache-arrow';
+import {
+  Field,
+  Float32,
+  RecordBatch,
+  Schema,
+  Struct,
+  Table,
+  Timestamp,
+  Utf8,
+  vectorFromArray,
+} from 'apache-arrow';
+import { tableToIPC, tableFromIPC } from 'apache-arrow';
 import { BaseAtlasClass } from './user.js';
 import { AtlasIndex } from './index.js';
 import { AtlasViewer } from './viewer.js';
-import * as Atlas from './global.js';
 import { components } from './type-gen/openapi.js';
-// get the API key from the node environment
-type UUID = string;
-
-export function load_project(options: Atlas.LoadProjectOptions): AtlasDataset {
-  throw new Error('Not implemented');
-}
-
-type DataIngest = Record<string, string | number | Date> | Table;
-type SingleEmbedding = Array<number>;
-type EmbeddingMatrix = Array<SingleEmbedding>;
-type TypedArrayEmbedding = Float32Array | Float64Array;
-type EmbeddingType = EmbeddingMatrix | TypedArrayEmbedding;
 
 type IndexCreateOptions = {
-  project_id: UUID;
+  project_id: string;
   index_name: string;
   indexed_field?: string;
   colorable_fields?: string[];
@@ -36,7 +33,7 @@ type NNIndex = 'HNSWIndex';
 type ProjectionType = 'NomicProject';
 
 type CreateAtlasIndexRequest = {
-  project_id: UUID;
+  project_id: string;
   index_name: string;
   indexed_field: string | null;
   colorable_fields: string[];
@@ -100,9 +97,7 @@ const createIndexTextDefaults: Omit<
 export class AtlasDataset extends BaseAtlasClass<
   components['schemas']['Project']
 > {
-  _indices: AtlasIndex[] = [];
-  _schema?: Schema | null;
-  id: UUID;
+  id: string;
 
   /**
    *
@@ -112,7 +107,7 @@ export class AtlasDataset extends BaseAtlasClass<
    *
    * @returns An AtlasDataset object.
    */
-  constructor(id: UUID | string, viewer?: AtlasViewer) {
+  constructor(id: string, viewer?: AtlasViewer) {
     super(viewer);
     // check if id is a valid UUID
 
@@ -126,32 +121,6 @@ export class AtlasDataset extends BaseAtlasClass<
     }
   }
 
-  /**
-   *
-   * @returns A list of projection summaries, sorted so that the first is
-   * the most useable (defined as ready and newest)
-   */
-  public async projectionSummaries() {
-    const projections = [];
-    const info = await this.fetchAttributes();
-    for (const index of info.atlas_indices) {
-      for (const projection of index.projections) {
-        projections.push(projection);
-      }
-    }
-    // sort from newest to oldest
-    // Put ready projections first
-    projections.sort((a, b) => {
-      if (a.ready && !b.ready) return -1;
-      if (!a.ready && b.ready) return 1;
-      return (
-        new Date(b.created_timestamp).getTime() -
-        new Date(a.created_timestamp).getTime()
-      );
-    });
-    return projections;
-  }
-
   async delete() {
     const value = await this.apiCall(`/v1/project/remove`, 'POST', {
       project_id: this.id,
@@ -159,67 +128,8 @@ export class AtlasDataset extends BaseAtlasClass<
     return value;
   }
 
-  private clear() {
-    this.attributePromise = undefined;
-    this._schema = undefined;
-    this._indices = [];
-  }
-
-  async wait_for_lock(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const interval = setInterval(async () => {
-        // Create a new project to clear the cache.
-
-        const renewed = new AtlasDataset(this.id, this.viewer);
-        const info = await renewed.fetchAttributes();
-        if (info.insert_update_delete_lock === false) {
-          clearInterval(interval);
-          // Clear the cache.
-          this.clear();
-          resolve();
-        }
-      }, 2000);
-    });
-  }
-
   protected endpoint() {
     return `/v1/project/${this.id}`;
-  }
-
-  async indices(): Promise<AtlasIndex[]> {
-    if (this._indices.length > 0) {
-      return this._indices;
-    }
-    const { atlas_indices } = await this.fetchAttributes();
-
-    if (atlas_indices === undefined) {
-      return [];
-    }
-    const options = { project: this };
-    this._indices = atlas_indices.map(
-      (d) => new AtlasIndex(d['id'], this.viewer, options)
-    );
-    return this._indices;
-  }
-
-  /**
-   * Updates all indices associated with a project.
-   *
-   * @param rebuild_topic_models If true, rebuilds topic models for all indices.
-   */
-  async update_indices(rebuild_topic_models: boolean = false): Promise<void> {
-    throw new Error(
-      'Update_indices has been deprecated: please run `createIndex` on an existing project instead.'
-    );
-  }
-
-  async add_text(records: Record<string, string>[]): Promise<void> {
-    const table = tableFromJSON(records);
-    await this.uploadArrow(table);
-  }
-
-  async add_embeddings() {
-    // TODO: implement
   }
 
   /**
@@ -342,28 +252,67 @@ export class AtlasDataset extends BaseAtlasClass<
     return new AtlasIndex(id, this.viewer, { project: this });
   }
 
-  async delete_data(ids: string[]): Promise<void> {
-    // TODO: untested
-    // const info = await this.info
-    await this.viewer.apiCall('/v1/project/data/delete', 'POST', {
-      project_id: this.id,
-      datum_ids: ids,
-    });
-  }
-
-  validate_metadata(): void {
-    // validate metadata
-  }
-
-  /*  async create_projection(options: IndexCreateOptions) : Promise<AtlasProjection> {
-    await 
-  } */
-
-  get schema() {
-    if (this._schema === undefined) {
-      // this.update_info()
+  async loadSchema() {
+    if (this.attr === undefined) {
+      await this.fetchAttributes();
     }
-    return this._schema;
+    if (this.attr === undefined) {
+      throw new Error('Attributes not found after fetching');
+    }
+    const base64Schema = this.attr.schema;
+    if (!base64Schema) {
+      return null;
+    }
+    const schemaBuffer = Buffer.from(base64Schema, 'base64');
+    const array = new Uint8Array(schemaBuffer);
+    const table = tableFromIPC(array);
+    return table.schema;
+  }
+
+  async uploadData(
+    data: Record<string, unknown> | Record<string, unknown>[]
+  ): Promise<void> {
+    const points = Array.isArray(data) ? data : [data];
+
+    const schema = await this.loadSchema();
+
+    const fields: Field[] = schema?.fields ?? [];
+
+    if (fields.length === 0) {
+      // If no schema, this is the first datapoint. We need to determine the right type
+      // for each column given our constraints
+      for (const key in points[0]) {
+        const value =
+          points.find((p) => p[key] != null)?.[key] ?? points[0][key];
+        if (typeof value === 'string') {
+          fields.push(new Field(key, new Utf8(), true));
+        } else if (typeof value === 'number') {
+          fields.push(new Field(key, new Float32(), true));
+        } else if (typeof value === 'boolean') {
+          fields.push(new Field(key, new Utf8(), true));
+        } else if (value === null) {
+          fields.push(new Field(key, new Utf8(), true));
+        } else if (value instanceof Date) {
+          fields.push(new Field(key, new Timestamp(1), true));
+        } else if (typeof value === 'object') {
+          fields.push(new Field(key, new Utf8(), true));
+        } else if (Array.isArray(value)) {
+          fields.push(new Field(key, new Utf8(), true));
+        } else {
+          fields.push(new Field(key, new Utf8(), true));
+        }
+      }
+    }
+
+    const vector = vectorFromArray(points, new Struct(fields));
+
+    const table = new Table(
+      vector.data.map(
+        (batch) => new RecordBatch(new Schema(vector.type.children), batch)
+      )
+    );
+
+    await this.uploadArrow(table);
   }
 
   async uploadArrow(table: Table | Uint8Array): Promise<void> {
@@ -376,23 +325,4 @@ export class AtlasDataset extends BaseAtlasClass<
     const data = tableToIPC(table, 'file');
     await this.apiCall(`/v1/project/data/add/arrow`, 'POST', data);
   }
-
-  /*
-  async addData(options : AddDataOptions) : Promise<Response> {
-    if (isRecordIngest(options.data)) {
-      // convert to arrow
-    }
-    throw new Error("Not implemented")
-
-    if (isEmbeddingType(options.embeddings)) {
-      if (isEmbeddingMatrix(options.embeddings)) {
-        // convert to typed array
-      }
-      // convert to arrow
-    }
-    if (this.schema === null) {
-      // this._schema = table.schema;
-    }
-  }
-  */
 }
