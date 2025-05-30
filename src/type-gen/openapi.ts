@@ -68,13 +68,6 @@ export interface paths {
      */
     post: operations['create_organization_v1_organization_create_post'];
   };
-  '/v1/organization/search': {
-    /**
-     * Search User
-     * @description Search user by nickname who is not already in organization
-     */
-    post: operations['search_user_v1_organization_search_post'];
-  };
   '/v1/organization/members/add': {
     /** Add Organization Member */
     post: operations['add_organization_member_v1_organization_members_add_post'];
@@ -1029,6 +1022,20 @@ export interface paths {
      * @description Update a specific connector dataset's metadata.
      */
     put: operations['update_connector_dataset_handler_v1_connector__connector_id__dataset__dataset_id__put'];
+  };
+  '/v1/connector/snowflake/preview': {
+    /**
+     * Get Snowflake Preview Handler
+     * @description Get a preview of the data in a snowflake table.
+     */
+    post: operations['get_snowflake_preview_handler_v1_connector_snowflake_preview_post'];
+  };
+  '/v1/connector/snowflake/ingest-and-build': {
+    /**
+     * Ingest Snowflake Data Handler
+     * @description Ingest data from a snowflake table.
+     */
+    post: operations['ingest_snowflake_data_handler_v1_connector_snowflake_ingest_and_build_post'];
   };
   '/v1/recurring_jobs/dataset/{dataset_id}': {
     /**
@@ -2538,6 +2545,16 @@ export interface components {
        * @description The error message if the map is permanently errored.
        */
       error?: string;
+      /**
+       * Primary Projection Algorithm
+       * @description The primary projection algorithm used for this map.
+       */
+      primary_projection_algorithm: string;
+      /**
+       * Total Data Points
+       * @description The total number of data points in this map.
+       */
+      total_data_points: number;
     };
     /**
      * MapbBuildKickOffStatus
@@ -2678,6 +2695,7 @@ export interface components {
       | 'all-MiniLM-L6-v2'
       | 'nomic-embed-text-v1'
       | 'nomic-embed-text-v1.5'
+      | 'nomic-embed-text-v2'
       | 'nomic-embed-code'
       | 'gte-multilingual-base';
     /**
@@ -2814,7 +2832,7 @@ export interface components {
     };
     /**
      * OrganizationPlan
-     * @description The list of available plans for organizations.
+     * @description The master list of available plans for organizations.
      * @enum {unknown}
      */
     OrganizationPlan:
@@ -3871,41 +3889,66 @@ export interface components {
        */
       results?: components['schemas']['DatasetSearchResult'][];
     };
-    /** SearchUserModel */
-    SearchUserModel: {
+    /** SnowflakeIngestDataRequest */
+    SnowflakeIngestDataRequest: {
       /**
-       * Nickname
-       * @description Nickname of user
+       * Org Id
+       * @description The id of the organization.
        */
-      nickname: string;
+      org_id: string;
       /**
-       * Id
-       * @description User id
+       * Snowflake Database
+       * @description The name of the snowflake database.
        */
-      id: string;
+      snowflake_database: string;
+      /**
+       * Snowflake Schema
+       * @description The name of the snowflake schema.
+       */
+      snowflake_schema: string;
+      /**
+       * Snowflake Table
+       * @description The name of the snowflake table.
+       */
+      snowflake_table: string;
     };
-    /** SearchUserRequest */
-    SearchUserRequest: {
+    /** SnowflakeMapBuildRequest */
+    SnowflakeMapBuildRequest: {
       /**
-       * Search Word
-       * @description Search word to find user
+       * Org Id
+       * @description The id of the organization.
        */
-      search_word: string;
+      org_id: string;
       /**
-       * Organization Id
-       * Format: uuid
-       * @description Inviter organization id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
+       * Snowflake Database
+       * @description The name of the snowflake database.
        */
-      organization_id: string;
-    };
-    /** SearchUserResponse */
-    SearchUserResponse: {
+      snowflake_database: string;
       /**
-       * Users
-       * @description Users list
+       * Snowflake Schema
+       * @description The name of the snowflake schema.
        */
-      users: components['schemas']['SearchUserModel'][];
+      snowflake_schema: string;
+      /**
+       * Snowflake Table
+       * @description The name of the snowflake table.
+       */
+      snowflake_table: string;
+      /**
+       * Dataset Id
+       * @description The id of the dataset to ingest data into and build map on.
+       */
+      dataset_id: string;
+      /**
+       * Embedding Field
+       * @description The name of the field to use for the embedding.
+       */
+      embedding_field: string;
+      /**
+       * @description Whether to use multilingual embeddings.
+       * @default false
+       */
+      embedding_model?: components['schemas']['NomicTextEmbeddingModel'];
     };
     /** StripeSubscriptionCancelRequest */
     StripeSubscriptionCancelRequest: {
@@ -4347,10 +4390,7 @@ export interface components {
        * @description The id of the dataset to use for this resource.
        */
       dataset_id: string;
-      /**
-       * The column to retrieve embeddings from, or None for the unnamed embedding column.
-       * @default embedding
-       */
+      /** The column to retrieve embeddings from, or None for the unnamed embedding column. */
       embedding_target?: string;
       /**
        * Ref
@@ -4400,7 +4440,8 @@ export interface components {
         | 'nomic-embed-text-v1'
         | 'gte-multilingual-base'
         | 'nomic-embed-vision-v1.5'
-        | 'nomic-embed-vision-v1';
+        | 'nomic-embed-vision-v1'
+        | 'nomic-embed-text-v2';
       /**
        * Ref
        * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
@@ -4590,6 +4631,13 @@ export interface components {
        * @default 5
        */
       negative_sample_rate?: number;
+      /** Number of training epochs to use for UMAP. */
+      n_epochs?: number;
+      /**
+       * Whether to cluster unique points.
+       * @default true
+       */
+      cluster_unique_points?: boolean;
       /**
        * Ref
        * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
@@ -4935,6 +4983,47 @@ export interface components {
       ref: string;
     };
     /**
+     * CHECKPOINT_DESCRIPTION_REQUEST
+     * @description This is the type that is passed in through the public API.
+     */
+    CHECKPOINT_DESCRIPTION_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /** Optionally, a list of uploaded columns to use for summarizing the dataset */
+      fields?: string[];
+      /**
+       * The maximum number of characters to use for the description
+       * @default 10000
+       */
+      maximum_characters?: number;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+    };
+    /**
      * QUADTREE_REQUEST
      * @description This is the type that is passed in through the public API.
      */
@@ -5153,6 +5242,12 @@ export interface components {
       /** ID of the associated map. If not provided, a new map will be created. */
       map_id?: string;
       /**
+       * Type of email to send when the map is ready
+       * @default Dataset ready
+       * @enum {string}
+       */
+      email_type?: 'Dataset ready' | 'None';
+      /**
        * Ref
        * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
        */
@@ -5354,6 +5449,7 @@ export interface components {
         | components['schemas']['NPV2_COORDINATE_SET_REQUEST']
         | components['schemas']['CLUSTER_ASSIGNMENT_REQUEST']
         | components['schemas']['HDBSCAN_CLUSTER_ASSIGNMENT_REQUEST']
+        | components['schemas']['CHECKPOINT_DESCRIPTION_REQUEST']
         | components['schemas']['QUADTREE_REQUEST']
         | components['schemas']['DUPLICATES_REQUEST']
         | components['schemas']['KEYWORDS_TOPIC_LABEL_REQUEST']
@@ -5607,31 +5703,6 @@ export interface operations {
       201: {
         content: {
           'application/json': components['schemas']['CreateOrganizationResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Search User
-   * @description Search user by nickname who is not already in organization
-   */
-  search_user_v1_organization_search_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['SearchUserRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SearchUserResponse'];
         };
       };
       /** @description Validation Error */
@@ -6085,6 +6156,7 @@ export interface operations {
           | components['schemas']['NPV2_COORDINATE_SET_REQUEST']
           | components['schemas']['CLUSTER_ASSIGNMENT_REQUEST']
           | components['schemas']['HDBSCAN_CLUSTER_ASSIGNMENT_REQUEST']
+          | components['schemas']['CHECKPOINT_DESCRIPTION_REQUEST']
           | components['schemas']['QUADTREE_REQUEST']
           | components['schemas']['DUPLICATES_REQUEST']
           | components['schemas']['KEYWORDS_TOPIC_LABEL_REQUEST']
@@ -7445,6 +7517,7 @@ export interface operations {
           | components['schemas']['NPV2_COORDINATE_SET_REQUEST']
           | components['schemas']['CLUSTER_ASSIGNMENT_REQUEST']
           | components['schemas']['HDBSCAN_CLUSTER_ASSIGNMENT_REQUEST']
+          | components['schemas']['CHECKPOINT_DESCRIPTION_REQUEST']
           | components['schemas']['QUADTREE_REQUEST']
           | components['schemas']['DUPLICATES_REQUEST']
           | components['schemas']['KEYWORDS_TOPIC_LABEL_REQUEST']
@@ -9295,6 +9368,56 @@ export interface operations {
     requestBody: {
       content: {
         'application/json': components['schemas']['ConnectorDatasetUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['SuccessResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Get Snowflake Preview Handler
+   * @description Get a preview of the data in a snowflake table.
+   */
+  get_snowflake_preview_handler_v1_connector_snowflake_preview_post: {
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SnowflakeIngestDataRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Ingest Snowflake Data Handler
+   * @description Ingest data from a snowflake table.
+   */
+  ingest_snowflake_data_handler_v1_connector_snowflake_ingest_and_build_post: {
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SnowflakeMapBuildRequest'];
       };
     };
     responses: {
