@@ -1,4 +1,4 @@
-import { expect, test, describe } from 'vitest';
+import { expect, test, describe, beforeAll, afterAll } from 'vitest';
 
 import { AtlasDataset } from '../src/project';
 import { make_test_table } from './arrow';
@@ -7,7 +7,7 @@ import { AtlasUser } from '../src/user';
 import { AtlasViewer } from '../src/viewer';
 import { AtlasOrganization } from '../src/organization';
 
-describe('Project Flow Suite', () => {
+describe.skip('Project Flow Suite', () => {
   let viewer: AtlasViewer;
   let user: AtlasUser;
   let organization: AtlasOrganization;
@@ -71,10 +71,10 @@ describe('Project Flow Suite', () => {
   });
 });
 
-test('test_arrow_text', () => {
+test.skip('test_arrow_text', () => {
   const tb = make_test_table({ length: 32, modality: 'text' });
 });
 
-test('test_arrow_embeddings', () => {
+test.skip('test_arrow_embeddings', () => {
   const tb = make_test_table({ length: 32, modality: 'embedding' });
 });

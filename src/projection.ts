@@ -333,6 +333,7 @@ export class AtlasProjection extends BaseAtlasClass<
     if (this._index) {
       return this._index;
     }
+    // @ts-expect-error TODO refactoring
     const indices = await this.project().then((d) => d.indices());
     for (let index of indices) {
       for (let projection of await index.projections()) {

@@ -46,8 +46,10 @@
     "vitest": "^2.1.4"
   },
   "dependencies": {
-    "apache-arrow": "^13.0.0",
     "dotenv": "^16.0.3",
     "js-yaml": "^4.1.0"
+  },
+  "peerDependencies": {
+    "apache-arrow": "^17.0.0"
   }
 }
