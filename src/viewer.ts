@@ -46,6 +46,11 @@ export class AtlasViewer {
       this.apiLocation = 'api-atlas.nomic.ai';
     }
 
+    // Allow atlas viewer to accept domains with or without protocol
+    this.apiLocation = this.apiLocation
+      .replace('https://', '')
+      .replace('http://', '');
+
     if (useEnvToken) {
       // using the token in the environment
       const apiKey = process.env.ATLAS_API_KEY;
