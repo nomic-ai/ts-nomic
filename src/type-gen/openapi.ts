@@ -1452,6 +1452,8 @@ export interface components {
       creation_params: Record<string, unknown>;
       /** Secrets */
       secrets?: string;
+      /** User Id */
+      user_id?: string;
     };
     /** ConnectorDatasetCreateRequest */
     ConnectorDatasetCreateRequest: {
@@ -1514,6 +1516,8 @@ export interface components {
       /** Created Timestamp */
       created_timestamp: string;
       datasets: components['schemas']['ConnectorResponseDatasetList'];
+      /** User Id */
+      user_id?: string;
     };
     /** ConnectorResponseDatasetList */
     ConnectorResponseDatasetList: {
@@ -4330,21 +4334,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
-      /**
-       * Dependencies
-       * @description
-       *         A mapping of resource types to the ids of the resources
-       *         that must be created before this one. We will look in two different
-       *         places for the string values here:
-       *
-       *         First, in the refs field of the passed list of resources.
-       *         Finally, this will be treated as the UUID of a resource in the database.
-       */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      resource_type: 'DATASET_CHECKPOINT';
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -4362,6 +4354,11 @@ export interface components {
        */
       ref: string;
     };
+    /** EMBEDDING_SET_DEPENDENCIES */
+    EMBEDDING_SET_DEPENDENCIES: {
+      /** Dataset Checkpoint */
+      DATASET_CHECKPOINT: string;
+    };
     /**
      * EMBEDDING_SET_REQUEST
      * @description This is the type that is passed in through the public API.
@@ -4370,8 +4367,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'EMBEDDING_SET';
       /**
        * Dependencies
        * @description
@@ -4382,9 +4380,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['EMBEDDING_SET_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -4398,6 +4394,11 @@ export interface components {
        */
       ref: string;
     };
+    /** EMBEDDING_SET_INFERRED_DEPENDENCIES */
+    EMBEDDING_SET_INFERRED_DEPENDENCIES: {
+      /** Dataset Checkpoint */
+      DATASET_CHECKPOINT: string;
+    };
     /**
      * EMBEDDING_SET_INFERRED_REQUEST
      * @description This is the type that is passed in through the public API.
@@ -4406,8 +4407,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'EMBEDDING_SET_INFERRED';
       /**
        * Dependencies
        * @description
@@ -4418,9 +4420,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['EMBEDDING_SET_INFERRED_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -4448,6 +4448,11 @@ export interface components {
        */
       ref: string;
     };
+    /** HNSW_INDEX_DEPENDENCIES */
+    HNSW_INDEX_DEPENDENCIES: {
+      /** Embedding Set */
+      EMBEDDING_SET: string;
+    };
     /**
      * HNSW_INDEX_REQUEST
      * @description This is the type that is passed in through the public API.
@@ -4456,8 +4461,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'HNSW_INDEX';
       /**
        * Dependencies
        * @description
@@ -4468,9 +4474,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['HNSW_INDEX_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -4502,6 +4506,11 @@ export interface components {
        */
       ref: string;
     };
+    /** EMBEDDING_DERIVED_2D_COORDINATE_SET_DEPENDENCIES */
+    EMBEDDING_DERIVED_2D_COORDINATE_SET_DEPENDENCIES: {
+      /** Embedding Set */
+      EMBEDDING_SET: string;
+    };
     /**
      * EMBEDDING_DERIVED_2D_COORDINATE_SET_REQUEST
      * @description This is the type that is passed in through the public API.
@@ -4510,8 +4519,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'EMBEDDING_DERIVED_2D_COORDINATE_SET';
       /**
        * Dependencies
        * @description
@@ -4522,9 +4532,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['EMBEDDING_DERIVED_2D_COORDINATE_SET_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -4544,6 +4552,11 @@ export interface components {
        */
       ref: string;
     };
+    /** RANDOM_COORDINATE_SET_DEPENDENCIES */
+    RANDOM_COORDINATE_SET_DEPENDENCIES: {
+      /** Embedding Set */
+      EMBEDDING_SET: string;
+    };
     /**
      * RANDOM_COORDINATE_SET_REQUEST
      * @description This is the type that is passed in through the public API.
@@ -4552,8 +4565,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'RANDOM_COORDINATE_SET';
       /**
        * Dependencies
        * @description
@@ -4564,9 +4578,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['RANDOM_COORDINATE_SET_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -4578,6 +4590,13 @@ export interface components {
        */
       ref: string;
     };
+    /** UMAP_COORDINATE_SET_DEPENDENCIES */
+    UMAP_COORDINATE_SET_DEPENDENCIES: {
+      /** Embedding Set */
+      EMBEDDING_SET: string;
+      /** Nn Index */
+      NN_INDEX: string;
+    };
     /**
      * UMAP_COORDINATE_SET_REQUEST
      * @description This is the type that is passed in through the public API.
@@ -4586,8 +4605,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'UMAP_COORDINATE_SET';
       /**
        * Dependencies
        * @description
@@ -4598,9 +4618,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['UMAP_COORDINATE_SET_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -4644,6 +4662,13 @@ export interface components {
        */
       ref: string;
     };
+    /** TSNE_COORDINATE_SET_DEPENDENCIES */
+    TSNE_COORDINATE_SET_DEPENDENCIES: {
+      /** Embedding Set */
+      EMBEDDING_SET: string;
+      /** Nn Index */
+      NN_INDEX: string;
+    };
     /**
      * TSNE_COORDINATE_SET_REQUEST
      * @description This is the type that is passed in through the public API.
@@ -4652,8 +4677,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'TSNE_COORDINATE_SET';
       /**
        * Dependencies
        * @description
@@ -4664,9 +4690,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['TSNE_COORDINATE_SET_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -4700,6 +4724,11 @@ export interface components {
        */
       ref: string;
     };
+    /** SVD_COORDINATE_SET_DEPENDENCIES */
+    SVD_COORDINATE_SET_DEPENDENCIES: {
+      /** Embedding Set */
+      EMBEDDING_SET: string;
+    };
     /**
      * SVD_COORDINATE_SET_REQUEST
      * @description This is the type that is passed in through the public API.
@@ -4708,8 +4737,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'SVD_COORDINATE_SET';
       /**
        * Dependencies
        * @description
@@ -4720,9 +4750,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['SVD_COORDINATE_SET_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -4739,6 +4767,11 @@ export interface components {
        */
       ref: string;
     };
+    /** PCA_COORDINATE_SET_DEPENDENCIES */
+    PCA_COORDINATE_SET_DEPENDENCIES: {
+      /** Embedding Set */
+      EMBEDDING_SET: string;
+    };
     /**
      * PCA_COORDINATE_SET_REQUEST
      * @description This is the type that is passed in through the public API.
@@ -4747,8 +4780,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'PCA_COORDINATE_SET';
       /**
        * Dependencies
        * @description
@@ -4759,9 +4793,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['PCA_COORDINATE_SET_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -4778,6 +4810,13 @@ export interface components {
        */
       ref: string;
     };
+    /** NPV1_COORDINATE_SET_DEPENDENCIES */
+    NPV1_COORDINATE_SET_DEPENDENCIES: {
+      /** Nn Index */
+      NN_INDEX: string;
+      /** Coordinate Set */
+      COORDINATE_SET: string;
+    };
     /**
      * NPV1_COORDINATE_SET_REQUEST
      * @description This is the type that is passed in through the public API.
@@ -4786,8 +4825,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'NPV1_COORDINATE_SET';
       /**
        * Dependencies
        * @description
@@ -4798,9 +4838,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['NPV1_COORDINATE_SET_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -4834,6 +4872,13 @@ export interface components {
        */
       ref: string;
     };
+    /** NPV2_COORDINATE_SET_DEPENDENCIES */
+    NPV2_COORDINATE_SET_DEPENDENCIES: {
+      /** Nn Index */
+      NN_INDEX: string;
+      /** Coordinate Set */
+      COORDINATE_SET: string;
+    };
     /**
      * NPV2_COORDINATE_SET_REQUEST
      * @description This is the type that is passed in through the public API.
@@ -4842,8 +4887,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'NPV2_COORDINATE_SET';
       /**
        * Dependencies
        * @description
@@ -4854,9 +4900,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['NPV2_COORDINATE_SET_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -4895,6 +4939,11 @@ export interface components {
        */
       ref: string;
     };
+    /** CLUSTER_ASSIGNMENT_DEPENDENCIES */
+    CLUSTER_ASSIGNMENT_DEPENDENCIES: {
+      /** Embedding Set */
+      EMBEDDING_SET: string;
+    };
     /**
      * CLUSTER_ASSIGNMENT_REQUEST
      * @description This is the type that is passed in through the public API.
@@ -4903,8 +4952,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'CLUSTER_ASSIGNMENT';
       /**
        * Dependencies
        * @description
@@ -4915,9 +4965,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['CLUSTER_ASSIGNMENT_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -4936,6 +4984,11 @@ export interface components {
        */
       ref: string;
     };
+    /** HDBSCAN_CLUSTER_ASSIGNMENT_DEPENDENCIES */
+    HDBSCAN_CLUSTER_ASSIGNMENT_DEPENDENCIES: {
+      /** Coordinate Set */
+      COORDINATE_SET: string;
+    };
     /**
      * HDBSCAN_CLUSTER_ASSIGNMENT_REQUEST
      * @description This is the type that is passed in through the public API.
@@ -4944,8 +4997,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'HDBSCAN_CLUSTER_ASSIGNMENT';
       /**
        * Dependencies
        * @description
@@ -4956,9 +5010,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['HDBSCAN_CLUSTER_ASSIGNMENT_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -4982,6 +5034,11 @@ export interface components {
        */
       ref: string;
     };
+    /** CHECKPOINT_DESCRIPTION_DEPENDENCIES */
+    CHECKPOINT_DESCRIPTION_DEPENDENCIES: {
+      /** Dataset Checkpoint */
+      DATASET_CHECKPOINT: string;
+    };
     /**
      * CHECKPOINT_DESCRIPTION_REQUEST
      * @description This is the type that is passed in through the public API.
@@ -4990,8 +5047,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'CHECKPOINT_DESCRIPTION';
       /**
        * Dependencies
        * @description
@@ -5002,9 +5060,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['CHECKPOINT_DESCRIPTION_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -5023,6 +5079,15 @@ export interface components {
        */
       ref: string;
     };
+    /** QUADTREE_DEPENDENCIES */
+    QUADTREE_DEPENDENCIES: {
+      /** Dataset Checkpoint */
+      DATASET_CHECKPOINT: string;
+      /** Coordinate Set */
+      COORDINATE_SET: string;
+      /** Other Coordinate Sets */
+      OTHER_COORDINATE_SETS?: string[];
+    };
     /**
      * QUADTREE_REQUEST
      * @description This is the type that is passed in through the public API.
@@ -5031,8 +5096,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'QUADTREE';
       /**
        * Dependencies
        * @description
@@ -5043,9 +5109,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['QUADTREE_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -5063,6 +5127,13 @@ export interface components {
        */
       ref: string;
     };
+    /** DUPLICATES_DEPENDENCIES */
+    DUPLICATES_DEPENDENCIES: {
+      /** Quadtree */
+      QUADTREE: string;
+      /** Nn Index */
+      NN_INDEX: string;
+    };
     /**
      * DUPLICATES_REQUEST
      * @description This is the type that is passed in through the public API.
@@ -5071,8 +5142,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'DUPLICATES';
       /**
        * Dependencies
        * @description
@@ -5083,9 +5155,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['DUPLICATES_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -5102,6 +5172,13 @@ export interface components {
        */
       ref: string;
     };
+    /** KEYWORDS_TOPIC_LABEL_DEPENDENCIES */
+    KEYWORDS_TOPIC_LABEL_DEPENDENCIES: {
+      /** Dataset Checkpoint */
+      DATASET_CHECKPOINT: string;
+      /** Topic Label Positions */
+      TOPIC_LABEL_POSITIONS: string;
+    };
     /**
      * KEYWORDS_TOPIC_LABEL_REQUEST
      * @description This is the type that is passed in through the public API.
@@ -5110,8 +5187,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'KEYWORDS_TOPIC_LABEL';
       /**
        * Dependencies
        * @description
@@ -5122,9 +5200,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['KEYWORDS_TOPIC_LABEL_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -5143,6 +5219,13 @@ export interface components {
        */
       ref: string;
     };
+    /** LLM_TOPIC_LABEL_DEPENDENCIES */
+    LLM_TOPIC_LABEL_DEPENDENCIES: {
+      /** Topic Label Positions */
+      TOPIC_LABEL_POSITIONS: string;
+      /** Keywords Topic Label */
+      KEYWORDS_TOPIC_LABEL: string;
+    };
     /**
      * LLM_TOPIC_LABEL_REQUEST
      * @description This is the type that is passed in through the public API.
@@ -5151,8 +5234,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'LLM_TOPIC_LABEL';
       /**
        * Dependencies
        * @description
@@ -5163,9 +5247,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['LLM_TOPIC_LABEL_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -5176,6 +5258,13 @@ export interface components {
        * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
        */
       ref: string;
+    };
+    /** TOPIC_LABEL_POSITIONS_DEPENDENCIES */
+    TOPIC_LABEL_POSITIONS_DEPENDENCIES: {
+      /** Coordinate Set */
+      COORDINATE_SET: string;
+      /** Cluster Assignment */
+      CLUSTER_ASSIGNMENT: string;
     };
     /**
      * TOPIC_LABEL_POSITIONS_REQUEST
@@ -5185,8 +5274,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'TOPIC_LABEL_POSITIONS';
       /**
        * Dependencies
        * @description
@@ -5197,9 +5287,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['TOPIC_LABEL_POSITIONS_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -5211,6 +5299,11 @@ export interface components {
        */
       ref: string;
     };
+    /** MAP_CHECKPOINT_DEPENDENCIES */
+    MAP_CHECKPOINT_DEPENDENCIES: {
+      /** Resources */
+      RESOURCES?: string[];
+    };
     /**
      * MAP_CHECKPOINT_REQUEST
      * @description This is the type that is passed in through the public API.
@@ -5219,8 +5312,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'MAP_CHECKPOINT';
       /**
        * Dependencies
        * @description
@@ -5231,9 +5325,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['MAP_CHECKPOINT_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -5253,6 +5345,13 @@ export interface components {
        */
       ref: string;
     };
+    /** SIDECAR_FROM_PARQUET_DEPENDENCIES */
+    SIDECAR_FROM_PARQUET_DEPENDENCIES: {
+      /** Quadtree */
+      QUADTREE: string;
+      /** Dataset Resource */
+      DATASET_RESOURCE: string;
+    };
     /**
      * SIDECAR_FROM_PARQUET_REQUEST
      * @description This is the type that is passed in through the public API.
@@ -5261,8 +5360,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'SIDECAR_FROM_PARQUET';
       /**
        * Dependencies
        * @description
@@ -5273,9 +5373,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['SIDECAR_FROM_PARQUET_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -5289,6 +5387,13 @@ export interface components {
        */
       ref: string;
     };
+    /** EMBEDDING_SIDECAR_DEPENDENCIES */
+    EMBEDDING_SIDECAR_DEPENDENCIES: {
+      /** Quadtree */
+      QUADTREE: string;
+      /** Embedding Set */
+      EMBEDDING_SET: string;
+    };
     /**
      * EMBEDDING_SIDECAR_REQUEST
      * @description This is the type that is passed in through the public API.
@@ -5297,8 +5402,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'EMBEDDING_SIDECAR';
       /**
        * Dependencies
        * @description
@@ -5309,9 +5415,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['EMBEDDING_SIDECAR_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -5323,6 +5427,13 @@ export interface components {
        */
       ref: string;
     };
+    /** SIDECAR_FROM_DATA_TABLE_DEPENDENCIES */
+    SIDECAR_FROM_DATA_TABLE_DEPENDENCIES: {
+      /** Dataset Checkpoint */
+      DATASET_CHECKPOINT: string;
+      /** Quadtree */
+      QUADTREE: string;
+    };
     /**
      * SIDECAR_FROM_DATA_TABLE_REQUEST
      * @description This is the type that is passed in through the public API.
@@ -5331,8 +5442,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'SIDECAR_FROM_DATA_TABLE';
       /**
        * Dependencies
        * @description
@@ -5343,9 +5455,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['SIDECAR_FROM_DATA_TABLE_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -5359,6 +5469,13 @@ export interface components {
        */
       ref: string;
     };
+    /** CLUSTER_SIDECAR_DEPENDENCIES */
+    CLUSTER_SIDECAR_DEPENDENCIES: {
+      /** Quadtree */
+      QUADTREE: string;
+      /** Cluster Assignment */
+      CLUSTER_ASSIGNMENT: string;
+    };
     /**
      * CLUSTER_SIDECAR_REQUEST
      * @description This is the type that is passed in through the public API.
@@ -5367,8 +5484,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'CLUSTER_SIDECAR';
       /**
        * Dependencies
        * @description
@@ -5379,9 +5497,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['CLUSTER_SIDECAR_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.
@@ -5393,6 +5509,13 @@ export interface components {
        */
       ref: string;
     };
+    /** OPENGRAPH_IMAGE_DEPENDENCIES */
+    OPENGRAPH_IMAGE_DEPENDENCIES: {
+      /** Quadtree */
+      QUADTREE: string;
+      /** Sidecar */
+      SIDECAR: string;
+    };
     /**
      * OPENGRAPH_IMAGE_REQUEST
      * @description This is the type that is passed in through the public API.
@@ -5401,8 +5524,9 @@ export interface components {
       /**
        * Resource Type
        * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       * @enum {string}
        */
-      resource_type: string;
+      resource_type: 'OPENGRAPH_IMAGE';
       /**
        * Dependencies
        * @description
@@ -5413,9 +5537,7 @@ export interface components {
        *         First, in the refs field of the passed list of resources.
        *         Finally, this will be treated as the UUID of a resource in the database.
        */
-      dependencies?: {
-        [key: string]: string | string[];
-      };
+      dependencies: components['schemas']['OPENGRAPH_IMAGE_DEPENDENCIES'];
       /**
        * Dataset Id
        * @description The id of the dataset to use for this resource.

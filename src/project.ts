@@ -14,6 +14,7 @@ import { BaseAtlasClass } from './user.js';
 import { AtlasIndex } from './index.js';
 import { AtlasViewer } from './viewer.js';
 import { components } from './type-gen/openapi.js';
+import { FullMapOptions, MapBuilder, SimpleMapOptions } from './map-builder.js';
 
 type IndexCreateOptions = {
   project_id: string;
@@ -324,5 +325,28 @@ export class AtlasDataset extends BaseAtlasClass<
     table.schema.metadata.set('on_id_conflict_ignore', JSON.stringify(true));
     const data = tableToIPC(table, 'file');
     await this.apiCall(`/v1/project/data/add/arrow`, 'POST', data);
+  }
+
+  /**
+   * Create a map on the dataset. This function specifies the basic
+   * parameters for the map creation process, and uses recommended defaults.
+   * For a more advanced map creation process, use `createMapFromResourceList`.
+   * @param options Options for the map creation.
+   * @returns The created resource.
+   */
+  async createMap(
+    options: SimpleMapOptions | FullMapOptions
+  ): Promise<components['schemas']['ResourceResponse']> {
+    const mapBuilder = this.mapBuilder();
+    mapBuilder.setMapOptions(options);
+    return mapBuilder.buildMap();
+  }
+
+  /**
+   * Get a MapBuilder object for this dataset.
+   * @returns A MapBuilder object.
+   */
+  mapBuilder(): MapBuilder {
+    return new MapBuilder(this);
   }
 }
