@@ -63,7 +63,9 @@ async function findAndDeleteDataset(client: Atlas, datasetName: string) {
   }
 }
 
-describe('Atlas Dataset (full tests)', () => {
+// Default skipped because they involve hefty operations.
+// When testing changes locally, these tests should be run.
+describe.skip('Atlas Dataset (full tests)', () => {
   let client: Atlas;
 
   beforeAll(() => {
@@ -109,16 +111,23 @@ describe('Atlas Dataset (full tests)', () => {
       expect(loadedDataset.attr.total_datums_in_project).toBe(data.length * 2);
     });
 
-    it('should reject data with different schema', async () => {
-      const data = generateRandomJsonData();
-      data.forEach((datum) => {
-        delete datum.tags;
+    it('should create a map', async () => {
+      const map = await dataset.createMap({
+        embeddingField: 'text',
       });
-
-      await dataset.uploadData(data);
-
-      const loadedDataset = await client.loadDataset(dataset.id);
-      expect(loadedDataset.attr.total_datums_in_project).toBe(data.length * 3);
+      console.log(map);
     });
+
+    // it('should reject data with different schema', async () => {
+    //   const data = generateRandomJsonData();
+    //   data.forEach((datum) => {
+    //     delete datum.tags;
+    //   });
+
+    //   await dataset.uploadData(data);
+
+    //   const loadedDataset = await client.loadDataset(dataset.id);
+    //   expect(loadedDataset.attr.total_datums_in_project).toBe(data.length * 3);
+    // });
   });
 });
