@@ -1452,6 +1452,8 @@ export interface components {
       creation_params: Record<string, unknown>;
       /** Secrets */
       secrets?: string;
+      /** User Id */
+      user_id?: string;
     };
     /** ConnectorDatasetCreateRequest */
     ConnectorDatasetCreateRequest: {
@@ -1514,6 +1516,8 @@ export interface components {
       /** Created Timestamp */
       created_timestamp: string;
       datasets: components['schemas']['ConnectorResponseDatasetList'];
+      /** User Id */
+      user_id?: string;
     };
     /** ConnectorResponseDatasetList */
     ConnectorResponseDatasetList: {
@@ -4390,10 +4394,7 @@ export interface components {
        * @description The id of the dataset to use for this resource.
        */
       dataset_id: string;
-      /**
-       * The column to retrieve embeddings from, or None for the unnamed embedding column.
-       * @default embedding
-       */
+      /** The column to retrieve embeddings from, or None for the unnamed embedding column. */
       embedding_target?: string;
       /**
        * Ref
