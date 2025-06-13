@@ -373,8 +373,105 @@ export class AtlasDataset extends BaseAtlasClass<
 
     table.schema.metadata.set('project_id', this.id);
     table.schema.metadata.set('on_id_conflict_ignore', JSON.stringify(true));
+    table.schema.metadata.set('num_rows', table.numRows.toString());
     const data = tableToIPC(table, 'file');
-    await this.apiCall(`/v1/project/data/add/arrow`, 'POST', data);
+    await this.multipartUpload(data);
+  }
+
+  async multipartUpload(ipcBytes: Uint8Array) {
+    const startResponse = (await this.apiCall(
+      `/v1/project/${this.id}/data/upload/start`,
+      'POST',
+      {
+        file_type: 'feather',
+        file_size: ipcBytes.length,
+      }
+    )) as {
+      part_urls: Array<{ part_number: number; url: string }>;
+      upload_id: string;
+      object_id: string;
+    };
+
+    if (!startResponse) {
+      throw new Error('Failed to start multipart upload');
+    }
+
+    const { part_urls, upload_id, object_id } = startResponse;
+    const partSize = 16 * 1024 * 1024; // 16MB parts
+    const partResults = [];
+
+    const uploadPart = async (partInfo: {
+      part_number: number;
+      url: string;
+    }) => {
+      const { part_number, url } = partInfo;
+      const start = (part_number - 1) * partSize;
+      const end = Math.min(start + partSize, ipcBytes.length);
+      const partData = ipcBytes.slice(start, end);
+
+      try {
+        const response = await fetch(url, {
+          method: 'PUT',
+          body: partData,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Part upload failed: ${await response.text()}`);
+        }
+
+        return {
+          part_number,
+          etag: response.headers.get('ETag') || '',
+          url,
+        };
+      } catch (error) {
+        console.error(`Failed to upload part ${part_number}:`, error);
+        throw error;
+      }
+    };
+
+    let failedReqs = 0;
+    const maxRetries = 10;
+
+    for (const partUrl of part_urls) {
+      let success = false;
+      while (!success && failedReqs < maxRetries) {
+        try {
+          const result = await uploadPart(partUrl);
+          partResults.push(result);
+          success = true;
+        } catch (error) {
+          failedReqs++;
+          if (failedReqs >= maxRetries) {
+            throw new Error(
+              'Too many upload requests have failed. Please try again later.'
+            );
+          }
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+      }
+    }
+
+    const completeResponse = await this.apiCall(
+      `/v1/project/${this.id}/data/upload/complete`,
+      'POST',
+      {
+        upload_id,
+        object_id,
+        part_etags: partResults,
+        file_type: 'feather',
+      }
+    );
+
+    if (!completeResponse) {
+      throw new Error('Failed to complete multipart upload');
+    }
+
+    if (failedReqs > 0) {
+      throw new Error(
+        `Upload partially succeeded with ${failedReqs} failed parts`
+      );
+    }
   }
 
   /*
