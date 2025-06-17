@@ -398,7 +398,14 @@ export class AtlasDataset extends BaseAtlasClass<
 
     const { part_urls, upload_id, object_id } = startResponse;
     const partSize = 16 * 1024 * 1024; // 16MB parts
-    const partResults = [];
+    const partResults: Array<{
+      part_number: number;
+      etag: string;
+      url: string;
+    }> = [];
+    let failedReqs = 0;
+    const maxRetries = 10;
+    let nextPartIndex = 0;
 
     const uploadPart = async (partInfo: {
       part_number: number;
@@ -421,7 +428,13 @@ export class AtlasDataset extends BaseAtlasClass<
 
         return {
           part_number,
-          etag: response.headers.get('ETag') || '',
+          etag:
+            response.headers.get('ETag') ||
+            (() => {
+              throw new Error(
+                `Missing ETag header in response for part ${part_number}`
+              );
+            })(),
           url,
         };
       } catch (error) {
@@ -430,27 +443,40 @@ export class AtlasDataset extends BaseAtlasClass<
       }
     };
 
-    let failedReqs = 0;
-    const maxRetries = 10;
+    const do_work = async () => {
+      while (true) {
+        // Atomically get next part index
+        const currentIndex = nextPartIndex++;
+        if (currentIndex >= part_urls.length) break;
 
-    for (const partUrl of part_urls) {
-      let success = false;
-      while (!success && failedReqs < maxRetries) {
-        try {
-          const result = await uploadPart(partUrl);
-          partResults.push(result);
-          success = true;
-        } catch (error) {
-          failedReqs++;
-          if (failedReqs >= maxRetries) {
-            throw new Error(
-              'Too many upload requests have failed. Please try again later.'
+        const partUrl = part_urls[currentIndex];
+        let success = false;
+        let attempts = 0;
+
+        while (!success && attempts < maxRetries) {
+          try {
+            const result = await uploadPart(partUrl);
+            partResults[currentIndex] = result; // Store in correct position
+            success = true;
+          } catch (error) {
+            attempts++;
+            failedReqs++;
+            if (failedReqs >= maxRetries) {
+              throw new Error(
+                'Too many upload requests have failed. Please try again later.'
+              );
+            }
+            // Linear backoff.
+            await new Promise((resolve) =>
+              setTimeout(resolve, 1000 * attempts)
             );
           }
-          await new Promise((resolve) => setTimeout(resolve, 1000));
         }
       }
-    }
+    };
+
+    // Two concurrent workers, hard_coded.
+    await Promise.all([do_work(), do_work()]);
 
     const completeResponse = await this.apiCall(
       `/v1/project/${this.id}/data/upload/complete`,
@@ -468,9 +494,7 @@ export class AtlasDataset extends BaseAtlasClass<
     }
 
     if (failedReqs > 0) {
-      throw new Error(
-        `Upload partially succeeded with ${failedReqs} failed parts`
-      );
+      console.warn(`Upload completed with ${failedReqs} retried parts`);
     }
   }
 

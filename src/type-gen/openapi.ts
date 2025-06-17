@@ -1452,6 +1452,8 @@ export interface components {
       creation_params: Record<string, unknown>;
       /** Secrets */
       secrets?: string;
+      /** User Id */
+      user_id?: string;
     };
     /** ConnectorDatasetCreateRequest */
     ConnectorDatasetCreateRequest: {
@@ -1514,6 +1516,8 @@ export interface components {
       /** Created Timestamp */
       created_timestamp: string;
       datasets: components['schemas']['ConnectorResponseDatasetList'];
+      /** User Id */
+      user_id?: string;
     };
     /** ConnectorResponseDatasetList */
     ConnectorResponseDatasetList: {
@@ -1548,7 +1552,7 @@ export interface components {
       colorable_fields?: string[];
       /**
        * Modality
-       * @description The data modality of the index.
+       * @description The data modality of the index. DEPRECATED
        */
       modality?: string;
       /**
@@ -1711,7 +1715,7 @@ export interface components {
       project_name: string;
       /**
        * Modality
-       * @description The data modality of this project
+       * @description The data modality of this project. DEPRECATED.
        */
       modality?: string;
       /**
@@ -2923,17 +2927,6 @@ export interface components {
        */
       nickname: string;
       /**
-       * Time Created
-       * Format: date-time
-       * @description When this organization was created.
-       */
-      time_created: string;
-      /**
-       * Members
-       * @description All of the organization members with access roles.
-       */
-      members: components['schemas']['OrganizationMembershipWithPicture'][];
-      /**
        * Projects
        * @description All of the organization's projects the requested user can access
        */
@@ -2943,17 +2936,6 @@ export interface components {
        * @description The organization url-safe slug
        */
       slug: string;
-      /**
-       * Organization Type
-       * @description The type of organization: personal, company and academic
-       */
-      organization_type: string;
-      /**
-       * Linked User Account Id
-       * @description The user id of the linked account Atlas account to this organization. Null if there is no linked account.
-       * @example auth0|12345678
-       */
-      linked_user_account_id: string;
       /**
        * @description Access role of user for this organization
        * @default VIEWER
@@ -2977,16 +2959,6 @@ export interface components {
        */
       description?: string;
       /**
-       * Logo Url
-       * @description The url of the organization logo.
-       */
-      logo_url?: string;
-      /**
-       * Website
-       * @description The url of the organization website.
-       */
-      website?: string;
-      /**
        * Stripe Subscription Id
        * @description Stripe subscription id
        * @example sub_e31fd13
@@ -3004,6 +2976,11 @@ export interface components {
        * @description The timestamp the stripe subscription billing period starts
        */
       stripe_subscription_start_timestamp: string;
+      /**
+       * Members
+       * @description All of the organization members with access roles.
+       */
+      members: components['schemas']['OrganizationMembershipWithPicture'][];
       /**
        * Stripe Subscription End Timestamp
        * Format: date-time
@@ -3033,6 +3010,33 @@ export interface components {
        * @enum {string}
        */
       ai_subprocessor: 'openai' | 'aws-bedrock';
+      /**
+       * Organization Type
+       * @description The type of organization: personal, company and academic
+       */
+      organization_type: string;
+      /**
+       * Linked User Account Id
+       * @description The user id of the linked account Atlas account to this organization. Null if there is no linked account.
+       * @example auth0|12345678
+       */
+      linked_user_account_id: string;
+      /**
+       * Time Created
+       * Format: date-time
+       * @description When this organization was created.
+       */
+      time_created: string;
+      /**
+       * Logo Url
+       * @description The url of the organization logo.
+       */
+      logo_url?: string;
+      /**
+       * Website
+       * @description The url of the organization website.
+       */
+      website?: string;
     };
     /** OrganizationUsageResponse */
     OrganizationUsageResponse: {
@@ -3180,7 +3184,7 @@ export interface components {
        * Creator
        * @description The user id who created this project.
        */
-      creator: string;
+      creator?: string;
       /**
        * Description
        * @description A description for this project.
@@ -3214,7 +3218,7 @@ export interface components {
       unique_id_field?: string;
       /**
        * Modality
-       * @description The project modality
+       * @description The project modality. DEPRECATED.
        */
       modality?: string;
       /**
@@ -3252,7 +3256,7 @@ export interface components {
        * Creator Nickname
        * @description The creator nickname
        */
-      creator_nickname: string;
+      creator_nickname?: string;
       /**
        * Creator Picture
        * @description The creator picture
@@ -3379,7 +3383,7 @@ export interface components {
        * Creator
        * @description The user id who created this project.
        */
-      creator: string;
+      creator?: string;
       /**
        * Description
        * @description A description for this project.
@@ -3413,7 +3417,7 @@ export interface components {
       unique_id_field?: string;
       /**
        * Modality
-       * @description The project modality
+       * @description The project modality. DEPRECATED.
        */
       modality?: string;
       /**
@@ -3451,7 +3455,7 @@ export interface components {
        * Creator Nickname
        * @description The creator nickname
        */
-      creator_nickname: string;
+      creator_nickname?: string;
       /**
        * Creator Picture
        * @description The creator picture
@@ -3461,7 +3465,7 @@ export interface components {
        * Nickname
        * @description The nickname who created this project.
        */
-      nickname: string;
+      nickname?: string;
       /**
        * Thumbnail
        * @description The project display thumbnail.
@@ -3584,27 +3588,6 @@ export interface components {
        */
       projects: components['schemas']['ProjectIdName'][];
     };
-    /** PublicOrganizationMembershipWithPicture */
-    PublicOrganizationMembershipWithPicture: {
-      /**
-       * Picture
-       * @description The users profile image
-       */
-      picture?: string;
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description Organization ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
-      /**
-       * Nickname
-       * @description User nickname
-       * @example alice
-       */
-      nickname: string;
-    };
     /** PublicOrganizationResponse */
     PublicOrganizationResponse: {
       /**
@@ -3620,19 +3603,6 @@ export interface components {
        * @example nomicai
        */
       nickname: string;
-      /** @description The plan type this organization is on. */
-      plan_type: components['schemas']['OrganizationPlan'];
-      /**
-       * Time Created
-       * Format: date-time
-       * @description When this organization was created.
-       */
-      time_created: string;
-      /**
-       * Members
-       * @description All of the organization members with access roles.
-       */
-      members: components['schemas']['PublicOrganizationMembershipWithPicture'][];
       /**
        * Projects
        * @description All of the organization's projects the requested user can access
@@ -3643,17 +3613,6 @@ export interface components {
        * @description The organization url-safe slug
        */
       slug: string;
-      /**
-       * Organization Type
-       * @description The type of organization: personal, company and academic
-       */
-      organization_type: string;
-      /**
-       * Linked User Account Id
-       * @description The user id of the linked account Atlas account to this organization. Null if there is no linked account.
-       * @example auth0|12345678
-       */
-      linked_user_account_id: string;
       /**
        * @description Access role of user for this organization
        * @default VIEWER
@@ -3676,16 +3635,6 @@ export interface components {
        * @description A description for this organization.
        */
       description?: string;
-      /**
-       * Logo Url
-       * @description The url of the organization logo.
-       */
-      logo_url?: string;
-      /**
-       * Website
-       * @description The url of the organization website.
-       */
-      website?: string;
     };
     /** RecurringJob */
     RecurringJob: {
@@ -4390,10 +4339,7 @@ export interface components {
        * @description The id of the dataset to use for this resource.
        */
       dataset_id: string;
-      /**
-       * The column to retrieve embeddings from, or None for the unnamed embedding column.
-       * @default embedding
-       */
+      /** The column to retrieve embeddings from, or None for the unnamed embedding column. */
       embedding_target?: string;
       /**
        * Ref
