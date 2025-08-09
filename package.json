@@ -6,6 +6,8 @@
     "dist"
   ],
   "license": "MIT",
+  "repository": "github:nomic-ai/ts-nomic",
+  "homepage": "https://atlas.nomic.ai",
   "module": "./dist/main.js",
   "types": "./dist/main.d.ts",
   "exports": {
