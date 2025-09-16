@@ -36,6 +36,10 @@ export interface paths {
      */
     get: operations['fetch_organization_usage_v1_organization__organization_id_or_slug__usage_get'];
   };
+  '/v1/organization/{organization_id_or_slug}/usage/{usage_type}/within_limit': {
+    /** Check Organization Usage Totals Within Limit */
+    get: operations['check_organization_usage_totals_within_limit_v1_organization__organization_id_or_slug__usage__usage_type__within_limit_get'];
+  };
   '/v1/organization/search/{slug}': {
     /**
      * Fetch Organization Id By Slug
@@ -63,13 +67,6 @@ export interface paths {
      * @description Creates an organization on the free tier and sets the owner to the user sending the request.
      */
     post: operations['create_organization_v1_organization_create_post'];
-  };
-  '/v1/organization/search': {
-    /**
-     * Search User
-     * @description Search user by nickname who is not already in organization
-     */
-    post: operations['search_user_v1_organization_search_post'];
   };
   '/v1/organization/members/add': {
     /** Add Organization Member */
@@ -104,99 +101,6 @@ export interface paths {
      * @description Modifies a user in an organization
      */
     post: operations['modify_organization_member_v1_organization_members_modify_post'];
-  };
-  '/v1/organization/member/invite': {
-    /**
-     * Deprecated Invite Member In Organization
-     * @deprecated
-     * @description Invites a user in an organization
-     */
-    post: operations['deprecated_invite_member_in_organization_v1_organization_member_invite_post'];
-  };
-  '/v1/organization/members/invite': {
-    /**
-     * Invite Member In Organization
-     * @description Invites a user in an organization
-     */
-    post: operations['invite_member_in_organization_v1_organization_members_invite_post'];
-  };
-  '/v1/organization/invitations': {
-    /**
-     * Get Organization Invitations
-     * @description Get organization invitations for user
-     */
-    post: operations['get_organization_invitations_v1_organization_invitations_post'];
-  };
-  '/v1/organization/invitation/{invitation_id}/accept': {
-    /**
-     * Accept Organization Invitation
-     * @description Accepts an invitation to join an organization
-     */
-    post: operations['accept_organization_invitation_v1_organization_invitation__invitation_id__accept_post'];
-  };
-  '/v1/organization/invitation/{invitation_id}/reject': {
-    /**
-     * Reject Organization Invitation
-     * @description Rejects an invitation to join an organization
-     */
-    post: operations['reject_organization_invitation_v1_organization_invitation__invitation_id__reject_post'];
-  };
-  '/v1/organization/invitation/status': {
-    /**
-     * Update Invitation Status
-     * @deprecated
-     * @description Accept or reject invitation
-     */
-    post: operations['update_invitation_status_v1_organization_invitation_status_post'];
-  };
-  '/v1/organization/invitations/pending': {
-    /**
-     * Get Organization Pending Invitations
-     * @description Get organization pending invitations
-     */
-    post: operations['get_organization_pending_invitations_v1_organization_invitations_pending_post'];
-  };
-  '/v1/organization/invitations/delete': {
-    /**
-     * Remove Pending Invitation
-     * @description Delete pending invitation
-     */
-    post: operations['remove_pending_invitation_v1_organization_invitations_delete_post'];
-  };
-  '/v1/organization/{organization_id_or_slug}/access-requests': {
-    /**
-     * Get Organization Access Requests Handler
-     * @description Get organization access requests
-     */
-    get: operations['get_organization_access_requests_handler_v1_organization__organization_id_or_slug__access_requests_get'];
-  };
-  '/v1/organization/access-requests': {
-    /**
-     * Create Organization Access Request Handler
-     * @description Request access to organization
-     */
-    post: operations['create_organization_access_request_handler_v1_organization_access_requests_post'];
-  };
-  '/v1/organization/access-requests/accept': {
-    /**
-     * Accept Organization Access Request Handler
-     * @description Approve a request to access an organization
-     */
-    post: operations['accept_organization_access_request_handler_v1_organization_access_requests_accept_post'];
-  };
-  '/v1/organization/access-requests/reject': {
-    /**
-     * Reject Organization Access Request Handler
-     * @description Reject a request to access an organization
-     */
-    post: operations['reject_organization_access_request_handler_v1_organization_access_requests_reject_post'];
-  };
-  '/v1/organization/access-requests/cancel': {
-    /**
-     * Cancel Organization Access Request Handler
-     * @description Cancel a request to access an organization
-     */
-    post: operations['cancel_organization_access_request_handler_v1_organization_access_requests_cancel_post'];
   };
   '/v1/user/': {
     /** Fetch Current User */
@@ -243,13 +147,19 @@ export interface paths {
     /** Logout */
     get: operations['logout_v1_user_logout_get'];
   };
-  '/v1/project/tags/{project_id}': {
-    /** Get Tags For Project */
-    get: operations['get_tags_for_project_v1_project_tags__project_id__get'];
-    /** Add Tag To Project */
-    post: operations['add_tag_to_project_v1_project_tags__project_id__post'];
-    /** Delete Tag From Project */
-    delete: operations['delete_tag_from_project_v1_project_tags__project_id__delete'];
+  '/v1/user/profile': {
+    /** Get User Profile */
+    get: operations['get_user_profile_v1_user_profile_get'];
+    /** Post User Profile */
+    post: operations['post_user_profile_v1_user_profile_post'];
+  };
+  '/v1/project/{dataset_id}/data/upload/start': {
+    /** Start a multipart upload and returns presigned urls for each part */
+    post: operations['start_upload_v1_project__dataset_id__data_upload_start_post'];
+  };
+  '/v1/project/{dataset_id}/data/upload/complete': {
+    /** Complete a multipart upload */
+    post: operations['complete_upload_v1_project__dataset_id__data_upload_complete_post'];
   };
   '/v1/project/{project_id}': {
     /**
@@ -257,6 +167,18 @@ export interface paths {
      * @description Fetches all details about a project.
      */
     get: operations['fetch_project_v1_project__project_id__get'];
+  };
+  '/v1/project/{project_id}/resources': {
+    /** List all resources that have been created on a dataset */
+    get: operations['list_resources_v1_project__project_id__resources_get'];
+    /**
+     * Create resources for a dataset according to the specified chain
+     * @description Create a chain of resources for a dataset.
+     *
+     * This endpoint allows you to specify a list of resources to create, with their dependencies.
+     * Resources will be created in the correct order based on their dependencies.
+     */
+    post: operations['create_resources_v1_project__project_id__resources_post'];
   };
   '/v1/project/sidebar/list': {
     /**
@@ -283,6 +205,7 @@ export interface paths {
   '/v1/project/update/{project_id}': {
     /**
      * Update Project Metadata
+     * @deprecated
      * @description Edit project metadata.
      */
     post: operations['update_project_metadata_v1_project_update__project_id__post'];
@@ -294,10 +217,6 @@ export interface paths {
   '/v1/project/search/id': {
     /** Search Semantic Id */
     get: operations['search_semantic_id_v1_project_search_id_get'];
-  };
-  '/v1/project/search/name': {
-    /** Project Name Search */
-    post: operations['project_name_search_v1_project_search_name_post'];
   };
   '/v1/project/create': {
     /**
@@ -337,27 +256,19 @@ export interface paths {
      */
     post: operations['data_delete_v1_project_data_delete_post'];
   };
-  '/v1/project/data/update': {
-    /**
-     * Data Update
-     * @description Updates the requested datums. Does not reflect in project/index state until an
-     * index update call if made (transaction commit)
-     */
-    post: operations['data_update_v1_project_data_update_post'];
-  };
-  '/v1/project/data/get/arrow': {
-    /**
-     * Data Get Arrow
-     * @description Export data as arrow format for a project and/or index
-     */
-    post: operations['data_get_arrow_v1_project_data_get_arrow_post'];
-  };
   '/v1/project/data/add/arrow': {
     /**
      * Add Arrow
      * @description Add data to a project in arrow format.
      */
     post: operations['add_arrow_v1_project_data_add_arrow_post'];
+  };
+  '/v1/project/{dataset_id}/last_modified': {
+    /**
+     * Get Last Upload Timestamp
+     * @description Get the last timestamp for a change to lance dataset.
+     */
+    get: operations['get_last_upload_timestamp_v1_project__dataset_id__last_modified_get'];
   };
   '/v1/project/data/add/blobs': {
     /**
@@ -374,24 +285,9 @@ export interface paths {
     /** Nearest Neighbors By Embedding */
     post: operations['nearest_neighbors_by_embedding_v1_project_data_get_nearest_neighbors_by_embedding_post'];
   };
-  '/v1/project/data/get/arrow/nearest_neighbors/by_id': {
-    /** Nearest Neighbors By Ids Arrow */
-    post: operations['nearest_neighbors_by_ids_arrow_v1_project_data_get_arrow_nearest_neighbors_by_id_post'];
-  };
   '/v1/project/data/get/nearest_neighbors/by_id': {
     /** Nearest Neighbors By Ids */
     post: operations['nearest_neighbors_by_ids_v1_project_data_get_nearest_neighbors_by_id_post'];
-  };
-  '/v1/project/data/get/embedding/topic': {
-    /** Data Topic Query */
-    post: operations['data_topic_query_v1_project_data_get_embedding_topic_post'];
-  };
-  '/v1/project/data/get/embedding/paged': {
-    /**
-     * Get Embedding Page Endpoint
-     * @description Get a page of embedding data for a project
-     */
-    post: operations['get_embedding_page_endpoint_v1_project_data_get_embedding_paged_post'];
   };
   '/v1/project/projection/{map_id}/datums': {
     /**
@@ -399,10 +295,19 @@ export interface paths {
      * @description Get a table of datums for a map
      */
     get: operations['datum_table_v1_project_projection__map_id__datums_get'];
+    /**
+     * Datum Table Post
+     * @description Get a table of datums for a map via POST request
+     */
+    post: operations['datum_table_post_v1_project_projection__map_id__datums_post'];
   };
   '/v1/project/data/get': {
     /** Get Datums By Ids Handler */
     post: operations['get_datums_by_ids_handler_v1_project_data_get_post'];
+  };
+  '/v1/project/{dataset_id}/data/get': {
+    /** Get Datums By Field Name */
+    get: operations['get_datums_by_field_name_v1_project__dataset_id__data_get_get'];
   };
   '/v1/project/atoms/get': {
     /** Atoms Get */
@@ -453,10 +358,6 @@ export interface paths {
     /** Fetch Schema */
     get: operations['fetch_schema_v1_project_projection__projection_id__schema_get'];
   };
-  '/v1/project/{atlas_index_id}/topic_density': {
-    /** Topic Density */
-    post: operations['topic_density_v1_project__atlas_index_id__topic_density_post'];
-  };
   '/v1/project/{project_id}/index/projection/{projection_id}': {
     /**
      * Fetch Map Information
@@ -494,14 +395,6 @@ export interface paths {
      */
     post: operations['update_topic_model_v1_project_topics_update__topic_model_id__post'];
   };
-  '/v1/project/search/user': {
-    /**
-     * Search User
-     * @description Searches against users by nickname and email who are non in the organization of the user performing search.
-     * This endpoint is used when attempting to invite users to an organization.
-     */
-    post: operations['search_user_v1_project_search_user_post'];
-  };
   '/v1/project/{organization_slug}/project/{project_slug}': {
     /**
      * Fetch Project By Slug
@@ -534,6 +427,25 @@ export interface paths {
     /** Get Project Id From Map Id */
     get: operations['get_project_id_from_map_id_v1_project_projection__map_id__get_dataset_id_get'];
   };
+  '/v1/project/analyst/log': {
+    /** Log Analyst Request */
+    post: operations['log_analyst_request_v1_project_analyst_log_post'];
+  };
+  '/v1/project/analyst/log/{log_id}/rating': {
+    /** Update Analyst Log Rating */
+    put: operations['update_analyst_log_rating_v1_project_analyst_log__log_id__rating_put'];
+  };
+  '/v1/project/analyst/log/{log_id}/flag': {
+    /** Update Analyst Log Flag */
+    put: operations['update_analyst_log_flag_v1_project_analyst_log__log_id__flag_put'];
+  };
+  '/v1/project/projection/from_index/{index_id}': {
+    /**
+     * Get Projection From Index
+     * @description Get the projection ID associated with an atlas index ID.
+     */
+    get: operations['get_projection_from_index_v1_project_projection_from_index__index_id__get'];
+  };
   '/v1/project/{dataset_id}/members/': {
     /**
      * Get Dataset Members
@@ -556,13 +468,13 @@ export interface paths {
      */
     post: operations['remove_dataset_member_v1_project__dataset_id__members_delete_post'];
   };
-  '/v1/dataset/tags/{project_id}': {
-    /** Get Tags For Project */
-    get: operations['get_tags_for_project_v1_dataset_tags__project_id__get'];
-    /** Add Tag To Project */
-    post: operations['add_tag_to_project_v1_dataset_tags__project_id__post'];
-    /** Delete Tag From Project */
-    delete: operations['delete_tag_from_project_v1_dataset_tags__project_id__delete'];
+  '/v1/dataset/{dataset_id}/data/upload/start': {
+    /** Start a multipart upload and returns presigned urls for each part */
+    post: operations['start_upload_v1_dataset__dataset_id__data_upload_start_post'];
+  };
+  '/v1/dataset/{dataset_id}/data/upload/complete': {
+    /** Complete a multipart upload */
+    post: operations['complete_upload_v1_dataset__dataset_id__data_upload_complete_post'];
   };
   '/v1/dataset/{project_id}': {
     /**
@@ -570,6 +482,18 @@ export interface paths {
      * @description Fetches all details about a project.
      */
     get: operations['fetch_project_v1_dataset__project_id__get'];
+  };
+  '/v1/dataset/{project_id}/resources': {
+    /** List all resources that have been created on a dataset */
+    get: operations['list_resources_v1_dataset__project_id__resources_get'];
+    /**
+     * Create resources for a dataset according to the specified chain
+     * @description Create a chain of resources for a dataset.
+     *
+     * This endpoint allows you to specify a list of resources to create, with their dependencies.
+     * Resources will be created in the correct order based on their dependencies.
+     */
+    post: operations['create_resources_v1_dataset__project_id__resources_post'];
   };
   '/v1/dataset/sidebar/list': {
     /**
@@ -596,6 +520,7 @@ export interface paths {
   '/v1/dataset/update/{project_id}': {
     /**
      * Update Project Metadata
+     * @deprecated
      * @description Edit project metadata.
      */
     post: operations['update_project_metadata_v1_dataset_update__project_id__post'];
@@ -607,10 +532,6 @@ export interface paths {
   '/v1/dataset/search/id': {
     /** Search Semantic Id */
     get: operations['search_semantic_id_v1_dataset_search_id_get'];
-  };
-  '/v1/dataset/search/name': {
-    /** Project Name Search */
-    post: operations['project_name_search_v1_dataset_search_name_post'];
   };
   '/v1/dataset/create': {
     /**
@@ -650,27 +571,19 @@ export interface paths {
      */
     post: operations['data_delete_v1_dataset_data_delete_post'];
   };
-  '/v1/dataset/data/update': {
-    /**
-     * Data Update
-     * @description Updates the requested datums. Does not reflect in project/index state until an
-     * index update call if made (transaction commit)
-     */
-    post: operations['data_update_v1_dataset_data_update_post'];
-  };
-  '/v1/dataset/data/get/arrow': {
-    /**
-     * Data Get Arrow
-     * @description Export data as arrow format for a project and/or index
-     */
-    post: operations['data_get_arrow_v1_dataset_data_get_arrow_post'];
-  };
   '/v1/dataset/data/add/arrow': {
     /**
      * Add Arrow
      * @description Add data to a project in arrow format.
      */
     post: operations['add_arrow_v1_dataset_data_add_arrow_post'];
+  };
+  '/v1/dataset/{dataset_id}/last_modified': {
+    /**
+     * Get Last Upload Timestamp
+     * @description Get the last timestamp for a change to lance dataset.
+     */
+    get: operations['get_last_upload_timestamp_v1_dataset__dataset_id__last_modified_get'];
   };
   '/v1/dataset/data/add/blobs': {
     /**
@@ -687,24 +600,9 @@ export interface paths {
     /** Nearest Neighbors By Embedding */
     post: operations['nearest_neighbors_by_embedding_v1_dataset_data_get_nearest_neighbors_by_embedding_post'];
   };
-  '/v1/dataset/data/get/arrow/nearest_neighbors/by_id': {
-    /** Nearest Neighbors By Ids Arrow */
-    post: operations['nearest_neighbors_by_ids_arrow_v1_dataset_data_get_arrow_nearest_neighbors_by_id_post'];
-  };
   '/v1/dataset/data/get/nearest_neighbors/by_id': {
     /** Nearest Neighbors By Ids */
     post: operations['nearest_neighbors_by_ids_v1_dataset_data_get_nearest_neighbors_by_id_post'];
-  };
-  '/v1/dataset/data/get/embedding/topic': {
-    /** Data Topic Query */
-    post: operations['data_topic_query_v1_dataset_data_get_embedding_topic_post'];
-  };
-  '/v1/dataset/data/get/embedding/paged': {
-    /**
-     * Get Embedding Page Endpoint
-     * @description Get a page of embedding data for a project
-     */
-    post: operations['get_embedding_page_endpoint_v1_dataset_data_get_embedding_paged_post'];
   };
   '/v1/dataset/projection/{map_id}/datums': {
     /**
@@ -712,10 +610,19 @@ export interface paths {
      * @description Get a table of datums for a map
      */
     get: operations['datum_table_v1_dataset_projection__map_id__datums_get'];
+    /**
+     * Datum Table Post
+     * @description Get a table of datums for a map via POST request
+     */
+    post: operations['datum_table_post_v1_dataset_projection__map_id__datums_post'];
   };
   '/v1/dataset/data/get': {
     /** Get Datums By Ids Handler */
     post: operations['get_datums_by_ids_handler_v1_dataset_data_get_post'];
+  };
+  '/v1/dataset/{dataset_id}/data/get': {
+    /** Get Datums By Field Name */
+    get: operations['get_datums_by_field_name_v1_dataset__dataset_id__data_get_get'];
   };
   '/v1/dataset/atoms/get': {
     /** Atoms Get */
@@ -766,10 +673,6 @@ export interface paths {
     /** Fetch Schema */
     get: operations['fetch_schema_v1_dataset_projection__projection_id__schema_get'];
   };
-  '/v1/dataset/{atlas_index_id}/topic_density': {
-    /** Topic Density */
-    post: operations['topic_density_v1_dataset__atlas_index_id__topic_density_post'];
-  };
   '/v1/dataset/{project_id}/index/projection/{projection_id}': {
     /**
      * Fetch Map Information
@@ -807,14 +710,6 @@ export interface paths {
      */
     post: operations['update_topic_model_v1_dataset_topics_update__topic_model_id__post'];
   };
-  '/v1/dataset/search/user': {
-    /**
-     * Search User
-     * @description Searches against users by nickname and email who are non in the organization of the user performing search.
-     * This endpoint is used when attempting to invite users to an organization.
-     */
-    post: operations['search_user_v1_dataset_search_user_post'];
-  };
   '/v1/dataset/{organization_slug}/project/{project_slug}': {
     /**
      * Fetch Project By Slug
@@ -846,6 +741,25 @@ export interface paths {
   '/v1/dataset/projection/{map_id}/get/dataset_id': {
     /** Get Project Id From Map Id */
     get: operations['get_project_id_from_map_id_v1_dataset_projection__map_id__get_dataset_id_get'];
+  };
+  '/v1/dataset/analyst/log': {
+    /** Log Analyst Request */
+    post: operations['log_analyst_request_v1_dataset_analyst_log_post'];
+  };
+  '/v1/dataset/analyst/log/{log_id}/rating': {
+    /** Update Analyst Log Rating */
+    put: operations['update_analyst_log_rating_v1_dataset_analyst_log__log_id__rating_put'];
+  };
+  '/v1/dataset/analyst/log/{log_id}/flag': {
+    /** Update Analyst Log Flag */
+    put: operations['update_analyst_log_flag_v1_dataset_analyst_log__log_id__flag_put'];
+  };
+  '/v1/dataset/projection/from_index/{index_id}': {
+    /**
+     * Get Projection From Index
+     * @description Get the projection ID associated with an atlas index ID.
+     */
+    get: operations['get_projection_from_index_v1_dataset_projection_from_index__index_id__get'];
   };
   '/v1/dataset/{dataset_id}/members/': {
     /**
@@ -883,17 +797,10 @@ export interface paths {
      */
     post: operations['stripe_subscription_v1_stripe_subscribe_post'];
   };
-  '/v1/stripe/set_organization_limits': {
-    /**
-     * Set Organization Billing Limits
-     * @description Sets the organization billing limits
-     */
-    post: operations['set_organization_billing_limits_v1_stripe_set_organization_limits_post'];
-  };
   '/v1/stripe/cancel': {
     /**
      * Cancel Stripe Subscription
-     * @description Create stripe subscription checkout session url and send it to front end
+     * @description Cancels a stripe subscription. Used internally for unit tests.
      */
     post: operations['cancel_stripe_subscription_v1_stripe_cancel_post'];
   };
@@ -1071,10 +978,6 @@ export interface paths {
     /** Tag Projection Job Request */
     post: operations['tag_projection_job_request_v1_project_projection_tags_robotag_post'];
   };
-  '/v1/reduce/': {
-    /** Reduce Dimensionality By Embedding */
-    post: operations['reduce_dimensionality_by_embedding_v1_reduce__post'];
-  };
   '/v1/search/datasets': {
     /**
      * Fetch Datasets By Query
@@ -1082,13 +985,172 @@ export interface paths {
      */
     get: operations['fetch_datasets_by_query_v1_search_datasets_get'];
   };
-  '/sketch/resource/{dataset_id}/{resource_id}': {
-    /** Returns the resource info */
-    get: operations['resource_info_sketch_resource__dataset_id___resource_id__get'];
+  '/v1/connector/': {
+    /**
+     * Create Connector Handler
+     * @description Create a new connector for the organization.
+     */
+    post: operations['create_connector_handler_v1_connector__post'];
   };
-  '/sketch/resource/{dataset_id}/create': {
-    /** Creates a resource */
-    post: operations['create_sketch_resource__dataset_id__create_post'];
+  '/v1/connector/{connector_id}': {
+    /**
+     * Get Connector Handler
+     * @description Get a specific connector by ID.
+     */
+    get: operations['get_connector_handler_v1_connector__connector_id__get'];
+    /**
+     * Update Connector Handler
+     * @description Update a specific connector.
+     */
+    put: operations['update_connector_handler_v1_connector__connector_id__put'];
+    /**
+     * Delete Connector Handler
+     * @description Delete a specific connector.
+     */
+    delete: operations['delete_connector_handler_v1_connector__connector_id__delete'];
+  };
+  '/v1/connector/{connector_id}/dataset': {
+    /**
+     * Create Connector Dataset Handler
+     * @description Create a new dataset through a specific connector.
+     */
+    post: operations['create_connector_dataset_handler_v1_connector__connector_id__dataset_post'];
+  };
+  '/v1/connector/{connector_id}/dataset/{dataset_id}': {
+    /**
+     * Update Connector Dataset Handler
+     * @description Update a specific connector dataset's metadata.
+     */
+    put: operations['update_connector_dataset_handler_v1_connector__connector_id__dataset__dataset_id__put'];
+  };
+  '/v1/connector/snowflake/preview': {
+    /**
+     * Get Snowflake Preview Handler
+     * @description Get a preview of the data in a snowflake table.
+     */
+    post: operations['get_snowflake_preview_handler_v1_connector_snowflake_preview_post'];
+  };
+  '/v1/connector/snowflake/ingest-and-build': {
+    /**
+     * Ingest Snowflake Data Handler
+     * @description Ingest data from a snowflake table.
+     */
+    post: operations['ingest_snowflake_data_handler_v1_connector_snowflake_ingest_and_build_post'];
+  };
+  '/v1/recurring_jobs/dataset/{dataset_id}': {
+    /**
+     * Get Dataset Recurring Jobs
+     * @description Get all recurring jobs for a dataset.
+     */
+    get: operations['get_dataset_recurring_jobs_v1_recurring_jobs_dataset__dataset_id__get'];
+    /**
+     * Create Dataset Recurring Job
+     * @description Create a new recurring job for a dataset.
+     */
+    post: operations['create_dataset_recurring_job_v1_recurring_jobs_dataset__dataset_id__post'];
+  };
+  '/v1/recurring_jobs/dataset/{dataset_id}/{job_id}': {
+    /**
+     * Delete Dataset Recurring Job
+     * @description Delete a recurring job for a dataset.
+     */
+    delete: operations['delete_dataset_recurring_job_v1_recurring_jobs_dataset__dataset_id___job_id__delete'];
+    /**
+     * Update Dataset Recurring Job
+     * @description Update a recurring job for a dataset.
+     */
+    patch: operations['update_dataset_recurring_job_v1_recurring_jobs_dataset__dataset_id___job_id__patch'];
+  };
+  '/v1/recurring_jobs/create/zendesk_connector': {
+    /**
+     * Create Recurring Connector Builds
+     * @description Create a recurring job for a zendesk connector.
+     */
+    post: operations['create_recurring_connector_builds_v1_recurring_jobs_create_zendesk_connector_post'];
+  };
+  '/v1/recurring_jobs/dataset/{dataset_id}/recurring_map_builds': {
+    /**
+     * Get Recurring Map Builds
+     * @description Get all recurring map builds for a dataset.
+     */
+    get: operations['get_recurring_map_builds_v1_recurring_jobs_dataset__dataset_id__recurring_map_builds_get'];
+  };
+  '/v1/parsing/parse': {
+    /** Parse */
+    post: operations['parse_v1_parsing_parse_post'];
+  };
+  '/v1/parse': {
+    /**
+     * Parse files into structured information
+     * @description Parse a file into structured information.
+     *
+     *         Supports PDF files with configurable chunking strategies and optional embedding generation.
+     */
+    post: operations['parse_v1_parse_post'];
+  };
+  '/v1/parsing/job/{job_id}': {
+    /**
+     * Get Job Status
+     * @description Get the status of a parsing job.
+     */
+    get: operations['get_job_status_v1_parsing_job__job_id__get'];
+  };
+  '/v1/parse/task/{task_id}': {
+    /**
+     * Cancel a parsing task
+     * @description Cancel a parsing task.
+     */
+    delete: operations['cancel_job_v1_parse_task__task_id__delete'];
+  };
+  '/v1/parsing/job/{task_id}': {
+    /** Cancel Job */
+    delete: operations['cancel_job_v1_parsing_job__task_id__delete'];
+  };
+  '/v1/upload': {
+    /**
+     * Get URLs to upload files
+     * @description Get URLs to upload files and use in different tasks (parsing, extraction, etc.).
+     */
+    post: operations['upload_v1_upload_post'];
+  };
+  '/v1/render': {
+    /**
+     * Render a PDF document into images
+     * @description Render a PDF document into images.
+     */
+    post: operations['render_v1_render_post'];
+  };
+  '/v1/render/render': {
+    /** Render */
+    post: operations['render_v1_render_render_post'];
+  };
+  '/v1/render/job/{job_id}': {
+    /**
+     * Get Job Status
+     * @description Get the status of a parsing job.
+     */
+    get: operations['get_job_status_v1_render_job__job_id__get'];
+  };
+  '/v1/status/{task_id}': {
+    /**
+     * Get the status of a task
+     * @description Get the status of a task (parsing, extraction).
+     */
+    get: operations['get_job_status_v1_status__task_id__get'];
+  };
+  '/v1/status/tasks/events': {
+    /**
+     * Get Organization Events
+     * @description Get the task events for an organization.
+     */
+    get: operations['get_organization_events_v1_status_tasks_events_get'];
+  };
+  '/v1/extract': {
+    /**
+     * Get specific data from your files using a template
+     * @description Extract specific information from your files (like names, dates, amounts) by providing a template (JSON schema) of what you want to find.
+     */
+    post: operations['extract_v1_extract_post'];
   };
 }
 
@@ -1109,7 +1171,8 @@ export interface components {
        */
       key_role?:
         | components['schemas']['AccessRole']
-        | components['schemas']['DatasetRole'];
+        | components['schemas']['DatasetRole']
+        | null;
       /**
        * @description The scope of the API key: ORGANIZATION, DATASET, or USER
        * @default ORGANIZATION
@@ -1117,10 +1180,9 @@ export interface components {
       key_scope?: components['schemas']['APIKeyScopeType'];
       /**
        * Key Target Id
-       * Format: uuid
        * @description The UUID representing a dataset id or an organization id
        */
-      key_target_id?: string;
+      key_target_id?: string | null;
     };
     /** APIKeyCreationResponse */
     APIKeyCreationResponse: {
@@ -1140,9 +1202,8 @@ export interface components {
       /**
        * User Id
        * @description User id
-       * @example auth0|12345678
        */
-      user_id?: string;
+      user_id?: string | null;
     };
     /** APIKeyListItem */
     APIKeyListItem: {
@@ -1173,13 +1234,11 @@ export interface components {
     };
     /**
      * APIKeyScopeType
-     * @description An enumeration.
      * @enum {string}
      */
     APIKeyScopeType: 'ORGANIZATION' | 'DATASET' | 'USER';
     /**
      * AccessRole
-     * @description An enumeration.
      * @enum {string}
      */
     AccessRole:
@@ -1190,68 +1249,102 @@ export interface components {
       | 'EXTERNAL'
       | 'GUEST'
       | 'NONE';
+    /** AddArrowSuccessResponse */
+    AddArrowSuccessResponse: {
+      /**
+       * Result
+       * @default ok
+       */
+      result?: string;
+      /** Checkpoint */
+      checkpoint?: number | null;
+      /**
+       * Latest Addition Timestamp
+       * @description The timestamp of the added file in epoch time
+       */
+      latest_addition_timestamp: number;
+    };
     /** AddBlobResponse */
     AddBlobResponse: {
       /**
        * Hashes
        * @description The hashes of the blobs
        */
-      hashes: string[];
+      hashes: (string | null)[];
     };
     /** AddUserRequest */
     AddUserRequest: {
       /**
        * User Id
        * @description Unique user id
-       * @example auth0|12345678
        */
-      user_id?: string;
+      user_id?: string | null;
       /**
        * Email
        * @description The email address associated with an Atlas account
-       * @example jane@doe.com
        */
-      email?: string;
-      /**
-       * @description The access role the new user should have: MEMBER, ADMIN, OWNER
-       * @example MEMBER
-       */
+      email?: string | null;
+      /** @description The access role the new user should have: MEMBER, ADMIN, OWNER */
       access_role: components['schemas']['AccessRole'];
       /**
        * Organization Id
-       * Format: uuid
        * @description Unique organization id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       organization_id: string;
+    };
+    /** AnalystInfo */
+    AnalystInfo: {
+      /**
+       * Billed Organization Id
+       * @description The billed organization id. None for anonymous users.
+       */
+      billed_organization_id?: string | null;
+      /**
+       * Ai Subprocessor
+       * @description The model to use for analysis
+       * @default openai
+       * @enum {string}
+       */
+      ai_subprocessor?: 'openai' | 'aws-bedrock';
+      /**
+       * Remaining Queries
+       * @description The number of requests remaining for the month
+       * @default 0
+       */
+      remaining_queries?: number;
+    };
+    /** AnalystLogUpdateFlagRequest */
+    AnalystLogUpdateFlagRequest: {
+      /** Response Flag */
+      response_flag?: string | null;
+    };
+    /** AnalystLogUpdateRatingRequest */
+    AnalystLogUpdateRatingRequest: {
+      /** Response Rating */
+      response_rating?: number | null;
     };
     /** AtlasIndex */
     AtlasIndex: {
       /**
        * Id
-       * Format: uuid
        * @description Index ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       id: string;
       /**
        * Project Id
-       * Format: uuid
        * @description The project this index belongs to
-       * @example 43adcf85-84ed-4e3a-9519-17c72682f905
        */
       project_id: string;
       /**
        * Index Name
        * @description The name of the index
-       * @example My Test Index
        */
       index_name: string;
       /**
        * Indexed Field
        * @description The field that was indexed in the datums.
        */
-      indexed_field: string;
+      indexed_field: string | null;
       /**
        * Created Timestamp
        * Format: date-time
@@ -1315,34 +1408,22 @@ export interface components {
       organization_seats: number;
       /** Embedding Models */
       embedding_models: components['schemas']['EmbeddingModelInferenceUsage'][];
-    };
-    /**
-     * AtlasViewer
-     * @description We may not really want this, but I'd feel mucy safer if we had an internal model
-     * indicating the user who is accessing the data; this would allow us to be
-     * more fine-grained in our access controls. We have used this model of attaching the
-     * viewer to the class in atlas-next and it has worked well.
-     *
-     * It's optional in this PR, though.
-     */
-    AtlasViewer: {
-      /** Id */
-      id: string;
+      /**
+       * Advanced Analysis Usage
+       * @description The number of advanced analysis calls used.
+       */
+      advanced_analysis_usage?: number | null;
     };
     /** AtomsRequest */
     AtomsRequest: {
       /**
        * Project Id
-       * Format: uuid
        * @description Unique project id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       project_id: string;
       /**
        * Index Id
-       * Format: uuid
        * @description Unique index id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       index_id: string;
       /**
@@ -1357,10 +1438,10 @@ export interface components {
        * Atoms
        * @description The data for each atom, keyed by its atom_id
        */
-      atoms: Record<string, unknown>;
+      atoms: {
+        [key: string]: unknown;
+      };
     };
-    /** BaseModel */
-    BaseModel: Record<string, unknown>;
     /** Body_add_blob_v1_dataset_data_add_blobs_post */
     Body_add_blob_v1_dataset_data_add_blobs_post: {
       /**
@@ -1372,14 +1453,14 @@ export interface components {
        * Content Type
        * @description The content types of the blobs.
        */
-      content_type?: unknown[] | string;
+      content_type?: unknown[] | string | null;
       /** Urls */
-      urls?: string[];
+      urls?: string[] | null;
       /**
        * Blobs
        * @description A batch of blobs you want to upload to Atlas
        */
-      blobs?: string[];
+      blobs?: string[] | null;
     };
     /** Body_add_blob_v1_project_data_add_blobs_post */
     Body_add_blob_v1_project_data_add_blobs_post: {
@@ -1392,14 +1473,14 @@ export interface components {
        * Content Type
        * @description The content types of the blobs.
        */
-      content_type?: unknown[] | string;
+      content_type?: unknown[] | string | null;
       /** Urls */
-      urls?: string[];
+      urls?: string[] | null;
       /**
        * Blobs
        * @description A batch of blobs you want to upload to Atlas
        */
-      blobs?: string[];
+      blobs?: string[] | null;
     };
     /** Body_embed_image_v1_embedding_image_post */
     Body_embed_image_v1_embedding_image_post: {
@@ -1409,27 +1490,130 @@ export interface components {
        */
       model?: components['schemas']['NomicVisionEmbeddingModel'];
       /** Urls */
-      urls?: string[];
+      urls?: string[] | null;
       /**
        * Images
        * @description A batch of image bytes you want to embed
        */
-      images?: string[];
+      images?: string[] | null;
+    };
+    /** ConnectorCreateRequest */
+    ConnectorCreateRequest: {
+      /** Connector Name */
+      connector_name: string;
+      /** Organization Id */
+      organization_id: string;
+      /** Creation Params */
+      creation_params: {
+        [key: string]: unknown;
+      };
+      /** Secrets */
+      secrets?: string | null;
+      /** User Id */
+      user_id?: string | null;
+    };
+    /** ConnectorDatasetCreateRequest */
+    ConnectorDatasetCreateRequest: {
+      /** Connector Name */
+      connector_name: string;
+      /** Creation Params */
+      creation_params: {
+        [key: string]: unknown;
+      };
+      create_dataset_params: components['schemas']['CreateProjectRequest'];
+      /**
+       * Metadata
+       * @description Metadata with which to initialize the connector
+       * @default {}
+       */
+      metadata?: {
+        [key: string]: unknown;
+      };
+    };
+    /** ConnectorDatasetDetails */
+    ConnectorDatasetDetails: {
+      /** Id */
+      id: string;
+      /** Creation Params */
+      creation_params: {
+        [key: string]: unknown;
+      };
+      /** Metadata */
+      metadata: {
+        [key: string]: unknown;
+      };
+    };
+    /** ConnectorDatasetResponse */
+    ConnectorDatasetResponse: {
+      created_dataset: components['schemas']['ProjectCreatedResponse'];
+      /** Creation Params */
+      creation_params: {
+        [key: string]: unknown;
+      };
+      /** Metadata */
+      metadata: {
+        [key: string]: unknown;
+      };
+    };
+    /** ConnectorDatasetUpdateRequest */
+    ConnectorDatasetUpdateRequest: {
+      /**
+       * Metadata
+       * @description New key-value pairs to assign in the connector
+       * @default {}
+       */
+      metadata?: {
+        [key: string]: unknown;
+      };
+    };
+    /** ConnectorResponse */
+    ConnectorResponse: {
+      /** Id */
+      id: string;
+      /** Connector Name */
+      connector_name: string;
+      /** Metadata */
+      metadata?: {
+        [key: string]: unknown;
+      } | null;
+      /** Creation Params */
+      creation_params: {
+        [key: string]: unknown;
+      };
+      /** Secrets */
+      secrets?: string | null;
+      /** Created Timestamp */
+      created_timestamp: string;
+      datasets: components['schemas']['ConnectorResponseDatasetList'];
+      /** User Id */
+      user_id?: string | null;
+    };
+    /** ConnectorResponseDatasetList */
+    ConnectorResponseDatasetList: {
+      /** Data */
+      data: string[];
+    };
+    /** ConnectorUpdateRequest */
+    ConnectorUpdateRequest: {
+      /** Creation Params */
+      creation_params?: {
+        [key: string]: unknown;
+      } | null;
+      /** Secrets */
+      secrets?: string | null;
     };
     /** CreateAtlasIndexRequest */
     CreateAtlasIndexRequest: {
       /**
        * Project Id
-       * Format: uuid
        * @description Unique project id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       project_id: string;
       /**
        * Index Name
        * @description The name of the index you are building.
        */
-      index_name?: string;
+      index_name?: string | null;
       /**
        * Colorable Fields
        * @description The fields that can be colored by.
@@ -1438,19 +1622,19 @@ export interface components {
       colorable_fields?: string[];
       /**
        * Modality
-       * @description The data modality of the index.
+       * @description The data modality of the index. DEPRECATED
        */
-      modality?: string;
+      modality?: string | null;
       /**
        * Reuse Atoms And Embeddings From
        * @description If passed, will reuse atoms and embeddings from the specified index
        */
-      reuse_atoms_and_embeddings_from?: string;
+      reuse_atoms_and_embeddings_from?: string | null;
       /**
        * Indexed Field
        * @description The field this index is indexing. Should be set to None for embedding projects.
        */
-      indexed_field: string;
+      indexed_field: string | null;
       /**
        * Atomizer Strategies
        * @description The atomizer strategies to use when building this index. Should be set to None for embedding projects.
@@ -1458,7 +1642,7 @@ export interface components {
        *   "document"
        * ]
        */
-      atomizer_strategies?: string[];
+      atomizer_strategies?: string[] | null;
       /**
        * Geometry Strategies
        * @description The sets of geometry strategies to use when building this index. Should be set to None for embedding projects.
@@ -1468,17 +1652,17 @@ export interface components {
        *   ]
        * ]
        */
-      geometry_strategies?: string[][];
+      geometry_strategies?: string[][] | null;
       /**
        * Model
        * @description The model to encode your data with. Should be set to None for embedding projects.
        */
-      model: string;
+      model: string | null;
       /**
        * Model Hyperparameters
        * @description JSON representation of hyperparameters to train the model with. Should be set to None for embedding projects.
        */
-      model_hyperparameters: string;
+      model_hyperparameters: string | null;
       /**
        * Nearest Neighbor Index
        * @description The nearest neighbor index to build.
@@ -1516,16 +1700,35 @@ export interface components {
        * @description Build index from new storage format (Experimental)
        * @default false
        */
-      build_from_versioned_dataset?: boolean;
+      build_from_versioned_dataset?: boolean | null;
+      /**
+       * Build Map Using Resources
+       * @description Build map using resources
+       */
+      build_map_using_resources?: boolean | null;
+      /**
+       * Upload Checkpoint
+       * @description checkpoint indentifier, resolves to the earliest version that has ingested data up to specified point
+       */
+      upload_checkpoint?: number | null;
+      /**
+       * Latest Addition Timestamp
+       * @description timestamp of the latest addition to the dataset, used to determine the upload checkpoint
+       */
+      latest_addition_timestamp?: number | null;
     };
     /** CreateAtlasIndexResponse */
     CreateAtlasIndexResponse: {
       /**
        * Job Id
-       * Format: uuid
        * @description The job id of the index creation job.
        */
       job_id: string;
+      /**
+       * Projection Id
+       * @description The projection id created by a resource-path map.
+       */
+      projection_id?: string | null;
     };
     /** CreateOrganizationRequest */
     CreateOrganizationRequest: {
@@ -1538,17 +1741,17 @@ export interface components {
        * Description
        * @description A description of the organization.
        */
-      description?: string;
+      description?: string | null;
       /**
        * Logo Url
        * @description The logo of the organization.
        */
-      logo_url?: string;
+      logo_url?: string | null;
       /**
        * Website
        * @description The website of the organization.
        */
-      website?: string;
+      website?: string | null;
       /**
        * Organization Type
        * @description The type of organization.
@@ -1561,7 +1764,6 @@ export interface components {
       /**
        * Organization Id
        * @description Organization ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       organization_id: string;
     };
@@ -1569,27 +1771,24 @@ export interface components {
     CreateProjectRequest: {
       /**
        * Organization Id
-       * Format: uuid
        * @description Unique organization id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       organization_id: string;
       /**
        * Project Name
        * @description The name of the project
-       * @example example-project
        */
       project_name: string;
       /**
        * Modality
-       * @description The data modality of this project
+       * @description The data modality of this project. DEPRECATED.
        */
-      modality?: string;
+      modality?: string | null;
       /**
        * Unique Id Field
-       * @description The unique ID field of the project.
+       * @description DEPRECATED: The unique ID field of the project.
        */
-      unique_id_field: string;
+      unique_id_field?: string | null;
       /**
        * Description
        * @description A description of your project.
@@ -1603,10 +1802,20 @@ export interface components {
        */
       is_public?: boolean;
       /**
+       * Is Public To Org
+       * @description Is the project public to the organization?
+       */
+      is_public_to_org?: boolean | null;
+      /**
        * Slug
        * @description The desired url slug for the project
        */
-      slug?: string;
+      slug?: string | null;
+      /**
+       * Privacy
+       * @description The privacy of the project
+       */
+      privacy?: ('public' | 'with_link' | 'private' | 'restricted') | null;
     };
     /** CreateProjectionViewRequest */
     CreateProjectionViewRequest: {
@@ -1614,21 +1823,22 @@ export interface components {
        * Dsl Rule
        * @description The JSON serialization of the selection state
        */
-      dsl_rule?: string;
+      dsl_rule?: string | null;
       /**
        * Deepscatter Api
        * @description The JSON serialization of the deepscatter API call
        */
-      deepscatter_api?: string;
+      deepscatter_api?: string | null;
     };
-    /**
-     * Dataset
-     * @description A dataset is a collection of resources, built around user-uploaded data.
-     */
-    Dataset: {
-      /** Id */
-      id: string;
-      viewer?: components['schemas']['AtlasViewer'];
+    /** DataPointResponse */
+    DataPointResponse: {
+      /**
+       * Data
+       * @description The returned data points.
+       */
+      data: {
+        [key: string]: unknown;
+      }[];
     };
     /** DatasetMemberCreateRequest */
     DatasetMemberCreateRequest: {
@@ -1636,12 +1846,12 @@ export interface components {
        * User ID
        * @description The user ID to add to the dataset
        */
-      user_id?: string;
+      user_id?: string | null;
       /**
        * User e-mail
        * @description The user Email to add to the dataset, if user_id is not available
        */
-      email?: string;
+      email?: string | null;
       /**
        * Dataset Role
        * @description The role to assign to the user in the dataset
@@ -1660,14 +1870,11 @@ export interface components {
     DatasetMembershipWithPicture: {
       /**
        * Dataset Id
-       * Format: uuid
        * @description Dataset ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       dataset_id: string;
       /**
        * Organization Id
-       * Format: uuid
        * @description Organization ID
        */
       organization_id: string;
@@ -1684,12 +1891,12 @@ export interface components {
       /** @description User access role in dataset, whether granted explicitly or from organization membership */
       dataset_role: components['schemas']['DatasetRole'];
       /** @description Access role manually granted or based on dataset creation */
-      explicit_dataset_role?: components['schemas']['DatasetRole'];
+      explicit_dataset_role?: components['schemas']['DatasetRole'] | null;
       /**
        * Picture
        * @description The user's profile image
        */
-      picture?: string;
+      picture: string | null;
       /** Permissions */
       permissions: {
         [key: string]: boolean;
@@ -1697,7 +1904,6 @@ export interface components {
       /**
        * Org Role
        * @description User access role in organization
-       * @example member
        */
       org_role: string;
       /**
@@ -1707,24 +1913,39 @@ export interface components {
       email: string;
     };
     /**
-     * DatasetRole
-     * @description An enumeration.
+     * DatasetPermissionScope
      * @enum {string}
      */
-    DatasetRole: 'ADMIN' | 'EDITOR' | 'VIEWER' | 'NONE';
+    DatasetPermissionScope:
+      | 'dataset:administration:read'
+      | 'dataset:administration:write'
+      | 'dataset:metadata:read'
+      | 'dataset:metadata:write'
+      | 'dataset:data:read'
+      | 'dataset:data:write'
+      | 'dataset:data:add'
+      | 'dataset:data:delete'
+      | 'dataset:resource:create'
+      | 'dataset:resource:delete'
+      | 'dataset:members:read'
+      | 'dataset:members:write'
+      | 'dataset:tags:read'
+      | 'dataset:tags:write';
+    /**
+     * DatasetRole
+     * @enum {string}
+     */
+    DatasetRole: 'ADMIN' | 'EDITOR' | 'VIEWER' | 'EXTERNAL' | 'NONE';
     /** DatasetSearchResult */
     DatasetSearchResult: {
       /**
        * Project Id
-       * Format: uuid
        * @description Project ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       project_id: string;
       /**
        * Project Name
        * @description The name of this project
-       * @example example_project
        */
       project_name: string;
       /**
@@ -1772,17 +1993,17 @@ export interface components {
        * Creator Picture
        * @description The creator picture
        */
-      creator_picture?: string;
+      creator_picture?: string | null;
       /**
        * Projection Alias
        * @description The projection alias
        */
-      projection_alias?: string;
+      projection_alias?: string | null;
       /**
        * Tags
        * @description Tags associated with the project from dataset_tags table.
        */
-      tags: string[];
+      tags: string[] | null;
       /**
        * Index Job End Timestamp
        * Format: date-time
@@ -1790,105 +2011,61 @@ export interface components {
        */
       index_job_end_timestamp: string;
     };
-    /** DeletePendingInvitationRequest */
-    DeletePendingInvitationRequest: {
+    /** DatumTableRequest */
+    DatumTableRequest: {
       /**
-       * Id
-       * Format: uuid
-       * @description Initation id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
+       * Response Type
+       * @description Response type, either 'arrow' or 'json'
        */
-      id: string;
+      response_type: string;
       /**
-       * Organization Id
-       * Format: uuid
-       * @description Inviter organization id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
+       * Qids
+       * @description Array of quadtree-row IDs (e.g. ['13-264', '13-265'])
        */
-      organization_id: string;
-    };
-    /** DeprecatedInviteUserRequest */
-    DeprecatedInviteUserRequest: {
+      qids: string[];
       /**
-       * User Id
-       * @description User id to invite
-       * @example auth0|12345678
+       * Columns
+       * @description Optional array of column names to fetch
        */
-      user_id: string;
-      /**
-       * Access Role
-       * @description Role to set
-       * @example MEMBER
-       */
-      access_role: string;
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description Inviter organization id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
-    };
-    /** DimensionalityReductionRequest */
-    DimensionalityReductionRequest: {
-      /**
-       * Embeddings
-       * @description The embeddings you want to project.
-       */
-      embeddings: number[][];
-      /**
-       * N Neighbors
-       * @description Number of neighbors for projection
-       */
-      n_neighbors: number;
-      /**
-       * @description The model to use when projecting.
-       * @default nomic-project-v1
-       */
-      model?: components['schemas']['NomicProjectModel'];
-    };
-    /** DimensionalityReductionResponse */
-    DimensionalityReductionResponse: {
-      /**
-       * Projection
-       * @description Projection of embeddings
-       */
-      projection: number[][];
+      columns?: string[] | null;
     };
     /** EditProjectRequest */
     EditProjectRequest: {
       /**
        * Id
-       * Format: uuid
        * @description The project id
-       * @example df4dcf85-84ed-4e3a-9519-17c72682f905
        */
       id: string;
       /**
        * Project Name
        * @description Project name to update
        */
-      project_name?: string;
+      project_name?: string | null;
       /**
        * Description
        * @description Project description to update
        */
-      description?: string;
+      description?: string | null;
       /**
        * Is Public
        * @description Should the project be public?
        */
-      is_public?: boolean;
+      is_public?: boolean | null;
       /**
        * Is Public To Org
        * @description Should the project be shared to the organization?
        */
-      is_public_to_org?: boolean;
+      is_public_to_org?: boolean | null;
       /**
        * Slug
        * @description A new slug to use in project urls.
        */
-      slug?: string;
+      slug?: string | null;
+      /**
+       * Privacy
+       * @description The privacy of the project
+       */
+      privacy?: ('public' | 'with_link' | 'private' | 'restricted') | null;
     };
     /** EditProjectionAliasRequest */
     EditProjectionAliasRequest: {
@@ -1918,14 +2095,11 @@ export interface components {
     Embedder: {
       /**
        * Id
-       * Format: uuid
        * @description Embedder id ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       id: string;
       /**
        * Atlas Index Id
-       * Format: uuid
        * @description The index this atomizer corresponds to.
        */
       atlas_index_id: string;
@@ -1943,7 +2117,9 @@ export interface components {
        * Hyperparameters
        * @description The hyperparameters this model was trained with.
        */
-      hyperparameters: Record<string, unknown>;
+      hyperparameters: {
+        [key: string]: unknown;
+      };
     };
     /** EmbeddingModelInferenceUsage */
     EmbeddingModelInferenceUsage: {
@@ -1963,27 +2139,25 @@ export interface components {
        * Num Embeddings
        * @description The total embeddings generated.
        */
-      num_embeddings?: number;
+      num_embeddings: number | null;
     };
     /** EmbeddingNeighborByIDRequest */
     EmbeddingNeighborByIDRequest: {
       /**
        * Atlas Index Id
-       * Format: uuid
        * @description Unique atlas index id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       atlas_index_id: string;
       /**
        * Datum Ids
        * @description The datum ids to query.
        */
-      datum_ids?: string[];
+      datum_ids?: string[] | null;
       /**
        * Atom Ids
        * @description The atom ids to query.
        */
-      atom_ids?: string[];
+      atom_ids?: string[] | null;
       /**
        * K
        * @description The number of neighbors to return
@@ -1995,9 +2169,7 @@ export interface components {
     EmbeddingNeighborRequest: {
       /**
        * Atlas Index Id
-       * Format: uuid
        * @description Unique atlas index id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       atlas_index_id: string;
       /**
@@ -2025,54 +2197,6 @@ export interface components {
        */
       distances: number[][];
     };
-    /** EmbeddingSetCreateArgs */
-    EmbeddingSetCreateArgs: {
-      /** Dataset Id */
-      dataset_id: string;
-      /**
-       * The column to retrieve embeddings from.
-       * @default embedding
-       */
-      embedding_target?: string;
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'EMBEDDING_SET';
-    };
-    /** EmbeddingTopicRequest */
-    EmbeddingTopicRequest: {
-      /**
-       * Atlas Index Id
-       * Format: uuid
-       * @description Unique atlas index id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      atlas_index_id: string;
-      /**
-       * Queries
-       * @description The bytes of a batch of embeddings to get topics for
-       */
-      queries: string;
-      /**
-       * Topic Model Id
-       * @description The topic model to search under
-       * @default
-       */
-      topic_model_id?: string;
-      /**
-       * K
-       * @description Number of neighbors to use when inferring topics
-       * @default 32
-       */
-      k?: number;
-      /**
-       * Depth
-       * @description The depth at which you want to estimate a topic
-       * @default 1
-       */
-      depth?: number;
-    };
     /** EmbeddingUsageModel */
     EmbeddingUsageModel: {
       /**
@@ -2086,73 +2210,42 @@ export interface components {
        */
       total_tokens: number;
     };
-    /**
-     * Feature
-     * @description Feature Model
-     */
-    Feature: {
+    /** ExtractRequest */
+    ExtractRequest: {
       /**
-       * Type
-       * @default Feature
-       * @constant
+       * File Urls
+       * @description List of file URLs to process for extraction. Supports two URL types:
+       *
+       *         1. Public URLs - accessible from the internet
+       *
+       *         2. `nomic://` prefixed URLs - obtained from the `/upload` endpoint
        */
-      type?: 'Feature';
-      /** Geometry */
-      geometry?:
-        | components['schemas']['Point']
-        | components['schemas']['MultiPoint']
-        | components['schemas']['LineString']
-        | components['schemas']['MultiLineString']
-        | components['schemas']['Polygon']
-        | components['schemas']['MultiPolygon']
-        | components['schemas']['GeometryCollection'];
-      /** Properties */
-      properties?: Record<string, unknown> | components['schemas']['BaseModel'];
-      /** Id */
-      id?: string;
-      /** Bbox */
-      bbox?:
-        | [number, number, number, number]
-        | [number, number, number, number, number, number];
+      file_urls: string[];
+      /**
+       * Extraction Schema
+       * @description JSON schema defining the structure and data types for the extracted information.
+       * This schema guides the AI model to extract specific fields and maintain consistent output format.
+       */
+      extraction_schema: {
+        [key: string]: unknown;
+      };
+      /**
+       * System Prompt
+       * @description Custom system prompt to guide the AI extraction process across the entire file.
+       * Use this to provide specific instructions, context, or constraints for how information
+       * should be extracted and formatted according to your requirements.
+       */
+      system_prompt?: string | null;
     };
-    /**
-     * FeatureCollection
-     * @description FeatureCollection Model
-     */
-    FeatureCollection: {
+    /** ExtractResponse */
+    ExtractResponse: {
       /**
-       * Type
-       * @default FeatureCollection
-       * @constant
+       * Task Id
+       * @description The id of the task.
        */
-      type?: 'FeatureCollection';
-      /** Features */
-      features: components['schemas']['Feature'][];
-      /** Bbox */
-      bbox?:
-        | [number, number, number, number]
-        | [number, number, number, number, number, number];
-    };
-    /**
-     * GeometryCollection
-     * @description GeometryCollection Model
-     */
-    GeometryCollection: {
-      /**
-       * Type
-       * @default GeometryCollection
-       * @constant
-       */
-      type?: 'GeometryCollection';
-      /** Geometries */
-      geometries: (
-        | components['schemas']['Point']
-        | components['schemas']['MultiPoint']
-        | components['schemas']['LineString']
-        | components['schemas']['MultiLineString']
-        | components['schemas']['Polygon']
-        | components['schemas']['MultiPolygon']
-      )[];
+      task_id: string;
+      /** Job Id */
+      job_id: string;
     };
     /** GetBlobResponse */
     GetBlobResponse: {
@@ -2166,7 +2259,6 @@ export interface components {
     GetDatumRequest: {
       /**
        * Project Id
-       * Format: uuid
        * @description The id of the project to update.
        */
       project_id: string;
@@ -2182,7 +2274,9 @@ export interface components {
        * Datums
        * @description The returned datums without json deserialization.
        */
-      datums: Record<string, unknown>[];
+      datums: {
+        [key: string]: unknown;
+      }[];
     };
     /** GetProjectionAliasRequest */
     GetProjectionAliasRequest: {
@@ -2217,10 +2311,7 @@ export interface components {
        * @description The embeddings
        */
       embeddings: number[][];
-      /**
-       * Usage
-       * @description The embedding usage
-       */
+      /** @description The embedding usage */
       usage: components['schemas']['EmbeddingUsageModel'];
       /** @description The model used to produce the embeddings. */
       model: components['schemas']['NomicVisionEmbeddingModel'];
@@ -2229,60 +2320,48 @@ export interface components {
     IndexJob: {
       /**
        * Id
-       * Format: uuid
        * @description Job ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       id: string;
       /**
        * Index Id
-       * Format: uuid
        * @description Index ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       index_id: string;
       /**
        * Job Start Timestamp
        * Format: date-time
        * @description The timestamp of when the job started.
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       job_start_timestamp: string;
       /**
        * Job End Timestamp
-       * Format: date-time
        * @description The timestamp of when the job ended.
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
-      job_end_timestamp: string;
+      job_end_timestamp: string | null;
       /**
        * Total Datums Remaining To Atomize
        * @description The total datums remaining to atomize
-       * @example 1
        */
       total_datums_remaining_to_atomize: number;
       /**
        * Total Atoms Remaining To Embed
        * @description The total datums remaining to embed
-       * @example 1
        */
-      total_atoms_remaining_to_embed: number;
+      total_atoms_remaining_to_embed: number | null;
       /**
        * Nearest Neighbor Indices Remaining To Build
        * @description The total nearest neighbor indices remaining to build
-       * @example 1
        */
       nearest_neighbor_indices_remaining_to_build: number;
       /**
        * Projections Remaining To Build
        * @description The total projections remaining to build.
-       * @example 1
        */
       projections_remaining_to_build: number;
       /**
        * Topic Models Remaining To Build
        * @description The total topic models remaining to build.
-       * @example 1
        */
       topic_models_remaining_to_build: number;
       /**
@@ -2290,127 +2369,6 @@ export interface components {
        * @description Whether topic models are rebuilding
        */
       rebuild_topic_models: boolean;
-    };
-    /** InvitationModel */
-    InvitationModel: {
-      /**
-       * Id
-       * Format: uuid
-       * @description Initation id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      id: string;
-      /**
-       * User Id
-       * @description User id
-       * @example auth0|12345678
-       */
-      user_id: string;
-      /**
-       * Access Role
-       * @description Role
-       * @example MEMBER
-       */
-      access_role: string;
-      /**
-       * Organization Nickname
-       * @description Organization name
-       * @example MyOrganization
-       */
-      organization_nickname: string;
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description Inviter organization id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
-      /**
-       * User Nickname
-       * @description Nickname of user
-       */
-      user_nickname: string;
-    };
-    /** InvitationModelPendingOrg */
-    InvitationModelPendingOrg: {
-      /**
-       * Id
-       * Format: uuid
-       * @description Initation id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      id: string;
-      /**
-       * User Id
-       * @description User id
-       * @example auth0|12345678
-       */
-      user_id: string;
-      /**
-       * Access Role
-       * @description Role
-       * @example MEMBER
-       */
-      access_role: string;
-      /**
-       * Organization Nickname
-       * @description Organization name
-       * @example MyOrganization
-       */
-      organization_nickname: string;
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description Inviter organization id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
-      /**
-       * User Nickname
-       * @description Nickname of user
-       */
-      user_nickname: string;
-      /**
-       * Email
-       * @description User email
-       * @example nomic@gmail.com
-       */
-      email: string;
-      /**
-       * Picture
-       * @description The users profile image
-       */
-      picture?: string;
-    };
-    /** InvitationsResponse */
-    InvitationsResponse: {
-      /**
-       * Invitations
-       * @description Invitation list
-       */
-      invitations: components['schemas']['InvitationModel'][];
-    };
-    /** InviteUserRequest */
-    InviteUserRequest: {
-      /**
-       * Email
-       * @description Email of the user to invite
-       * @example example@nomic.ai
-       */
-      email: string;
-      /**
-       * Access Role
-       * @description Role to set
-       * @example MEMBER
-       */
-      access_role: string;
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description Inviter organization id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
     };
     /** JobProgressResponse */
     JobProgressResponse: {
@@ -2421,28 +2379,43 @@ export interface components {
       result: number;
       /**
        * Job Start Timestamp
-       * Format: date-time
        * @description Job start timestamp
        */
-      job_start_timestamp: string;
+      job_start_timestamp: string | null;
       /**
        * Job End Timestamp
-       * Format: date-time
        * @description Job end timestamp
        */
-      job_end_timestamp: string;
+      job_end_timestamp: string | null;
       /**
        * Index Build Stage
        * @description Stage of progress
        */
       index_build_stage: string;
     };
+    /** JobStatusResponse */
+    JobStatusResponse: {
+      /**
+       * Status
+       * @description The status of the job.
+       */
+      status: string;
+      /**
+       * Result Url
+       * @description The URL of the result.
+       */
+      result_url?: string | null;
+      /**
+       * Error
+       * @description The error message if the job failed.
+       */
+      error?: string | null;
+    };
     /** JobSystemIndexStatusResponse */
     JobSystemIndexStatusResponse: {
       /**
        * Index Id
        * @description The atlas index id
-       * @example 4addcf85-84ed-4e3a-9519-17c72682f905
        */
       index_id: string;
       /**
@@ -2476,134 +2449,194 @@ export interface components {
       creation_time: string;
       /**
        * Ready Time
-       * Format: date-time
        * @description The time the job became eligible to run
        */
-      ready_time?: string;
+      ready_time?: string | null;
       /**
        * Start Time
-       * Format: date-time
        * @description The job start time
        */
-      start_time: string;
+      start_time: string | null;
       /**
        * End Time
-       * Format: date-time
        * @description The job end time
        */
-      end_time?: string;
+      end_time?: string | null;
       /**
        * Worker Id
        * @description The UUID of the worker that last attempted the job
        */
-      worker_id?: string;
+      worker_id?: string | null;
       /**
        * Attempt
        * @description # of attempts made to run the job (0 if it has not been assigned)
        */
-      attempt?: number;
+      attempt?: number | null;
       /**
        * Priority
        * @description Job priority (higher runs first)
        */
-      priority?: number;
+      priority?: number | null;
     };
-    /**
-     * LineString
-     * @description LineString Model
-     */
-    LineString: {
-      /**
-       * Type
-       * @default LineString
-       * @constant
-       */
-      type?: 'LineString';
-      /** Coordinates */
-      coordinates: ([number, number] | [number, number, number])[];
+    /** LogAnalystRequest */
+    LogAnalystRequest: {
+      /** Id */
+      id: string;
+      /** Projection Id */
+      projection_id: string;
+      /** Billed Organization Id */
+      billed_organization_id?: string | null;
+      /** User Id */
+      user_id?: string | null;
+      /** Type */
+      type?: string | null;
+      /** System Prompt */
+      system_prompt: string;
+      /** Question */
+      question?: string | null;
+      /** Is Custom Question */
+      is_custom_question?: boolean | null;
+      /** Provided Context */
+      provided_context?: {
+        [key: string]: unknown;
+      } | null;
+      /** Dynamic Prompt */
+      dynamic_prompt: string;
+      /** Response */
+      response?: string | null;
+      /** Response Rating */
+      response_rating?: number | null;
+      /** Response Flag */
+      response_flag?: string | null;
+      /** Response Metadata */
+      response_metadata?: {
+        [key: string]: unknown;
+      } | null;
+      /** Model */
+      model: string;
+      /** Platform Request Id */
+      platform_request_id?: string | null;
+      /** Exec Ms */
+      exec_ms?: number | null;
+      /** Input Token Usage */
+      input_token_usage?: number | null;
+      /** Output Token Usage */
+      output_token_usage?: number | null;
+      /** Platform Metadata */
+      platform_metadata?: {
+        [key: string]: unknown;
+      } | null;
     };
     /**
      * LongTextHandlingMode
-     * @description An enumeration.
-     * @enum {unknown}
+     * @enum {string}
      */
     LongTextHandlingMode: 'truncate' | 'mean';
+    /** MapInfo */
+    MapInfo: {
+      /**
+       * Map Id
+       * @description Map ID (or None for index-path maps)
+       */
+      map_id?: string | null;
+      /**
+       * Projection Id
+       * @description Projection ID
+       */
+      projection_id: string;
+      /**
+       * Created Timestamp
+       * Format: date-time
+       * @description The timestamp this map was created.
+       */
+      created_timestamp: string;
+      /**
+       * Modified Timestamp
+       * Format: date-time
+       * @description The timestamp this map was last modified.
+       */
+      modified_timestamp: string;
+      /**
+       * Ready
+       * @description Whether the map is ready to use.
+       */
+      ready: boolean;
+      /**
+       * Error
+       * @description The error message if the map is permanently errored.
+       */
+      error?: string | null;
+      /**
+       * Primary Projection Algorithm
+       * @description The primary projection algorithm used for this map.
+       */
+      primary_projection_algorithm: string;
+      /**
+       * Total Data Points
+       * @description The total number of data points in this map.
+       */
+      total_data_points: number | null;
+    };
+    /**
+     * MapbBuildKickOffStatus
+     * @enum {string}
+     */
+    MapbBuildKickOffStatus:
+      | 'pending'
+      | 'ready'
+      | 'failed'
+      | 'complete'
+      | 'skipped';
     /** ModifyUserRequest */
     ModifyUserRequest: {
       /**
        * User Id
        * @description Unique user id
-       * @example auth0|12345678
        */
       user_id: string;
-      /**
-       * @description The access role the new user should have: MEMBER, ADMIN, OWNER
-       * @example MEMBER
-       */
+      /** @description The access role the new user should have: MEMBER, ADMIN, OWNER */
       access_role: components['schemas']['AccessRole'];
       /**
        * Organization Id
-       * Format: uuid
        * @description Unique organization id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       organization_id: string;
     };
-    /**
-     * MultiLineString
-     * @description MultiLineString Model
-     */
-    MultiLineString: {
-      /**
-       * Type
-       * @default MultiLineString
-       * @constant
-       */
-      type?: 'MultiLineString';
-      /** Coordinates */
-      coordinates: ([number, number] | [number, number, number])[][];
+    /** MultipartUploadComplete */
+    MultipartUploadComplete: {
+      /** Upload Id */
+      upload_id: string;
+      /** Object Id */
+      object_id: string;
+      /** Part Etags */
+      part_etags: {
+        [key: string]: string;
+      }[];
+      /** File Type */
+      file_type: string;
     };
-    /**
-     * MultiPoint
-     * @description MultiPoint Model
-     */
-    MultiPoint: {
+    /** MultipartUploadStart */
+    MultipartUploadStart: {
+      /** File Type */
+      file_type: string;
+      /** File Size */
+      file_size: number;
       /**
-       * Type
-       * @default MultiPoint
-       * @constant
+       * Part Size
+       * @default 16777216
        */
-      type?: 'MultiPoint';
-      /** Coordinates */
-      coordinates: ([number, number] | [number, number, number])[];
-    };
-    /**
-     * MultiPolygon
-     * @description MultiPolygon Model
-     */
-    MultiPolygon: {
-      /**
-       * Type
-       * @default MultiPolygon
-       * @constant
-       */
-      type?: 'MultiPolygon';
-      /** Coordinates */
-      coordinates: ([number, number] | [number, number, number])[][][];
+      part_size?: number;
     };
     /** NearestNeighborIndex */
     NearestNeighborIndex: {
       /**
        * Id
-       * Format: uuid
        * @description Nearest Neighbor Index ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       id: string;
       /**
        * Index Name
        * @description The type of nearest neighbor index
-       * @example faiss
        */
       index_name: string;
       /**
@@ -2615,7 +2648,9 @@ export interface components {
        * Hyperparameters
        * @description The hyperparameters of this index.
        */
-      hyperparameters: Record<string, unknown>;
+      hyperparameters: {
+        [key: string]: unknown;
+      };
       /**
        * Atom Strategies
        * @description The phrase strategies of the phrases this embedder is embedding.
@@ -2623,26 +2658,19 @@ export interface components {
       atom_strategies: string[];
     };
     /**
-     * NomicProjectModel
-     * @description An enumeration.
-     * @enum {string}
-     */
-    NomicProjectModel: 'nomic-project-v1' | 'nomic-project-v2' | 'umap';
-    /**
      * NomicTextEmbeddingModel
-     * @description An enumeration.
-     * @enum {unknown}
+     * @enum {string}
      */
     NomicTextEmbeddingModel:
       | 'all-MiniLM-L6-v2'
       | 'nomic-embed-text-v1'
       | 'nomic-embed-text-v1.5'
+      | 'nomic-embed-text-v2'
       | 'nomic-embed-code'
       | 'gte-multilingual-base';
     /**
      * NomicVisionEmbeddingModel
-     * @description An enumeration.
-     * @enum {unknown}
+     * @enum {string}
      */
     NomicVisionEmbeddingModel:
       | 'nomic-embed-vision-v1'
@@ -2655,8 +2683,145 @@ export interface components {
        */
       code: string;
     };
-    /** Organization */
-    Organization: {
+    /** OrganizationIDResponse */
+    OrganizationIDResponse: {
+      /**
+       * Organization Id
+       * @description Organization ID
+       */
+      organization_id: string;
+    };
+    /** OrganizationMemberDeleteRequest */
+    OrganizationMemberDeleteRequest: {
+      /**
+       * User Id
+       * @description Unique user id
+       */
+      user_id: string;
+      /**
+       * Organization Id
+       * @description Unique organization id
+       */
+      organization_id: string;
+    };
+    /** OrganizationMembership */
+    OrganizationMembership: {
+      /**
+       * Organization Id
+       * @description Organization ID
+       */
+      organization_id: string;
+      /**
+       * Nickname
+       * @description User nickname
+       */
+      nickname: string;
+      /**
+       * User Id
+       * @description Unique user id
+       */
+      user_id: string;
+      /** @description User access role in organization */
+      access_role: components['schemas']['AccessRole'];
+      /** @description Plan type */
+      plan_type: components['schemas']['OrganizationPlan'];
+      /**
+       * Permissions
+       * @description User permissions in organization
+       */
+      permissions: {
+        [key: string]: boolean;
+      };
+      /**
+       * Slug
+       * @description The organization url-safe slug
+       */
+      slug: string | null;
+    };
+    /** OrganizationMembershipWithPicture */
+    OrganizationMembershipWithPicture: {
+      /**
+       * Picture
+       * @description The users profile image
+       */
+      picture: string | null;
+      /**
+       * Organization Id
+       * @description Organization ID
+       */
+      organization_id: string;
+      /**
+       * Nickname
+       * @description User nickname
+       */
+      nickname: string;
+      /**
+       * Permissions
+       * @description User permissions in organization
+       */
+      permissions: {
+        [key: string]: boolean;
+      };
+      /**
+       * Email
+       * @description User email
+       */
+      email: string;
+      /**
+       * User Id
+       * @description Unique user id
+       */
+      user_id: string;
+      /**
+       * Access Role
+       * @description User access role in organization
+       */
+      access_role: string;
+    };
+    /**
+     * OrganizationPermissionScope
+     * @enum {string}
+     */
+    OrganizationPermissionScope:
+      | 'organization:administration:read'
+      | 'organization:administration:write'
+      | 'organization:metadata:read'
+      | 'organization:metadata:write'
+      | 'organization:members:read'
+      | 'organization:members:write'
+      | 'organization:api_keys:read'
+      | 'organization:api_keys:write'
+      | 'organization:api_keys:manage_all'
+      | 'organization:api_keys:manage_own'
+      | 'organization:datasets:read'
+      | 'organization:datasets:write'
+      | 'organization:datasets:write_all'
+      | 'organization:datasets:create'
+      | 'organization:internally_shared_datasets:access'
+      | 'organization:billing:read'
+      | 'organization:billing:write';
+    /**
+     * OrganizationPlan
+     * @description The master list of available plans for organizations.
+     * @enum {string}
+     */
+    OrganizationPlan:
+      | 'atlas_demo'
+      | 'atlas_enterprise'
+      | 'atlas_team'
+      | 'atlas_plus'
+      | 'atlas_research'
+      | 'atlas_starter'
+      | 'atlas_startup'
+      | 'atlas_pro'
+      | 'mock'
+      | 'free_test_user'
+      | 'pro'
+      | 'enterprise'
+      | 'free'
+      | 'research';
+    /** OrganizationResponse */
+    OrganizationResponse: {
       /** @description The plan type this organization is on. */
       plan_type: components['schemas']['OrganizationPlan'];
       /** Max Datums Per Project */
@@ -2668,26 +2833,21 @@ export interface components {
       /** Max External Collaborators */
       max_external_collaborators: number;
       /** Max Datums Across All Projects */
-      max_datums_across_all_projects?: number;
+      max_datums_across_all_projects?: number | null;
       /**
        * Private Projects
        * @default false
        */
       private_projects?: boolean;
-      /** Max Text Tokens */
-      max_text_tokens?: number;
-      /** Max Image Embeddings */
-      max_image_embeddings?: number;
+      /** Max Free Embedding Api Token Usage */
+      max_free_embedding_api_token_usage: number;
       /** Max Storage */
-      max_storage?: number;
+      max_storage?: number | null;
       /** Max Premium Api Calls */
-      max_premium_api_calls?: number;
+      max_premium_api_calls?: number | null;
       /** Max Non Embedding Projects */
-      max_non_embedding_projects?: number;
-      /**
-       * Features
-       * @description The features this organization is allowed to utilize.
-       */
+      max_non_embedding_projects?: number | null;
+      /** Features */
       features: string[];
       /**
        * Free Text Tokens Per Seat
@@ -2710,29 +2870,25 @@ export interface components {
        */
       free_seats?: number;
       /**
+       * Max Advanced Analysis Calls
+       * @default 3
+       */
+      max_advanced_analysis_calls?: number;
+      /**
+       * Max Advanced Analysis Calls Per Billing Period
+       * @default 0
+       */
+      max_advanced_analysis_calls_per_billing_period?: number;
+      /**
        * Id
-       * Format: uuid
        * @description Organization ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       id: string;
       /**
        * Nickname
        * @description The organization nickname
-       * @example nomicai
        */
       nickname: string;
-      /**
-       * Time Created
-       * Format: date-time
-       * @description When this organization was created.
-       */
-      time_created: string;
-      /**
-       * Members
-       * @description All of the organization members with access roles.
-       */
-      members: components['schemas']['OrganizationMembershipWithPicture'][];
       /**
        * Projects
        * @description All of the organization's projects the requested user can access
@@ -2742,18 +2898,7 @@ export interface components {
        * Slug
        * @description The organization url-safe slug
        */
-      slug: string;
-      /**
-       * Organization Type
-       * @description The type of organization: personal, company and academic
-       */
-      organization_type: string;
-      /**
-       * Linked User Account Id
-       * @description The user id of the linked account Atlas account to this organization. Null if there is no linked account.
-       * @example auth0|12345678
-       */
-      linked_user_account_id: string;
+      slug: string | null;
       /**
        * @description Access role of user for this organization
        * @default VIEWER
@@ -2775,360 +2920,117 @@ export interface components {
        * Description
        * @description A description for this organization.
        */
-      description?: string;
-      /**
-       * Logo Url
-       * @description The url of the organization logo.
-       */
-      logo_url?: string;
-      /**
-       * Website
-       * @description The url of the organization website.
-       */
-      website?: string;
+      description?: string | null;
       /**
        * Stripe Subscription Id
        * @description Stripe subscription id
-       * @example sub_e31fd13
        */
-      stripe_subscription_id: string;
+      stripe_subscription_id: string | null;
       /**
        * Stripe Customer Id
        * @description Stripe subscription id
-       * @example cus_fe32413
        */
-      stripe_customer_id: string;
+      stripe_customer_id: string | null;
       /**
        * Stripe Subscription Start Timestamp
-       * Format: date-time
        * @description The timestamp the stripe subscription billing period starts
        */
-      stripe_subscription_start_timestamp: string;
+      stripe_subscription_start_timestamp: string | null;
+      /**
+       * Members
+       * @description All of the organization members with access roles.
+       */
+      members: components['schemas']['OrganizationMembershipWithPicture'][];
       /**
        * Stripe Subscription End Timestamp
-       * Format: date-time
        * @description The timestamp the stripe subscription billing period ends
        */
-      stripe_subscription_end_timestamp: string;
+      stripe_subscription_end_timestamp: string | null;
+      /**
+       * Stripe Trial End Timestamp
+       * @description The timestamp the stripe trial period ends
+       */
+      stripe_trial_end_timestamp: string | null;
       /**
        * Project Count
        * @description The total number of projects of this organization
        */
       project_count: number;
-    };
-    /** OrganizationAccessRequestApproveRequest */
-    OrganizationAccessRequestApproveRequest: {
       /**
-       * Organization ID
-       * Format: uuid
-       * @description The ID of the organization to add the user to
+       * Connectors
+       * @description The connectors this organization has enabled
        */
-      organization_id: string;
+      connectors: components['schemas']['ConnectorResponse'][];
       /**
-       * User ID
-       * @description The user ID to approve the request for
+       * Ai Subprocessor
+       * @description The AI subprocessor for the organization.
+       * @enum {string}
        */
-      user_id: string;
-    };
-    /** OrganizationAccessRequestCancelRequest */
-    OrganizationAccessRequestCancelRequest: {
+      ai_subprocessor: 'openai' | 'aws-bedrock';
       /**
-       * Organization ID
-       * Format: uuid
-       * @description The ID of the organization to add the user to
+       * Organization Type
+       * @description The type of organization: personal, company and academic
        */
-      organization_id: string;
+      organization_type: string;
       /**
-       * User ID
-       * @description The user ID to approve the request for
+       * Linked User Account Id
+       * @description The user id of the linked account Atlas account to this organization. Null if there is no linked account.
        */
-      user_id: string;
-    };
-    /** OrganizationAccessRequestCreateRequest */
-    OrganizationAccessRequestCreateRequest: {
+      linked_user_account_id: string | null;
       /**
-       * Organization ID
-       * Format: uuid
-       * @description The ID of the organization to add the user to
-       */
-      organization_id: string;
-    };
-    /** OrganizationAccessRequestRejectRequest */
-    OrganizationAccessRequestRejectRequest: {
-      /**
-       * Organization ID
-       * Format: uuid
-       * @description The ID of the organization to add the user to
-       */
-      organization_id: string;
-      /**
-       * User ID
-       * @description The user ID to approve the request for
-       */
-      user_id: string;
-    };
-    /** OrganizationAccessRequestResponse */
-    OrganizationAccessRequestResponse: {
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description The ID of the organization.
-       * @example df4dcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
-      /**
-       * Organization Nickname
-       * @description The nickname of the organization.
-       * @example MyOrganization
-       */
-      organization_nickname: string;
-      /**
-       * User Id
-       * @description Unique user id
-       * @example auth0|12345678
-       */
-      user_id: string;
-      /**
-       * User Nickname
-       * @description User nickname
-       * @example JohnDoe
-       */
-      user_nickname: string;
-      /**
-       * Email
-       * @description User email
-       * @example Email id of the user
-       */
-      email: string;
-      /**
-       * Created At
+       * Time Created
        * Format: date-time
-       * @description The timestamp this request was created.
+       * @description When this organization was created.
        */
-      created_at: string;
+      time_created: string;
+      /**
+       * Logo Url
+       * @description The url of the organization logo.
+       */
+      logo_url?: string | null;
+      /**
+       * Website
+       * @description The url of the organization website.
+       */
+      website?: string | null;
     };
-    /** OrganizationAccessRequestsResponse */
-    OrganizationAccessRequestsResponse: {
-      /**
-       * Organization Access Requests
-       * @description Organization access requests
-       */
-      organization_access_requests: components['schemas']['OrganizationAccessRequestResponse'][];
-    };
-    /** OrganizationIDResponse */
-    OrganizationIDResponse: {
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description Organization ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
-    };
-    /** OrganizationMemberDeleteRequest */
-    OrganizationMemberDeleteRequest: {
-      /**
-       * User Id
-       * @description Unique user id
-       * @example auth0|12345678
-       */
-      user_id: string;
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description Unique organization id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
-    };
-    /** OrganizationMembership */
-    OrganizationMembership: {
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description Organization ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
-      /**
-       * Nickname
-       * @description Organization name
-       * @example MyOrganization
-       */
-      nickname: string;
-      /**
-       * User Id
-       * @description Unique user id
-       * @example auth0|12345678
-       */
-      user_id: string;
-      /**
-       * @description User access role in organization
-       * @example VIEWER
-       */
-      access_role: components['schemas']['AccessRole'];
-      /**
-       * @description Plan type
-       * @example enterprise
-       */
-      plan_type: components['schemas']['OrganizationPlan'];
-      /**
-       * Permissions
-       * @description User permissions in organization
-       */
-      permissions: {
-        [key: string]: boolean;
-      };
-      /**
-       * Slug
-       * @description The organization url-safe slug
-       */
-      slug: string;
-    };
-    /** OrganizationMembershipWithPicture */
-    OrganizationMembershipWithPicture: {
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description Organization ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
-      /**
-       * Nickname
-       * @description Organization name
-       * @example MyOrganization
-       */
-      nickname: string;
-      /**
-       * Picture
-       * @description The users profile image
-       */
-      picture?: string;
-      /**
-       * User Id
-       * @description Unique user id
-       * @example auth0|12345678
-       */
-      user_id: string;
-      /**
-       * Access Role
-       * @description User access role in organization
-       * @example member
-       */
-      access_role: string;
-      /**
-       * Permissions
-       * @description User permissions in organization
-       */
-      permissions: {
-        [key: string]: boolean;
-      };
-      /**
-       * Email
-       * @description User email
-       * @example nomic@gmail.com
-       */
-      email: string;
-    };
-    /**
-     * OrganizationPlan
-     * @description The list of available plans for organizations.
-     * @enum {unknown}
-     */
-    OrganizationPlan:
-      | 'atlas_demo'
-      | 'atlas_enterprise'
-      | 'atlas_research'
-      | 'atlas_starter'
-      | 'atlas_startup'
-      | 'atlas_pro'
-      | 'mock'
-      | 'free_test_user'
-      | 'pro'
-      | 'enterprise'
-      | 'free'
-      | 'research';
     /** OrganizationUsageResponse */
     OrganizationUsageResponse: {
       /** Plan Type */
       plan_type: string;
-      /**
-       * Billing Period
-       * Format: date-time
-       */
-      billing_period?: string;
+      /** Billing Period */
+      billing_period: string | null;
       text_tokens: components['schemas']['UsageRecord'];
       image_embeddings: components['schemas']['UsageRecord'];
       seats: components['schemas']['UsageRecord'];
       storage: components['schemas']['UsageRecord'];
     };
-    /** PagedEmbeddingRequest */
-    PagedEmbeddingRequest: {
-      /**
-       * Projection Id
-       * Format: uuid
-       * @description Unique projection id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      projection_id: string;
-      /**
-       * Last File
-       * @description The previous page token to start from; or undefined to start from the beginning.
-       */
-      last_file?: string;
-      /**
-       * Page Size
-       * @description The number of embeddings to return in each page.
-       * @default 10000
-       */
-      page_size?: number;
+    /** OrganizationUsageTotalLimit */
+    OrganizationUsageTotalLimit: {
+      /** Organization To Charge Slug */
+      organization_to_charge_slug: string | null;
+      usage_type: components['schemas']['UsageType'];
+      /** Within Limit */
+      within_limit: boolean;
+      /** Total With Update */
+      total_with_update: number;
+      /** Limit */
+      limit: number;
+      /** Organization To Charge Id */
+      organization_to_charge_id: string | null;
+      plan_type: components['schemas']['OrganizationPlan'] | null;
     };
-    /** PendingInvitationsRequest */
-    PendingInvitationsRequest: {
+    /** ParseRequest */
+    ParseRequest: {
       /**
-       * Organization Id
-       * Format: uuid
-       * @description Organization id to get pending invitations for
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
+       * File Url
+       * @description List of file URLs to process. Supports two URL types:
+       *
+       *         1. Public URLs - accessible from the internet
+       *
+       *         2. `nomic://` prefixed URLs - obtained from the `/upload` endpoint
        */
-      organization_id: string;
-    };
-    /** PendingInvitationsResponse */
-    PendingInvitationsResponse: {
-      /**
-       * Invitations
-       * @description Invitation list
-       */
-      invitations: components['schemas']['InvitationModelPendingOrg'][];
-    };
-    /**
-     * Point
-     * @description Point Model
-     */
-    Point: {
-      /**
-       * Type
-       * @default Point
-       * @constant
-       */
-      type?: 'Point';
-      /** Coordinates */
-      coordinates: [number, number] | [number, number, number];
-    };
-    /**
-     * Polygon
-     * @description Polygon Model
-     */
-    Polygon: {
-      /**
-       * Type
-       * @default Polygon
-       * @constant
-       */
-      type?: 'Polygon';
-      /** Coordinates */
-      coordinates: ([number, number] | [number, number, number])[][];
+      file_url?: string | null;
     };
     /**
      * PrivateUser
@@ -3138,26 +3040,23 @@ export interface components {
       /**
        * Sub
        * @description Unique user id
-       * @example auth0|12345678
        */
       sub: string;
       /**
        * Nickname
        * @description The users nickname
-       * @example nomicai
        */
       nickname: string;
       /**
        * Name
        * @description The users name as registered in auth0
-       * @example nomicai
        */
       name: string;
       /**
        * Picture
        * @description The users profile image
        */
-      picture?: string;
+      picture: string | null;
       /**
        * Updated At
        * Format: date-time
@@ -3166,15 +3065,14 @@ export interface components {
       updated_at: string;
       /**
        * Default Organization
-       * Format: uuid
        * @description The users default organization.
        */
-      default_organization?: string;
+      default_organization?: string | null;
       /**
        * Stripe Customer Id
        * @description The users stripe account.
        */
-      stripe_customer_id?: string;
+      stripe_customer_id?: string | null;
       /**
        * Email
        * @description The user email
@@ -3197,29 +3095,24 @@ export interface components {
     Project: {
       /**
        * Id
-       * Format: uuid
        * @description Project ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       id: string;
       /**
        * Owner
-       * Format: uuid
        * @description The organization ID that owns this project
-       * @example 43adcf85-84ed-4e3a-9519-17c72682f905
        */
       owner: string;
       /**
        * Project Name
        * @description The name of this project
-       * @example example_project
        */
       project_name: string;
       /**
        * Creator
        * @description The user id who created this project.
        */
-      creator: string;
+      creator?: string | null;
       /**
        * Description
        * @description A description for this project.
@@ -3236,20 +3129,26 @@ export interface components {
        */
       is_public_to_org: boolean;
       /**
+       * Privacy
+       * @description The privacy settings for who can view the project.
+       * @enum {string}
+       */
+      privacy: 'public' | 'with_link' | 'private' | 'restricted';
+      /**
        * Project Fields
        * @description The list of fields a datum in the project may contain.
        */
       project_fields: string[];
       /**
        * Unique Id Field
-       * @description The field that contains a unique id for each document.
+       * @description DEPRECATED: A field that contains a unique id for each document.
        */
-      unique_id_field: string;
+      unique_id_field?: string | null;
       /**
        * Modality
-       * @description The project modality
+       * @description The project modality. DEPRECATED.
        */
-      modality?: string;
+      modality?: string | null;
       /**
        * Total Datums In Project
        * @description Total datums in project.
@@ -3267,10 +3166,35 @@ export interface components {
        */
       slug: string;
       /**
+       * Connector Name
+       * @description The connector name used to create this project
+       */
+      connector_name?: string | null;
+      /**
+       * Organization Slug
+       * @description The organization url-safe slug
+       */
+      organization_slug: string;
+      /**
+       * Organization Name
+       * @description The organization nickname
+       */
+      organization_name: string;
+      /**
+       * Creator Nickname
+       * @description The creator nickname
+       */
+      creator_nickname?: string | null;
+      /**
+       * Creator Picture
+       * @description The creator picture
+       */
+      creator_picture: string | null;
+      /**
        * Og Image
        * @description The datasets opengraph image
        */
-      og_image: string;
+      og_image: string | null;
       /**
        * Atlas Indices
        * @description All Atlas Indices built overtop of this project.
@@ -3294,84 +3218,31 @@ export interface components {
        * Schema
        * @description An Arrow schema for the project. Binary data encoded as base64.
        */
-      schema?: string;
+      schema?: string | null;
+      /** @description The connector details for this project */
+      connector_details?:
+        | components['schemas']['ConnectorDatasetDetails']
+        | null;
       /**
-       * Organization Slug
-       * @description The organization url-safe slug
+       * Maps
+       * @description The maps associated with this project
        */
-      organization_slug: string;
-      /**
-       * Organization Name
-       * @description The organization nickname
-       */
-      organization_name: string;
-      /**
-       * Creator Nickname
-       * @description The creator nickname
-       */
-      creator_nickname: string;
-      /**
-       * Creator Picture
-       * @description The creator picture
-       */
-      creator_picture: string;
+      maps: components['schemas']['MapInfo'][];
+      /** @description The analyst info for this project */
+      analyst_info: components['schemas']['AnalystInfo'];
     };
     /** ProjectCreatedResponse */
     ProjectCreatedResponse: {
       /**
        * Project Id
-       * Format: uuid
        * @description The ID of the newly created project
-       * @example 4addcf85-84ed-4e3a-9519-17c72682f905
        */
       project_id: string;
       /**
        * Slug
        * @description The unique url slug of the project
-       * @example test-project-123
        */
       slug: string;
-    };
-    /** ProjectDataArrowExportRequest */
-    ProjectDataArrowExportRequest: {
-      /**
-       * Id
-       * Format: uuid
-       * @description Project ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      id: string;
-      /**
-       * Index Id
-       * Format: uuid
-       * @description Atlas index ID--needed for index-specific data
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      index_id?: string;
-      /**
-       * Tags
-       * @description Whether to export tags
-       * @default false
-       */
-      tags?: boolean;
-      /**
-       * Metadata
-       * @description Whether to export the core metadata (aside from tags, embeddings)
-       * @default false
-       */
-      metadata?: boolean;
-      /**
-       * Embeddings
-       * @description Whether to export embeddings
-       * @default false
-       */
-      embeddings?: boolean;
-      /**
-       * Topics
-       * @description Whether to export topics
-       * @default false
-       */
-      topics?: boolean;
     };
     /** ProjectDataDeleteRequest */
     ProjectDataDeleteRequest: {
@@ -3382,24 +3253,7 @@ export interface components {
       datum_ids: string[];
       /**
        * Project Id
-       * Format: uuid
        * @description The project id
-       * @example df4dcf85-84ed-4e3a-9519-17c72682f905
-       */
-      project_id: string;
-    };
-    /** ProjectDataUpdateRequest */
-    ProjectDataUpdateRequest: {
-      /**
-       * Datums
-       * @description The datums to update
-       */
-      datums: Record<string, unknown>[];
-      /**
-       * Project Id
-       * Format: uuid
-       * @description The project id
-       * @example df4dcf85-84ed-4e3a-9519-17c72682f905
        */
       project_id: string;
     };
@@ -3407,7 +3261,6 @@ export interface components {
     ProjectIdName: {
       /**
        * Id
-       * Format: uuid
        * @description Id of the project
        */
       id: string;
@@ -3426,29 +3279,24 @@ export interface components {
     ProjectMetadataBaseModel: {
       /**
        * Id
-       * Format: uuid
        * @description Project ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       id: string;
       /**
        * Owner
-       * Format: uuid
        * @description The organization ID that owns this project
-       * @example 43adcf85-84ed-4e3a-9519-17c72682f905
        */
       owner: string;
       /**
        * Project Name
        * @description The name of this project
-       * @example example_project
        */
       project_name: string;
       /**
        * Creator
        * @description The user id who created this project.
        */
-      creator: string;
+      creator?: string | null;
       /**
        * Description
        * @description A description for this project.
@@ -3456,14 +3304,20 @@ export interface components {
       description: string;
       /**
        * Is Public
-       * @description Is the project viewable without being in the organization?
+       * @description Is the project viewable without being in the organzation?
        */
       is_public: boolean;
       /**
        * Is Public To Org
-       * @description Is the project public to the organization?
+       * @description Is the project viewable to the organization?
        */
       is_public_to_org: boolean;
+      /**
+       * Privacy
+       * @description The privacy settings for who can view the project.
+       * @enum {string}
+       */
+      privacy: 'public' | 'with_link' | 'private' | 'restricted';
       /**
        * Project Fields
        * @description The list of fields a datum in the project may contain.
@@ -3471,14 +3325,14 @@ export interface components {
       project_fields: string[];
       /**
        * Unique Id Field
-       * @description The field that contains a unique id for each document.
+       * @description DEPRECATED: A field that contains a unique id for each document.
        */
-      unique_id_field: string;
+      unique_id_field?: string | null;
       /**
        * Modality
-       * @description The project modality
+       * @description The project modality. DEPRECATED.
        */
-      modality?: string;
+      modality?: string | null;
       /**
        * Total Datums In Project
        * @description Total datums in project.
@@ -3491,20 +3345,15 @@ export interface components {
        */
       created_timestamp: string;
       /**
-       * Nickname
-       * @description The nickname who created this project.
-       */
-      nickname: string;
-      /**
-       * Thumbnail
-       * @description The project display thumbnail.
-       */
-      thumbnail: string;
-      /**
        * Slug
        * @description The project url-safe slug
        */
       slug: string;
+      /**
+       * Connector Name
+       * @description The connector name used to create this project
+       */
+      connector_name?: string | null;
       /**
        * Organization Slug
        * @description The organization url-safe slug
@@ -3519,73 +3368,28 @@ export interface components {
        * Creator Nickname
        * @description The creator nickname
        */
-      creator_nickname: string;
+      creator_nickname?: string | null;
       /**
        * Creator Picture
        * @description The creator picture
        */
-      creator_picture: string;
-    };
-    /** ProjectNameSearchRequest */
-    ProjectNameSearchRequest: {
+      creator_picture: string | null;
       /**
-       * Project Name
-       * @description The name of your project
+       * Nickname
+       * @description The nickname who created this project.
        */
-      project_name: string;
+      nickname?: string | null;
       /**
-       * Organization Name
-       * @description The organization with-in which you are searching.
+       * Thumbnail
+       * @description The project display thumbnail.
        */
-      organization_name?: string;
-    };
-    /** ProjectNameSearchResponse */
-    ProjectNameSearchResponse: {
-      /**
-       * Results
-       * @description A list of projects matching your search query.
-       */
-      results: components['schemas']['ProjectSearchItem'][];
-    };
-    /** ProjectSearchItem */
-    ProjectSearchItem: {
-      /**
-       * Id
-       * Format: uuid
-       * @description Project ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      id: string;
-      /**
-       * Owner
-       * @description The nickname of the organization that owns this project.
-       * @example 43adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      owner: string;
-      /**
-       * Project Name
-       * @description The name of this project
-       * @example example_project
-       */
-      project_name: string;
-      /**
-       * Creator
-       * @description The nickname of the user who created this project.
-       */
-      creator: string;
-      /**
-       * Description
-       * @description A description for this project.
-       */
-      description: string;
+      thumbnail: string;
     };
     /** Projection */
     Projection: {
       /**
        * Id
-       * Format: uuid
        * @description Projection ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       id: string;
       /**
@@ -3602,7 +3406,9 @@ export interface components {
        * Hyperparameters
        * @description The hyperparameters of this projection.
        */
-      hyperparameters: Record<string, unknown>;
+      hyperparameters: {
+        [key: string]: unknown;
+      };
       /**
        * Atom Strategies
        * @description The phrase strategies of the phrases this embedder is embedding.
@@ -3637,16 +3443,20 @@ export interface components {
     ProjectionAliasResponse: {
       /**
        * Project Id
-       * Format: uuid
        * @description The project id
-       * @example df4dcf85-84ed-4e3a-9519-17c72682f905
        */
       project_id: string;
       /**
        * Projection Id
-       * Format: uuid
        * @description The projection id
-       * @example The projection id
+       */
+      projection_id: string;
+    };
+    /** ProjectionIdResponse */
+    ProjectionIdResponse: {
+      /**
+       * Projection Id
+       * @description The projection ID
        */
       projection_id: string;
     };
@@ -3656,12 +3466,44 @@ export interface components {
        * Topic Models
        * @description List of topic model geojsons
        */
-      topic_models: components['schemas']['FeatureCollection'][];
+      topic_models: {
+        [key: string]: unknown;
+      }[];
       /**
        * Topic Model Metadatas
        * @description list of topic model metadata
        */
-      topic_model_metadatas: Record<string, unknown>[];
+      topic_model_metadatas:
+        | {
+            [key: string]: unknown;
+          }[]
+        | null;
+      /**
+       * Resources
+       * @description All resources used to build the associated map
+       * @default []
+       */
+      resources?: components['schemas']['ResourceResponse'][];
+      /**
+       * Embedding Field
+       * @description The data field from which the 2d embeddings were derived
+       */
+      embedding_field?: string | null;
+      /**
+       * Embedding Model
+       * @description The embedding model used to create the embeddings, if they were generated inside the Atlas system
+       */
+      embedding_model?: string | null;
+      /**
+       * Primary Projection Algorithm
+       * @description The primary projection algorithm used for this map.
+       */
+      primary_projection_algorithm: string;
+      /**
+       * Total Data Points
+       * @description The total number of data points in this map or None if the checkpoint is not yet completed.
+       */
+      total_data_points: number | null;
     };
     /** ProjectsResponse */
     ProjectsResponse: {
@@ -3671,55 +3513,18 @@ export interface components {
        */
       projects: components['schemas']['ProjectIdName'][];
     };
-    /** PublicOrganizationMembershipWithPicture */
-    PublicOrganizationMembershipWithPicture: {
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description Organization ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
-      /**
-       * Nickname
-       * @description Organization name
-       * @example MyOrganization
-       */
-      nickname: string;
-      /**
-       * Picture
-       * @description The users profile image
-       */
-      picture?: string;
-    };
     /** PublicOrganizationResponse */
     PublicOrganizationResponse: {
       /**
        * Id
-       * Format: uuid
        * @description Organization ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       id: string;
       /**
        * Nickname
        * @description The organization nickname
-       * @example nomicai
        */
       nickname: string;
-      /** @description The plan type this organization is on. */
-      plan_type: components['schemas']['OrganizationPlan'];
-      /**
-       * Time Created
-       * Format: date-time
-       * @description When this organization was created.
-       */
-      time_created: string;
-      /**
-       * Members
-       * @description All of the organization members with access roles.
-       */
-      members: components['schemas']['PublicOrganizationMembershipWithPicture'][];
       /**
        * Projects
        * @description All of the organization's projects the requested user can access
@@ -3729,18 +3534,7 @@ export interface components {
        * Slug
        * @description The organization url-safe slug
        */
-      slug: string;
-      /**
-       * Organization Type
-       * @description The type of organization: personal, company and academic
-       */
-      organization_type: string;
-      /**
-       * Linked User Account Id
-       * @description The user id of the linked account Atlas account to this organization. Null if there is no linked account.
-       * @example auth0|12345678
-       */
-      linked_user_account_id: string;
+      slug: string | null;
       /**
        * @description Access role of user for this organization
        * @default VIEWER
@@ -3762,29 +3556,150 @@ export interface components {
        * Description
        * @description A description for this organization.
        */
-      description?: string;
+      description?: string | null;
+    };
+    /** RecurringJob */
+    RecurringJob: {
       /**
-       * Logo Url
-       * @description The url of the organization logo.
+       * Id
+       * @description The id of the recurring job
        */
-      logo_url?: string;
+      id: string;
       /**
-       * Website
-       * @description The url of the organization website.
+       * Run Interval In Seconds
+       * @description The run interval for the recurring job in seconds
        */
-      website?: string;
+      run_interval_in_seconds: number;
+      /**
+       * Metadata
+       * @description Any additional job data the job needs as JSON serialized dict
+       */
+      metadata: string;
+      /**
+       * Job Type
+       * @description The type of job to run
+       */
+      job_type: string;
+      /**
+       * Created At
+       * Format: date-time
+       * @description The date and time the recurring job was created
+       */
+      created_at: string;
+      /**
+       * Updated At
+       * Format: date-time
+       * @description The date and time the recurring job was last updated
+       */
+      updated_at: string;
+      /**
+       * Last Run
+       * @description The date and time the recurring job was last run
+       */
+      last_run?: string | null;
+      /**
+       * Next Run
+       * @description The date and time the recurring job will next run
+       */
+      next_run?: string | null;
+      /**
+       * Active
+       * @description Whether the recurring job is active
+       */
+      active: boolean;
+      /**
+       * Last Run Job Id
+       * @description The id of the job that last ran the recurring job
+       */
+      last_run_job_id?: string | null;
+    };
+    /** RecurringJobRequest */
+    RecurringJobRequest: {
+      /**
+       * Run Interval In Seconds
+       * @description The run interval for the recurring job in seconds
+       */
+      run_interval_in_seconds: number;
+      /**
+       * Metadata
+       * @description Any additional job data the job needs as JSON serialized dict
+       */
+      metadata: string;
+      /**
+       * Job Type
+       * @description The type of job to run
+       */
+      job_type: string;
+      /**
+       * Next Run
+       * @description The next run of the job
+       */
+      next_run?: string | null;
+    };
+    /** RecurringJobUpdate */
+    RecurringJobUpdate: {
+      /**
+       * Run Interval In Seconds
+       * @description The run interval for the recurring job in seconds
+       */
+      run_interval_in_seconds?: number | null;
+      /**
+       * Metadata
+       * @description Any additional job data the job needs as JSON serialized dict
+       */
+      metadata?: string | null;
+      /**
+       * Active
+       * @description Whether the job is active
+       */
+      active?: boolean | null;
+      /**
+       * Next Run
+       * @description The next run of the job
+       */
+      next_run?: string | null;
+    };
+    /** RecurringMapBuild */
+    RecurringMapBuild: {
+      /**
+       * Id
+       * @description Unique identifier for the recurring map build
+       */
+      id: string;
+      /**
+       * Recurring Job Id
+       * @description ID of the associated recurring job
+       */
+      recurring_job_id: string;
+      /**
+       * Map Checkpoint Id
+       * @description ID of the map checkpoint created by this build, if completed
+       */
+      map_checkpoint_id?: string | null;
+      /**
+       * Updated At
+       * Format: date-time
+       * @description Timestamp when this record was last updated
+       */
+      updated_at: string;
+      /**
+       * Created At
+       * Format: date-time
+       * @description Timestamp when this record was created
+       */
+      created_at: string;
+      /** @description Current status of the map build (e.g. PENDING, RUNNING, COMPLETED, FAILED, SKIPPED) */
+      status: components['schemas']['MapbBuildKickOffStatus'];
     };
     /** RemoveIndexRequest */
     RemoveIndexRequest: {
       /**
        * Project Id
-       * Format: uuid
        * @description The project id containing the index you are removing.
        */
       project_id: string;
       /**
        * Index Id
-       * Format: uuid
        * @description ID of index to remove
        */
       index_id: string;
@@ -3793,38 +3708,76 @@ export interface components {
     RemoveProjectRequest: {
       /**
        * Project Id
-       * Format: uuid
        * @description The ID of the project to remove.
-       * @example example-project
        */
       project_id: string;
     };
-    /** Resource */
-    Resource: {
-      /** Resource */
-      resource:
-        | components['schemas']['SVDCreateArgs']
-        | components['schemas']['EmbeddingSetCreateArgs'];
+    /** RenderOptions */
+    RenderOptions: {
       /**
-       * Dataset
-       * @description Dataset associated to the resource
+       * Scale
+       * @description The scale factor in pixels per point (default=1).
        */
-      dataset: components['schemas']['Dataset'];
+      scale?: number | null;
+      /**
+       * Longest Edge
+       * @description Clamp the output size to at most this many pixels on the longest edge.
+       */
+      longest_edge?: number | null;
+      /**
+       * Webp Quality
+       * @description WebP quality (0-100). Higher values mean better quality but larger file size. Defaults to 80.
+       */
+      webp_quality?: number | null;
+      /**
+       * Webp Effort
+       * @description WebP compression effort (0-6). Higher values mean slower encoding but better compression. Defaults to 6.
+       */
+      webp_effort?: number | null;
+    };
+    /** RenderRequest */
+    RenderRequest: {
+      /**
+       * Document Url
+       * @description The URL of the file to render. Supports two URL types:
+       *
+       *         1. Public URLs - accessible from the internet
+       *
+       *         2. `nomic://` prefixed URLs - obtained from the `/upload` endpoint
+       */
+      document_url: string;
+      /**
+       * First Page
+       * @description Starting page number for rendering (zero-indexed).
+       * If not specified, rendering starts from the first page of the file.
+       */
+      first_page?: number | null;
+    };
+    /** RenderResponse */
+    RenderResponse: {
+      /**
+       * Task Id
+       * @description The id of the task.
+       */
+      task_id: string;
+      /** Job Id */
+      job_id: string;
     };
     /** ResourceResponse */
     ResourceResponse: {
-      /** @description Resource type. */
-      type: components['schemas']['ResourceType'];
+      /**
+       * Type
+       * @description Resource type.
+       */
+      type: string;
       /**
        * Id
-       * Format: uuid
        * @description The resource id.
        */
       id: string;
       /**
        * Dataset Id
-       * Format: uuid
-       * @description The dataset id ass
+       * @description The dataset id associated with the resource.
        */
       dataset_id: string;
       /** @description The resource status. */
@@ -3833,34 +3786,16 @@ export interface components {
        * Params
        * @description Resource-specific parameters.
        */
-      params: Record<string, unknown>;
+      params: {
+        [key: string]: unknown;
+      };
     };
     /**
      * ResourceStatus
-     * @description An enumeration.
-     * @enum {unknown}
+     * @description Status of a task.
+     * @enum {string}
      */
     ResourceStatus: 'COMPLETED' | 'FAILED' | 'BUILDING' | 'WAITING';
-    /**
-     * ResourceType
-     * @description An enumeration.
-     * @enum {unknown}
-     */
-    ResourceType: 'EMBEDDING_SET' | 'SVD_COORDS';
-    /** SVDCreateArgs */
-    SVDCreateArgs: {
-      /** Dataset Id */
-      dataset_id: string;
-      /** The ID of the embedding set to use */
-      embedding_set_id: string;
-      /** Number of components to keep */
-      n_components: number;
-      /**
-       * Resource Type
-       * @enum {string}
-       */
-      resource_type: 'SVD_COORDS';
-    };
     /** SearchDatasetsResponse */
     SearchDatasetsResponse: {
       /**
@@ -3870,94 +3805,69 @@ export interface components {
        */
       results?: components['schemas']['DatasetSearchResult'][];
     };
-    /** SearchUserModel */
-    SearchUserModel: {
+    /** SnowflakeIngestDataRequest */
+    SnowflakeIngestDataRequest: {
       /**
-       * Nickname
-       * @description Nickname of user
+       * Org Id
+       * @description The id of the organization.
        */
-      nickname: string;
+      org_id: string;
       /**
-       * Id
-       * @description User id
+       * Snowflake Database
+       * @description The name of the snowflake database.
        */
-      id: string;
+      snowflake_database: string;
+      /**
+       * Snowflake Schema
+       * @description The name of the snowflake schema.
+       */
+      snowflake_schema: string;
+      /**
+       * Snowflake Table
+       * @description The name of the snowflake table.
+       */
+      snowflake_table: string;
     };
-    /** SearchUserProjectRequest */
-    SearchUserProjectRequest: {
+    /** SnowflakeMapBuildRequest */
+    SnowflakeMapBuildRequest: {
       /**
-       * Search Word
-       * @description Search word to find user
+       * Org Id
+       * @description The id of the organization.
        */
-      search_word: string;
+      org_id: string;
       /**
-       * Organization Id
-       * Format: uuid
-       * @description Inviter organization id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
+       * Snowflake Database
+       * @description The name of the snowflake database.
        */
-      organization_id: string;
+      snowflake_database: string;
       /**
-       * Project Id
-       * Format: uuid
-       * @description Inviter project id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
+       * Snowflake Schema
+       * @description The name of the snowflake schema.
        */
-      project_id: string;
-    };
-    /** SearchUserRequest */
-    SearchUserRequest: {
+      snowflake_schema: string;
       /**
-       * Search Word
-       * @description Search word to find user
+       * Snowflake Table
+       * @description The name of the snowflake table.
        */
-      search_word: string;
+      snowflake_table: string;
       /**
-       * Organization Id
-       * Format: uuid
-       * @description Inviter organization id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
+       * Dataset Id
+       * @description The id of the dataset to ingest data into and build map on.
        */
-      organization_id: string;
-    };
-    /** SearchUserResponse */
-    SearchUserResponse: {
+      dataset_id: string;
       /**
-       * Users
-       * @description Users list
+       * Embedding Field
+       * @description The name of the field to use for the embedding.
        */
-      users: components['schemas']['SearchUserModel'][];
-    };
-    /** SetOrganizationLimitsRequest */
-    SetOrganizationLimitsRequest: {
-      /**
-       * Max Datums
-       * @description The datapoint usage limit to set for the organization
-       */
-      max_datums: number;
-      /**
-       * Organization Id
-       * Format: uuid
-       * @description Organization id
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
-       */
-      organization_id: string;
-    };
-    /** SetOrganizationLimitsResponse */
-    SetOrganizationLimitsResponse: {
-      /**
-       * Max Datums
-       * @description The new datapoint usage limit
-       */
-      max_datums: number;
+      embedding_field: string;
+      /** @description Whether to use multilingual embeddings. */
+      embedding_model?: components['schemas']['NomicTextEmbeddingModel'] | null;
     };
     /** StripeSubscriptionCancelRequest */
     StripeSubscriptionCancelRequest: {
       /**
        * Organization Id
-       * Format: uuid
        * @description Organization ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       organization_id: string;
     };
@@ -3965,9 +3875,7 @@ export interface components {
     StripeSubscriptionCreateRequest: {
       /**
        * Organization Id
-       * Format: uuid
        * @description Organization ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       organization_id: string;
       /**
@@ -3979,7 +3887,13 @@ export interface components {
        * Promo Code
        * @description Promotion code
        */
-      promo_code?: string;
+      promo_code?: string | null;
+      /**
+       * Enable Free Trial
+       * @description Should a free trial period be enabled for the plan.
+       * @default false
+       */
+      enable_free_trial?: boolean;
     };
     /** StripeSubscriptionCreateResponse */
     StripeSubscriptionCreateResponse: {
@@ -3994,15 +3908,21 @@ export interface components {
        */
       client_secret: string;
       /**
+       * Intent Type
+       * @description The type of intent to create
+       * @enum {string}
+       */
+      intent_type: 'payment' | 'setup';
+      /**
        * Applied Promo Code
        * @description The applied promo code, if successful
        */
-      applied_promo_code?: string;
+      applied_promo_code?: string | null;
       /**
        * Promo Code Description
        * @description Description of promo code (metadata.descrption in Stripe), if available
        */
-      promo_code_description?: string;
+      promo_code_description?: string | null;
     };
     /** SuccessResponse */
     SuccessResponse: {
@@ -4012,6 +3932,53 @@ export interface components {
        */
       result?: string;
     };
+    /**
+     * SummaryBy
+     * @enum {string}
+     */
+    SummaryBy: 'page' | 'chunk';
+    /** SummaryConfig */
+    SummaryConfig: {
+      /**
+       * Enabled
+       * @description When enabled, generates summaries for each chunk after parsing is complete.
+       * Summary generation runs as a separate background job and won't slow down the main parsing process.
+       * @default false
+       */
+      enabled?: boolean;
+      /**
+       * @description Whether to summarize by page or chunk
+       * @default page
+       */
+      summary_by?: components['schemas']['SummaryBy'];
+      /**
+       * @description Whether to use the detailed or sample summary mode
+       * @default latest_chunks
+       */
+      summary_mode?: components['schemas']['SummaryMode'];
+      /**
+       * Batch Size
+       * @description Number of chunks to process at once
+       * @default 20
+       */
+      batch_size?: number;
+      /**
+       * Context Size
+       * @description Number of pages used as context for page comprehensions
+       * @default 10
+       */
+      context_size?: number;
+    };
+    /**
+     * SummaryMode
+     * @enum {string}
+     */
+    SummaryMode:
+      | 'rolling_summary'
+      | 'sampled_comprehensions'
+      | 'sampled_chunks'
+      | 'latest_comprehensions'
+      | 'latest_chunks';
     /** TagRequest */
     TagRequest: {
       /**
@@ -4042,7 +4009,10 @@ export interface components {
     };
     /** TagResponse */
     TagResponse: {
-      /** Tag Id */
+      /**
+       * Tag Id
+       * @description Tag id
+       */
       tag_id: string;
       /**
        * Tag Definition Id
@@ -4053,17 +4023,17 @@ export interface components {
        * Tag Name
        * @description Name of tag
        */
-      tag_name?: string;
+      tag_name?: string | null;
       /**
        * User Id
        * @description Tag creator nickname
        */
-      user_id?: string;
+      user_id?: string | null;
       /**
        * Dsl Rule
        * @description DSL rule json
        */
-      dsl_rule?: string;
+      dsl_rule?: string | null;
       /**
        * Projection Id
        * @description Projection ID
@@ -4094,17 +4064,70 @@ export interface components {
        * Tag Name
        * @description Name of tag
        */
-      tag_name?: string;
+      tag_name?: string | null;
       /**
        * Tag Definition Id
        * @description Hashed id for tag definition
        */
-      tag_definition_id?: string;
+      tag_definition_id?: string | null;
       /**
        * Dsl Rule
        * @description DSL rule to generate tag mask
        */
-      dsl_rule?: string;
+      dsl_rule?: string | null;
+    };
+    /** TaskEvent */
+    TaskEvent: {
+      /**
+       * Task Id
+       * @description The id of the task.
+       */
+      task_id: string;
+      /**
+       * Task Type
+       * @description The task description name.
+       */
+      task_type: string;
+      /**
+       * Metadata
+       * @description The data of the event.
+       */
+      metadata: {
+        [key: string]: unknown;
+      };
+    };
+    /** TaskEventResponse */
+    TaskEventResponse: {
+      /**
+       * Events
+       * @description The events for the task.
+       */
+      events: components['schemas']['TaskEvent'][];
+    };
+    /** TaskResponse */
+    TaskResponse: {
+      /**
+       * Task Id
+       * @description The id of the task.
+       */
+      task_id: string;
+      /** Job Id */
+      job_id: string;
+    };
+    /** TaskStatusResponse */
+    TaskStatusResponse: {
+      /** @description The status of the task. */
+      status: components['schemas']['ResourceStatus'];
+      /**
+       * Result Url
+       * @description A URL to access the results (e.g., parsed file, extracted information).
+       */
+      result_url?: string | null;
+      /**
+       * Error
+       * @description An error message if the task failed.
+       */
+      error?: string | null;
     };
     /** TextEmbeddingInferenceRequest */
     TextEmbeddingInferenceRequest: {
@@ -4122,7 +4145,7 @@ export interface components {
        * Task Type
        * @description The downstream task to generate embeddings for, model-specific.
        */
-      task_type?: string;
+      task_type?: string | null;
       /**
        * @description How to handle text longer than the model can accept.
        * @default mean
@@ -4138,7 +4161,7 @@ export interface components {
        * Dimensionality
        * @description Requested embedding dimensionality, defaults to full-size for requested model
        */
-      dimensionality?: number;
+      dimensionality?: number | null;
     };
     /** TextEmbeddingInferenceResponse */
     TextEmbeddingInferenceResponse: {
@@ -4147,118 +4170,53 @@ export interface components {
        * @description The embeddings
        */
       embeddings: number[][];
-      /**
-       * Usage
-       * @description The embedding usage
-       */
+      /** @description The embedding usage */
       usage: components['schemas']['EmbeddingUsageModel'];
       /** @description The model used to produce the embeddings. */
       model: components['schemas']['NomicTextEmbeddingModel'];
-    };
-    /** TopicDensityRequest */
-    TopicDensityRequest: {
-      /**
-       * Start
-       * Format: date-time
-       * @description The datetime of window start
-       */
-      start: string;
-      /**
-       * End
-       * Format: date-time
-       * @description The datetime of window end
-       */
-      end: string;
-      /**
-       * Time Field
-       * @description The time field to window against
-       */
-      time_field: string;
-    };
-    /** TopicDensityResponse */
-    TopicDensityResponse: {
-      /**
-       * Results
-       * @description A list of topic metadata, including movement information
-       */
-      results: Record<string, unknown>[];
-    };
-    /** UpdateInviteRequest */
-    UpdateInviteRequest: {
-      /**
-       * Invitation Id
-       * @description Invitation id
-       * @example auth0|12345678
-       */
-      invitation_id: string;
-      /**
-       * Is Accepted
-       * @description Is invitation accepted?
-       */
-      is_accepted: boolean;
     };
     /** UpdateOrganizationRequest */
     UpdateOrganizationRequest: {
       /**
        * Organization Id
-       * Format: uuid
        * @description Organization ID
-       * @example 33adcf85-84ed-4e3a-9519-17c72682f905
        */
       organization_id: string;
       /**
        * New Organization Nickname
        * @description The new nickname for the organization.
        */
-      new_organization_nickname?: string;
+      new_organization_nickname?: string | null;
       /**
        * New Organization Type
        * @description The new organization type
        */
-      new_organization_type?: string;
+      new_organization_type?: string | null;
       /**
        * New Organization Slug
        * @description A new organization slug
        */
-      new_organization_slug?: string;
+      new_organization_slug?: string | null;
       /**
        * New Organization Description
        * @description A new description for the organization.
        */
-      new_organization_description?: string;
+      new_organization_description?: string | null;
       /**
        * New Organization Logo Url
        * @description A new logo for the organization.
        */
-      new_organization_logo_url?: string;
+      new_organization_logo_url?: string | null;
       /**
        * New Organization Website
        * @description A new website for the organization.
        */
-      new_organization_website?: string;
-    };
-    /** UpdateProjectIndicesRequest */
-    UpdateProjectIndicesRequest: {
+      new_organization_website?: string | null;
       /**
-       * Project Id
-       * Format: uuid
-       * @description The id of the project to update
+       * Ai Subprocessor
+       * @description The AI subprocessor for the organization.
        */
-      project_id: string;
-      /**
-       * Rebuild Topic Models
-       * @description Whether or not to rebuild topic models
-       * @default false
-       */
-      rebuild_topic_models?: boolean;
-    };
-    /** UpdateProjectIndicesResponse */
-    UpdateProjectIndicesResponse: {
-      /**
-       * Job Ids
-       * @description The job ids cerated for each index update operation
-       */
-      job_ids: string[];
+      ai_subprocessor?: ('openai' | 'aws-bedrock') | null;
     };
     /** UpdateTagDefinitionRequest */
     UpdateTagDefinitionRequest: {
@@ -4276,7 +4234,7 @@ export interface components {
        * Dsl Rule
        * @description DSL rule to generate tag mask
        */
-      dsl_rule?: string;
+      dsl_rule?: string | null;
     };
     /** UpdateTagNameRequest */
     UpdateTagNameRequest: {
@@ -4302,7 +4260,66 @@ export interface components {
        * Topic Geojson
        * @description Topic model geojson to replace existing topic model
        */
-      topic_geojson: components['schemas']['FeatureCollection'];
+      topic_geojson: {
+        [key: string]: unknown;
+      };
+    };
+    /** UploadRequest */
+    UploadRequest: {
+      /**
+       * Files
+       * @description List of files to prepare for upload.
+       * Each file must have a unique ID, size in bytes, and content type.
+       */
+      files: components['schemas']['UploadRequestFile'][];
+    };
+    /** UploadRequestFile */
+    UploadRequestFile: {
+      /**
+       * Id
+       * @description Unique identifier for the file in your request.
+       * Use this to match the response with your original file.
+       */
+      id: string;
+      /**
+       * Size
+       * @description File size in bytes. Must be at least 1 byte.
+       */
+      size: number;
+      /**
+       * Content Type
+       * @description MIME type of the file (e.g., "application/pdf")
+       */
+      content_type: string;
+    };
+    /** UploadResponse */
+    UploadResponse: {
+      /**
+       * Files
+       * @description List of upload information for each file in your request.
+       * Each file gets its own upload URL and task (parsing, extraction, etc.) id.
+       */
+      files: components['schemas']['UploadResponseFile'][];
+    };
+    /** UploadResponseFile */
+    UploadResponseFile: {
+      /**
+       * Request Id
+       * @description The ID you provided in your request.
+       * Use this to match the response with your original file.
+       */
+      request_id: string;
+      /**
+       * Upload Url
+       * @description URL for uploading your file.
+       * Use this URL with a PUT request to upload your file content.
+       */
+      upload_url: string;
+      /**
+       * Nomic Url
+       * @description Use this URL to reference the file when making calls to parsing or extraction services.
+       */
+      nomic_url: string;
     };
     /** UsageRecord */
     UsageRecord: {
@@ -4316,23 +4333,28 @@ export interface components {
        * Offered
        * @description units included in plan
        */
-      offered?: number;
+      offered?: number | null;
       /**
        * Unit Price
        * @description price per unit of usage over included amount
        */
-      unit_price?: number;
+      unit_price?: number | null;
       /**
        * Unit Price Str
        * @description exact price per unit as a string
        */
-      unit_price_str?: string;
+      unit_price_str?: string | null;
       /**
        * Billable
        * @description billable overage price in USD
        */
-      billable?: string;
+      billable?: string | null;
     };
+    /**
+     * UsageType
+     * @enum {string}
+     */
+    UsageType: 'advanced_analysis' | 'text_tokens' | 'image_embeddings';
     /** ValidatePromoCodeRequest */
     ValidatePromoCodeRequest: {
       /**
@@ -4354,6 +4376,2214 @@ export interface components {
       msg: string;
       /** Error Type */
       type: string;
+    };
+    /** ZendeskConnectorRequest */
+    ZendeskConnectorRequest: {
+      /**
+       * Dataset Id
+       * @description ID of the dataset to create connector for
+       */
+      dataset_id: string;
+    };
+    /** DATASET_CHECKPOINT_REQUEST */
+    DATASET_CHECKPOINT_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Deserialized subset of the DSL to filter the user data by
+       * @default null
+       */
+      composite_filter?: unknown;
+      /**
+       * Columns to stream from the checkpoint. If not provided, all columns will be streamed.
+       * @default null
+       */
+      columns?: string[] | null;
+      /**
+       * Unix timestamp (seconds) from which to serve the dataset
+       * @default null
+       */
+      timestamp?: number | null;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** EMBEDDING_SET_REQUEST */
+    EMBEDDING_SET_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * The column to retrieve embeddings from, or None for the unnamed embedding column.
+       * @default null
+       */
+      embedding_target?: string | null;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** EMBEDDING_SET_INFERRED_REQUEST */
+    EMBEDDING_SET_INFERRED_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Source Column
+       * @description The text column to generate embeddings from
+       */
+      source_column: string;
+      /**
+       * Embedding Model
+       * @description Which text embedding model to use
+       */
+      embedding_model:
+        | 'nomic-embed-text-v1.5'
+        | 'nomic-embed-text-v1'
+        | 'gte-multilingual-base'
+        | 'nomic-embed-vision-v1.5'
+        | 'nomic-embed-vision-v1'
+        | 'nomic-embed-text-v2';
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** HNSW_INDEX_REQUEST */
+    HNSW_INDEX_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /** @default 15 */
+      n_neighbors?: number;
+      /** @default 64 */
+      ef_construction?: number;
+      /** @default 32 */
+      M?: number;
+      /** @default 32 */
+      local_neighborhood_size?: number;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** EMBEDDING_DERIVED_2D_COORDINATE_SET_REQUEST */
+    EMBEDDING_DERIVED_2D_COORDINATE_SET_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * The embedding dimensions to use for x, y in the coordinate set.
+       * @default [
+       *   0,
+       *   1
+       * ]
+       */
+      dims?: number[];
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** RANDOM_COORDINATE_SET_REQUEST */
+    RANDOM_COORDINATE_SET_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** UMAP_COORDINATE_SET_REQUEST */
+    UMAP_COORDINATE_SET_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * The number of neighbors to use for UMAP.
+       * @default 15
+       */
+      n_neighbors?: number;
+      /**
+       * How tightly UMAP should pack points together.
+       * @default 0.1
+       */
+      min_dist?: number;
+      /**
+       * The metric to use for distance computation.
+       * @default euclidean
+       */
+      metric?: string;
+      /**
+       * Weighting applied to negative samples. Values higher than one will result in greater weight being given to negative samples.
+       * @default 1
+       */
+      repulsion_strength?: number;
+      /**
+       * Number of negative samples to use during training.
+       * @default 5
+       */
+      negative_sample_rate?: number;
+      /**
+       * Number of training epochs to use for UMAP.
+       * @default null
+       */
+      n_epochs?: number | null;
+      /**
+       * Whether to cluster unique points.
+       * @default true
+       */
+      cluster_unique_points?: boolean;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** TSNE_COORDINATE_SET_REQUEST */
+    TSNE_COORDINATE_SET_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Affects the tradeoff between global and local relationship presentation
+       * @default 30
+       */
+      perplexity?: number;
+      /**
+       * Affects the spacing between clusters and their cohesion.
+       * @default auto
+       */
+      early_exaggeration?: number | string;
+      /**
+       * Number of iterations with early exaggeration
+       * @default 250
+       */
+      early_exaggeration_iter?: number;
+      /**
+       * Number of iterations
+       * @default 500
+       */
+      n_iter?: number;
+      /**
+       * Affects the spacing between clusters in the final layout.
+       * @default null
+       */
+      exaggeration?: number | null;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** SVD_COORDINATE_SET_REQUEST */
+    SVD_COORDINATE_SET_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * SVD's n_components
+       * @default 2
+       */
+      n_components?: number;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** PCA_COORDINATE_SET_REQUEST */
+    PCA_COORDINATE_SET_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * PCA's n_components
+       * @default 2
+       */
+      n_components?: number;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** NPV1_COORDINATE_SET_REQUEST */
+    NPV1_COORDINATE_SET_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Number of contrastive samples
+       * @default null
+       */
+      n_noise?: number | null;
+      /**
+       * Number of epochs
+       * @default 50
+       */
+      n_epochs?: number;
+      /**
+       * Spread of the embedding
+       * @default 1
+       */
+      spread?: number | null;
+      /**
+       * Minimum distance between points
+       * @default 0.4
+       */
+      min_dist?: number | null;
+      /**
+       * Number of epochs for initialization
+       * @default 20
+       */
+      n_init_epochs?: number | null;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** NPV2_COORDINATE_SET_REQUEST */
+    NPV2_COORDINATE_SET_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Number of contrastive samples
+       * @default null
+       */
+      n_noise?: number | null;
+      /**
+       * Number of epochs
+       * @default 50
+       */
+      n_epochs?: number;
+      /**
+       * Spread of the embedding
+       * @default 1
+       */
+      spread?: number | null;
+      /**
+       * Minimum distance between points
+       * @default 0.4
+       */
+      min_dist?: number | null;
+      /**
+       * Number of epochs for initialization
+       * @default 20
+       */
+      n_init_epochs?: number | null;
+      /**
+       * Controls local structure optimizing step for `nomic-project-v2`. Min value: `0`; max value: `1`
+       * @default 0.6
+       */
+      rho?: number;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** CLUSTER_ASSIGNMENT_REQUEST */
+    CLUSTER_ASSIGNMENT_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Cluster Method
+       * @default null
+       */
+      cluster_method?: string | null;
+      /**
+       * Enforce Hierarchy
+       * @default true
+       */
+      enforce_hierarchy?: boolean | null;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** HDBSCAN_CLUSTER_ASSIGNMENT_REQUEST */
+    HDBSCAN_CLUSTER_ASSIGNMENT_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Cluster Method
+       * @default null
+       */
+      cluster_method?: string | null;
+      /**
+       * Min Cluster Size
+       * @default 15
+       */
+      min_cluster_size?: number;
+      /**
+       * Min Samples
+       * @default 15
+       */
+      min_samples?: number;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** CHECKPOINT_DESCRIPTION_REQUEST */
+    CHECKPOINT_DESCRIPTION_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Optionally, a list of uploaded columns to use for summarizing the dataset
+       * @default null
+       */
+      fields?: string[] | null;
+      /**
+       * The maximum number of characters to use for the description
+       * @default 10000
+       */
+      maximum_characters?: number;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** QUADTREE_REQUEST */
+    QUADTREE_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Colorable Fields
+       * @description The fields that can be colored by.
+       * @default []
+       */
+      colorable_fields?: string[];
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** DUPLICATES_REQUEST */
+    DUPLICATES_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Duplicate cut-off
+       * @default 0.1
+       */
+      duplicate_cutoff?: number;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** KEYWORDS_TOPIC_LABEL_REQUEST */
+    KEYWORDS_TOPIC_LABEL_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /** Field to extract keywords from */
+      target_field: string;
+      /**
+       * Jaccard similarity threshold
+       * @default 0.62
+       */
+      jaccard_similarity_threshold?: number;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** LLM_TOPIC_LABEL_REQUEST */
+    LLM_TOPIC_LABEL_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** TOPIC_LABEL_POSITIONS_REQUEST */
+    TOPIC_LABEL_POSITIONS_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** MAP_CHECKPOINT_REQUEST */
+    MAP_CHECKPOINT_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * ID of the associated map. If not provided, a new map will be created.
+       * @default null
+       */
+      map_id?: string | null;
+      /**
+       * Type of email to send when the map is ready
+       * @default Dataset ready
+       */
+      email_type?: ('Dataset ready' | 'None') | null;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** SIDECAR_FROM_PARQUET_REQUEST */
+    SIDECAR_FROM_PARQUET_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /** The sidecar name */
+      sidecar_name: string;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** EMBEDDING_SIDECAR_REQUEST */
+    EMBEDDING_SIDECAR_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** SIDECAR_FROM_DATA_TABLE_REQUEST */
+    SIDECAR_FROM_DATA_TABLE_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /** Columns to add as sidecars */
+      column_names: string[];
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** CLUSTER_SIDECAR_REQUEST */
+    CLUSTER_SIDECAR_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** OPENGRAPH_IMAGE_REQUEST */
+    OPENGRAPH_IMAGE_REQUEST: {
+      /**
+       * Resource Type
+       * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+       */
+      resource_type: string;
+      /**
+       * Dependencies
+       * @description
+       *         A mapping of resource types to the ids of the resources
+       *         that must be created before this one. We will look in two different
+       *         places for the string values here:
+       *
+       *         First, in the refs field of the passed list of resources.
+       *         Finally, this will be treated as the UUID of a resource in the database.
+       */
+      dependencies?: {
+        [key: string]: string | string[];
+      };
+      /**
+       * Dataset Id
+       * @description The id of the dataset to use for this resource.
+       */
+      dataset_id: string;
+      /**
+       * Color Column
+       * @default null
+       */
+      color_column?: string | null;
+      /** Map Id */
+      map_id: string;
+      /**
+       * Ref
+       * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+       */
+      ref: string;
+      [key: string]: unknown;
+    };
+    /** ResourceRequestList */
+    ResourceRequestList: {
+      /** Items */
+      items: (
+        | $defs['DATASET_CHECKPOINT_REQUEST']
+        | $defs['EMBEDDING_SET_REQUEST']
+        | $defs['EMBEDDING_SET_INFERRED_REQUEST']
+        | $defs['HNSW_INDEX_REQUEST']
+        | $defs['EMBEDDING_DERIVED_2D_COORDINATE_SET_REQUEST']
+        | $defs['RANDOM_COORDINATE_SET_REQUEST']
+        | $defs['UMAP_COORDINATE_SET_REQUEST']
+        | $defs['TSNE_COORDINATE_SET_REQUEST']
+        | $defs['SVD_COORDINATE_SET_REQUEST']
+        | $defs['PCA_COORDINATE_SET_REQUEST']
+        | $defs['NPV1_COORDINATE_SET_REQUEST']
+        | $defs['NPV2_COORDINATE_SET_REQUEST']
+        | $defs['CLUSTER_ASSIGNMENT_REQUEST']
+        | $defs['HDBSCAN_CLUSTER_ASSIGNMENT_REQUEST']
+        | $defs['CHECKPOINT_DESCRIPTION_REQUEST']
+        | $defs['QUADTREE_REQUEST']
+        | $defs['DUPLICATES_REQUEST']
+        | $defs['KEYWORDS_TOPIC_LABEL_REQUEST']
+        | $defs['LLM_TOPIC_LABEL_REQUEST']
+        | $defs['TOPIC_LABEL_POSITIONS_REQUEST']
+        | $defs['MAP_CHECKPOINT_REQUEST']
+        | $defs['SIDECAR_FROM_PARQUET_REQUEST']
+        | $defs['EMBEDDING_SIDECAR_REQUEST']
+        | $defs['SIDECAR_FROM_DATA_TABLE_REQUEST']
+        | $defs['CLUSTER_SIDECAR_REQUEST']
+        | $defs['OPENGRAPH_IMAGE_REQUEST']
+      )[];
+      $defs: {
+        /** CHECKPOINT_DESCRIPTION_REQUEST */
+        CHECKPOINT_DESCRIPTION_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /**
+           * Optionally, a list of uploaded columns to use for summarizing the dataset
+           * @default null
+           */
+          fields?: string[] | null;
+          /**
+           * The maximum number of characters to use for the description
+           * @default 10000
+           */
+          maximum_characters?: number;
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** CLUSTER_ASSIGNMENT_REQUEST */
+        CLUSTER_ASSIGNMENT_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /**
+           * Cluster Method
+           * @default null
+           */
+          cluster_method?: string | null;
+          /**
+           * Enforce Hierarchy
+           * @default true
+           */
+          enforce_hierarchy?: boolean | null;
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** CLUSTER_SIDECAR_REQUEST */
+        CLUSTER_SIDECAR_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** DATASET_CHECKPOINT_REQUEST */
+        DATASET_CHECKPOINT_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /**
+           * Deserialized subset of the DSL to filter the user data by
+           * @default null
+           */
+          composite_filter?: unknown;
+          /**
+           * Columns to stream from the checkpoint. If not provided, all columns will be streamed.
+           * @default null
+           */
+          columns?: string[] | null;
+          /**
+           * Unix timestamp (seconds) from which to serve the dataset
+           * @default null
+           */
+          timestamp?: number | null;
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** DUPLICATES_REQUEST */
+        DUPLICATES_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /**
+           * Duplicate cut-off
+           * @default 0.1
+           */
+          duplicate_cutoff?: number;
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** EMBEDDING_DERIVED_2D_COORDINATE_SET_REQUEST */
+        EMBEDDING_DERIVED_2D_COORDINATE_SET_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /**
+           * The embedding dimensions to use for x, y in the coordinate set.
+           * @default [
+           *   0,
+           *   1
+           * ]
+           */
+          dims?: number[];
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** EMBEDDING_SET_INFERRED_REQUEST */
+        EMBEDDING_SET_INFERRED_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /**
+           * Source Column
+           * @description The text column to generate embeddings from
+           */
+          source_column: string;
+          /**
+           * Embedding Model
+           * @description Which text embedding model to use
+           */
+          embedding_model:
+            | 'nomic-embed-text-v1.5'
+            | 'nomic-embed-text-v1'
+            | 'gte-multilingual-base'
+            | 'nomic-embed-vision-v1.5'
+            | 'nomic-embed-vision-v1'
+            | 'nomic-embed-text-v2';
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** EMBEDDING_SET_REQUEST */
+        EMBEDDING_SET_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /**
+           * The column to retrieve embeddings from, or None for the unnamed embedding column.
+           * @default null
+           */
+          embedding_target?: string | null;
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** EMBEDDING_SIDECAR_REQUEST */
+        EMBEDDING_SIDECAR_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** HDBSCAN_CLUSTER_ASSIGNMENT_REQUEST */
+        HDBSCAN_CLUSTER_ASSIGNMENT_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /**
+           * Cluster Method
+           * @default null
+           */
+          cluster_method?: string | null;
+          /**
+           * Min Cluster Size
+           * @default 15
+           */
+          min_cluster_size?: number;
+          /**
+           * Min Samples
+           * @default 15
+           */
+          min_samples?: number;
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** HNSW_INDEX_REQUEST */
+        HNSW_INDEX_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /** @default 15 */
+          n_neighbors?: number;
+          /** @default 64 */
+          ef_construction?: number;
+          /** @default 32 */
+          M?: number;
+          /** @default 32 */
+          local_neighborhood_size?: number;
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** KEYWORDS_TOPIC_LABEL_REQUEST */
+        KEYWORDS_TOPIC_LABEL_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /** Field to extract keywords from */
+          target_field: string;
+          /**
+           * Jaccard similarity threshold
+           * @default 0.62
+           */
+          jaccard_similarity_threshold?: number;
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** LLM_TOPIC_LABEL_REQUEST */
+        LLM_TOPIC_LABEL_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** MAP_CHECKPOINT_REQUEST */
+        MAP_CHECKPOINT_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /**
+           * ID of the associated map. If not provided, a new map will be created.
+           * @default null
+           */
+          map_id?: string | null;
+          /**
+           * Type of email to send when the map is ready
+           * @default Dataset ready
+           */
+          email_type?: ('Dataset ready' | 'None') | null;
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** NPV1_COORDINATE_SET_REQUEST */
+        NPV1_COORDINATE_SET_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /**
+           * Number of contrastive samples
+           * @default null
+           */
+          n_noise?: number | null;
+          /**
+           * Number of epochs
+           * @default 50
+           */
+          n_epochs?: number;
+          /**
+           * Spread of the embedding
+           * @default 1
+           */
+          spread?: number | null;
+          /**
+           * Minimum distance between points
+           * @default 0.4
+           */
+          min_dist?: number | null;
+          /**
+           * Number of epochs for initialization
+           * @default 20
+           */
+          n_init_epochs?: number | null;
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** NPV2_COORDINATE_SET_REQUEST */
+        NPV2_COORDINATE_SET_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /**
+           * Number of contrastive samples
+           * @default null
+           */
+          n_noise?: number | null;
+          /**
+           * Number of epochs
+           * @default 50
+           */
+          n_epochs?: number;
+          /**
+           * Spread of the embedding
+           * @default 1
+           */
+          spread?: number | null;
+          /**
+           * Minimum distance between points
+           * @default 0.4
+           */
+          min_dist?: number | null;
+          /**
+           * Number of epochs for initialization
+           * @default 20
+           */
+          n_init_epochs?: number | null;
+          /**
+           * Controls local structure optimizing step for `nomic-project-v2`. Min value: `0`; max value: `1`
+           * @default 0.6
+           */
+          rho?: number;
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** OPENGRAPH_IMAGE_REQUEST */
+        OPENGRAPH_IMAGE_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /**
+           * Color Column
+           * @default null
+           */
+          color_column?: string | null;
+          /** Map Id */
+          map_id: string;
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** PCA_COORDINATE_SET_REQUEST */
+        PCA_COORDINATE_SET_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /**
+           * PCA's n_components
+           * @default 2
+           */
+          n_components?: number;
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** QUADTREE_REQUEST */
+        QUADTREE_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /**
+           * Colorable Fields
+           * @description The fields that can be colored by.
+           * @default []
+           */
+          colorable_fields?: string[];
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** RANDOM_COORDINATE_SET_REQUEST */
+        RANDOM_COORDINATE_SET_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** SIDECAR_FROM_DATA_TABLE_REQUEST */
+        SIDECAR_FROM_DATA_TABLE_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /** Columns to add as sidecars */
+          column_names: string[];
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** SIDECAR_FROM_PARQUET_REQUEST */
+        SIDECAR_FROM_PARQUET_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /** The sidecar name */
+          sidecar_name: string;
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** SVD_COORDINATE_SET_REQUEST */
+        SVD_COORDINATE_SET_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /**
+           * SVD's n_components
+           * @default 2
+           */
+          n_components?: number;
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** TOPIC_LABEL_POSITIONS_REQUEST */
+        TOPIC_LABEL_POSITIONS_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** TSNE_COORDINATE_SET_REQUEST */
+        TSNE_COORDINATE_SET_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /**
+           * Affects the tradeoff between global and local relationship presentation
+           * @default 30
+           */
+          perplexity?: number;
+          /**
+           * Affects the spacing between clusters and their cohesion.
+           * @default auto
+           */
+          early_exaggeration?: number | string;
+          /**
+           * Number of iterations with early exaggeration
+           * @default 250
+           */
+          early_exaggeration_iter?: number;
+          /**
+           * Number of iterations
+           * @default 500
+           */
+          n_iter?: number;
+          /**
+           * Affects the spacing between clusters in the final layout.
+           * @default null
+           */
+          exaggeration?: number | null;
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+        /** UMAP_COORDINATE_SET_REQUEST */
+        UMAP_COORDINATE_SET_REQUEST: {
+          /**
+           * Resource Type
+           * @description The type of resource to create. e.g. 'EMBEDDING_SET'
+           */
+          resource_type: string;
+          /**
+           * Dependencies
+           * @description
+           *         A mapping of resource types to the ids of the resources
+           *         that must be created before this one. We will look in two different
+           *         places for the string values here:
+           *
+           *         First, in the refs field of the passed list of resources.
+           *         Finally, this will be treated as the UUID of a resource in the database.
+           */
+          dependencies?: {
+            [key: string]: string | string[];
+          };
+          /**
+           * Dataset Id
+           * @description The id of the dataset to use for this resource.
+           */
+          dataset_id: string;
+          /**
+           * The number of neighbors to use for UMAP.
+           * @default 15
+           */
+          n_neighbors?: number;
+          /**
+           * How tightly UMAP should pack points together.
+           * @default 0.1
+           */
+          min_dist?: number;
+          /**
+           * The metric to use for distance computation.
+           * @default euclidean
+           */
+          metric?: string;
+          /**
+           * Weighting applied to negative samples. Values higher than one will result in greater weight being given to negative samples.
+           * @default 1
+           */
+          repulsion_strength?: number;
+          /**
+           * Number of negative samples to use during training.
+           * @default 5
+           */
+          negative_sample_rate?: number;
+          /**
+           * Number of training epochs to use for UMAP.
+           * @default null
+           */
+          n_epochs?: number | null;
+          /**
+           * Whether to cluster unique points.
+           * @default true
+           */
+          cluster_unique_points?: boolean;
+          /**
+           * Ref
+           * @description An identifier to use for this resource in the context of building a set of jobs. This id WILL NOT BE used in the database or system.
+           */
+          ref: string;
+          [key: string]: unknown;
+        };
+      };
     };
   };
   responses: never;
@@ -4392,7 +6622,7 @@ export interface operations {
     parameters: {
       query?: {
         offset_number?: number;
-        limit?: number;
+        limit?: number | null;
       };
       path: {
         organization_id_or_slug: string;
@@ -4403,7 +6633,7 @@ export interface operations {
       200: {
         content: {
           'application/json':
-            | components['schemas']['Organization']
+            | components['schemas']['OrganizationResponse']
             | components['schemas']['PublicOrganizationResponse'];
         };
       };
@@ -4423,9 +6653,9 @@ export interface operations {
     parameters: {
       query?: {
         /** @description The _exact_ start date of the period to fetch usage for. */
-        billing_period?: string;
+        billing_period?: string | null;
         offset_number?: number;
-        limit?: number;
+        limit?: number | null;
       };
       path: {
         organization_id_or_slug: string;
@@ -4457,7 +6687,7 @@ export interface operations {
       query?: {
         since_last_billing_date?: boolean;
         offset_number?: number;
-        limit?: number;
+        limit?: number | null;
       };
       path: {
         organization_id_or_slug: string;
@@ -4468,6 +6698,33 @@ export interface operations {
       200: {
         content: {
           'application/json': components['schemas']['AtlasUsageResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Check Organization Usage Totals Within Limit */
+  check_organization_usage_totals_within_limit_v1_organization__organization_id_or_slug__usage__usage_type__within_limit_get: {
+    parameters: {
+      query?: {
+        offset_number?: number;
+        limit?: number | null;
+      };
+      path: {
+        usage_type: components['schemas']['UsageType'];
+        organization_id_or_slug: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['OrganizationUsageTotalLimit'];
         };
       };
       /** @description Validation Error */
@@ -4568,31 +6825,6 @@ export interface operations {
       201: {
         content: {
           'application/json': components['schemas']['CreateOrganizationResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Search User
-   * @description Search user by nickname who is not already in organization
-   */
-  search_user_v1_organization_search_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['SearchUserRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SearchUserResponse'];
         };
       };
       /** @description Validation Error */
@@ -4710,326 +6942,6 @@ export interface operations {
     requestBody: {
       content: {
         'application/json': components['schemas']['ModifyUserRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Deprecated Invite Member In Organization
-   * @deprecated
-   * @description Invites a user in an organization
-   */
-  deprecated_invite_member_in_organization_v1_organization_member_invite_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DeprecatedInviteUserRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      201: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Invite Member In Organization
-   * @description Invites a user in an organization
-   */
-  invite_member_in_organization_v1_organization_members_invite_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['InviteUserRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      201: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Get Organization Invitations
-   * @description Get organization invitations for user
-   */
-  get_organization_invitations_v1_organization_invitations_post: {
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['InvitationsResponse'];
-        };
-      };
-    };
-  };
-  /**
-   * Accept Organization Invitation
-   * @description Accepts an invitation to join an organization
-   */
-  accept_organization_invitation_v1_organization_invitation__invitation_id__accept_post: {
-    parameters: {
-      path: {
-        invitation_id: string;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Reject Organization Invitation
-   * @description Rejects an invitation to join an organization
-   */
-  reject_organization_invitation_v1_organization_invitation__invitation_id__reject_post: {
-    parameters: {
-      path: {
-        invitation_id: string;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Update Invitation Status
-   * @deprecated
-   * @description Accept or reject invitation
-   */
-  update_invitation_status_v1_organization_invitation_status_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['UpdateInviteRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Get Organization Pending Invitations
-   * @description Get organization pending invitations
-   */
-  get_organization_pending_invitations_v1_organization_invitations_pending_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['PendingInvitationsRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['PendingInvitationsResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Remove Pending Invitation
-   * @description Delete pending invitation
-   */
-  remove_pending_invitation_v1_organization_invitations_delete_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DeletePendingInvitationRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Get Organization Access Requests Handler
-   * @description Get organization access requests
-   */
-  get_organization_access_requests_handler_v1_organization__organization_id_or_slug__access_requests_get: {
-    parameters: {
-      query?: {
-        offset_number?: number;
-        limit?: number;
-      };
-      path: {
-        organization_id_or_slug: string;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['OrganizationAccessRequestsResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Create Organization Access Request Handler
-   * @description Request access to organization
-   */
-  create_organization_access_request_handler_v1_organization_access_requests_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['OrganizationAccessRequestCreateRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      201: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Accept Organization Access Request Handler
-   * @description Approve a request to access an organization
-   */
-  accept_organization_access_request_handler_v1_organization_access_requests_accept_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['OrganizationAccessRequestApproveRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Reject Organization Access Request Handler
-   * @description Reject a request to access an organization
-   */
-  reject_organization_access_request_handler_v1_organization_access_requests_reject_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['OrganizationAccessRequestRejectRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Cancel Organization Access Request Handler
-   * @description Cancel a request to access an organization
-   */
-  cancel_organization_access_request_handler_v1_organization_access_requests_cancel_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['OrganizationAccessRequestCancelRequest'];
       };
     };
     responses: {
@@ -5213,13 +7125,8 @@ export interface operations {
       };
     };
   };
-  /** Get Tags For Project */
-  get_tags_for_project_v1_project_tags__project_id__get: {
-    parameters: {
-      path: {
-        project_id: string;
-      };
-    };
+  /** Get User Profile */
+  get_user_profile_v1_user_profile_get: {
     responses: {
       /** @description Successful Response */
       200: {
@@ -5227,23 +7134,29 @@ export interface operations {
           'application/json': unknown;
         };
       };
-      /** @description Validation Error */
-      422: {
+    };
+  };
+  /** Post User Profile */
+  post_user_profile_v1_user_profile_post: {
+    responses: {
+      /** @description Successful Response */
+      200: {
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          'application/json': unknown;
         };
       };
     };
   };
-  /** Add Tag To Project */
-  add_tag_to_project_v1_project_tags__project_id__post: {
+  /** Start a multipart upload and returns presigned urls for each part */
+  start_upload_v1_project__dataset_id__data_upload_start_post: {
     parameters: {
-      query: {
-        /** @description The dataset tag to be added to the project */
-        tag: string;
-      };
       path: {
-        project_id: string;
+        dataset_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['MultipartUploadStart'];
       };
     };
     responses: {
@@ -5261,22 +7174,23 @@ export interface operations {
       };
     };
   };
-  /** Delete Tag From Project */
-  delete_tag_from_project_v1_project_tags__project_id__delete: {
+  /** Complete a multipart upload */
+  complete_upload_v1_project__dataset_id__data_upload_complete_post: {
     parameters: {
-      query: {
-        /** @description The dataset tag to be deleted from the project */
-        tag: string;
-      };
       path: {
-        project_id: string;
+        dataset_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['MultipartUploadComplete'];
       };
     };
     responses: {
       /** @description Successful Response */
-      200: {
+      201: {
         content: {
-          'application/json': components['schemas']['SuccessResponse'];
+          'application/json': unknown;
         };
       };
       /** @description Validation Error */
@@ -5302,6 +7216,88 @@ export interface operations {
       200: {
         content: {
           'application/json': components['schemas']['Project'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** List all resources that have been created on a dataset */
+  list_resources_v1_project__project_id__resources_get: {
+    parameters: {
+      path: {
+        project_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['ResourceResponse'][];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Create resources for a dataset according to the specified chain
+   * @description Create a chain of resources for a dataset.
+   *
+   * This endpoint allows you to specify a list of resources to create, with their dependencies.
+   * Resources will be created in the correct order based on their dependencies.
+   */
+  create_resources_v1_project__project_id__resources_post: {
+    parameters: {
+      path: {
+        project_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': (
+          | components['schemas']['DATASET_CHECKPOINT_REQUEST']
+          | components['schemas']['EMBEDDING_SET_REQUEST']
+          | components['schemas']['EMBEDDING_SET_INFERRED_REQUEST']
+          | components['schemas']['HNSW_INDEX_REQUEST']
+          | components['schemas']['EMBEDDING_DERIVED_2D_COORDINATE_SET_REQUEST']
+          | components['schemas']['RANDOM_COORDINATE_SET_REQUEST']
+          | components['schemas']['UMAP_COORDINATE_SET_REQUEST']
+          | components['schemas']['TSNE_COORDINATE_SET_REQUEST']
+          | components['schemas']['SVD_COORDINATE_SET_REQUEST']
+          | components['schemas']['PCA_COORDINATE_SET_REQUEST']
+          | components['schemas']['NPV1_COORDINATE_SET_REQUEST']
+          | components['schemas']['NPV2_COORDINATE_SET_REQUEST']
+          | components['schemas']['CLUSTER_ASSIGNMENT_REQUEST']
+          | components['schemas']['HDBSCAN_CLUSTER_ASSIGNMENT_REQUEST']
+          | components['schemas']['CHECKPOINT_DESCRIPTION_REQUEST']
+          | components['schemas']['QUADTREE_REQUEST']
+          | components['schemas']['DUPLICATES_REQUEST']
+          | components['schemas']['KEYWORDS_TOPIC_LABEL_REQUEST']
+          | components['schemas']['LLM_TOPIC_LABEL_REQUEST']
+          | components['schemas']['TOPIC_LABEL_POSITIONS_REQUEST']
+          | components['schemas']['MAP_CHECKPOINT_REQUEST']
+          | components['schemas']['SIDECAR_FROM_PARQUET_REQUEST']
+          | components['schemas']['EMBEDDING_SIDECAR_REQUEST']
+          | components['schemas']['SIDECAR_FROM_DATA_TABLE_REQUEST']
+          | components['schemas']['CLUSTER_SIDECAR_REQUEST']
+          | components['schemas']['OPENGRAPH_IMAGE_REQUEST']
+        )[];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['ResourceResponse'][];
         };
       };
       /** @description Validation Error */
@@ -5373,6 +7369,7 @@ export interface operations {
   };
   /**
    * Update Project Metadata
+   * @deprecated
    * @description Edit project metadata.
    */
   update_project_metadata_v1_project_update__project_id__post: {
@@ -5433,28 +7430,6 @@ export interface operations {
       200: {
         content: {
           'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /** Project Name Search */
-  project_name_search_v1_project_search_name_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ProjectNameSearchRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['ProjectNameSearchResponse'];
         };
       };
       /** @description Validation Error */
@@ -5547,22 +7522,11 @@ export interface operations {
    * @description Updates the indices in a project that has unindexed progressively added data
    */
   update_project_indices_v1_project_update_indices_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['UpdateProjectIndicesRequest'];
-      };
-    };
     responses: {
       /** @description Successful Response */
       200: {
         content: {
-          'application/json': components['schemas']['UpdateProjectIndicesResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          'application/json': unknown;
         };
       };
     };
@@ -5594,57 +7558,6 @@ export interface operations {
     };
   };
   /**
-   * Data Update
-   * @description Updates the requested datums. Does not reflect in project/index state until an
-   * index update call if made (transaction commit)
-   */
-  data_update_v1_project_data_update_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ProjectDataUpdateRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Data Get Arrow
-   * @description Export data as arrow format for a project and/or index
-   */
-  data_get_arrow_v1_project_data_get_arrow_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ProjectDataArrowExportRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
    * Add Arrow
    * @description Add data to a project in arrow format.
    */
@@ -5653,7 +7566,32 @@ export interface operations {
       /** @description Successful Response */
       200: {
         content: {
-          'application/json': components['schemas']['SuccessResponse'];
+          'application/json': components['schemas']['AddArrowSuccessResponse'];
+        };
+      };
+    };
+  };
+  /**
+   * Get Last Upload Timestamp
+   * @description Get the last timestamp for a change to lance dataset.
+   */
+  get_last_upload_timestamp_v1_project__dataset_id__last_modified_get: {
+    parameters: {
+      path: {
+        dataset_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['AddArrowSuccessResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
         };
       };
     };
@@ -5728,28 +7666,6 @@ export interface operations {
       };
     };
   };
-  /** Nearest Neighbors By Ids Arrow */
-  nearest_neighbors_by_ids_arrow_v1_project_data_get_arrow_nearest_neighbors_by_id_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['EmbeddingNeighborByIDRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
   /** Nearest Neighbors By Ids */
   nearest_neighbors_by_ids_v1_project_data_get_nearest_neighbors_by_id_post: {
     requestBody: {
@@ -5762,53 +7678,6 @@ export interface operations {
       200: {
         content: {
           'application/json': components['schemas']['EmbeddingNeighborResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /** Data Topic Query */
-  data_topic_query_v1_project_data_get_embedding_topic_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['EmbeddingTopicRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Get Embedding Page Endpoint
-   * @description Get a page of embedding data for a project
-   */
-  get_embedding_page_endpoint_v1_project_data_get_embedding_paged_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['PagedEmbeddingRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': unknown;
         };
       };
       /** @description Validation Error */
@@ -5834,13 +7703,46 @@ export interface operations {
          */
         qid: string[];
         /** @description The response type, either 'arrow' or 'json' */
-        response_type?: string;
+        response_type?: 'arrow' | 'json';
         /** @description The columns to fetch */
-        columns?: string[];
+        columns?: string[] | null;
         summary?: unknown;
       };
       path: {
         map_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Datum Table Post
+   * @description Get a table of datums for a map via POST request
+   */
+  datum_table_post_v1_project_projection__map_id__datums_post: {
+    parameters: {
+      query?: {
+        summary?: unknown;
+      };
+      path: {
+        map_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DatumTableRequest'];
       };
     };
     responses: {
@@ -5870,6 +7772,28 @@ export interface operations {
       200: {
         content: {
           'application/json': components['schemas']['GetDatumResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Get Datums By Field Name */
+  get_datums_by_field_name_v1_project__dataset_id__data_get_get: {
+    parameters: {
+      path: {
+        dataset_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['DataPointResponse'];
         };
       };
       /** @description Validation Error */
@@ -6098,33 +8022,6 @@ export interface operations {
       };
     };
   };
-  /** Topic Density */
-  topic_density_v1_project__atlas_index_id__topic_density_post: {
-    parameters: {
-      path: {
-        atlas_index_id: string;
-      };
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['TopicDensityRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['TopicDensityResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
   /**
    * Fetch Map Information
    * @description Fetches all information about a map such as topics, defaults, etc.
@@ -6269,32 +8166,6 @@ export interface operations {
     };
   };
   /**
-   * Search User
-   * @description Searches against users by nickname and email who are non in the organization of the user performing search.
-   * This endpoint is used when attempting to invite users to an organization.
-   */
-  search_user_v1_project_search_user_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['SearchUserProjectRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SearchUserResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
    * Fetch Project By Slug
    * @description Fetches all details about a project.
    */
@@ -6427,6 +8298,107 @@ export interface operations {
       };
     };
   };
+  /** Log Analyst Request */
+  log_analyst_request_v1_project_analyst_log_post: {
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['LogAnalystRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Update Analyst Log Rating */
+  update_analyst_log_rating_v1_project_analyst_log__log_id__rating_put: {
+    parameters: {
+      path: {
+        log_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AnalystLogUpdateRatingRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Update Analyst Log Flag */
+  update_analyst_log_flag_v1_project_analyst_log__log_id__flag_put: {
+    parameters: {
+      path: {
+        log_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AnalystLogUpdateFlagRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Get Projection From Index
+   * @description Get the projection ID associated with an atlas index ID.
+   */
+  get_projection_from_index_v1_project_projection_from_index__index_id__get: {
+    parameters: {
+      path: {
+        index_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['ProjectionIdResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
   /**
    * Get Dataset Members
    * @description Fetches all dataset members
@@ -6536,37 +8508,16 @@ export interface operations {
       };
     };
   };
-  /** Get Tags For Project */
-  get_tags_for_project_v1_dataset_tags__project_id__get: {
+  /** Start a multipart upload and returns presigned urls for each part */
+  start_upload_v1_dataset__dataset_id__data_upload_start_post: {
     parameters: {
       path: {
-        project_id: string;
+        dataset_id: string;
       };
     };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /** Add Tag To Project */
-  add_tag_to_project_v1_dataset_tags__project_id__post: {
-    parameters: {
-      query: {
-        /** @description The dataset tag to be added to the project */
-        tag: string;
-      };
-      path: {
-        project_id: string;
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['MultipartUploadStart'];
       };
     };
     responses: {
@@ -6584,22 +8535,23 @@ export interface operations {
       };
     };
   };
-  /** Delete Tag From Project */
-  delete_tag_from_project_v1_dataset_tags__project_id__delete: {
+  /** Complete a multipart upload */
+  complete_upload_v1_dataset__dataset_id__data_upload_complete_post: {
     parameters: {
-      query: {
-        /** @description The dataset tag to be deleted from the project */
-        tag: string;
-      };
       path: {
-        project_id: string;
+        dataset_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['MultipartUploadComplete'];
       };
     };
     responses: {
       /** @description Successful Response */
-      200: {
+      201: {
         content: {
-          'application/json': components['schemas']['SuccessResponse'];
+          'application/json': unknown;
         };
       };
       /** @description Validation Error */
@@ -6625,6 +8577,88 @@ export interface operations {
       200: {
         content: {
           'application/json': components['schemas']['Project'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** List all resources that have been created on a dataset */
+  list_resources_v1_dataset__project_id__resources_get: {
+    parameters: {
+      path: {
+        project_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['ResourceResponse'][];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Create resources for a dataset according to the specified chain
+   * @description Create a chain of resources for a dataset.
+   *
+   * This endpoint allows you to specify a list of resources to create, with their dependencies.
+   * Resources will be created in the correct order based on their dependencies.
+   */
+  create_resources_v1_dataset__project_id__resources_post: {
+    parameters: {
+      path: {
+        project_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': (
+          | components['schemas']['DATASET_CHECKPOINT_REQUEST']
+          | components['schemas']['EMBEDDING_SET_REQUEST']
+          | components['schemas']['EMBEDDING_SET_INFERRED_REQUEST']
+          | components['schemas']['HNSW_INDEX_REQUEST']
+          | components['schemas']['EMBEDDING_DERIVED_2D_COORDINATE_SET_REQUEST']
+          | components['schemas']['RANDOM_COORDINATE_SET_REQUEST']
+          | components['schemas']['UMAP_COORDINATE_SET_REQUEST']
+          | components['schemas']['TSNE_COORDINATE_SET_REQUEST']
+          | components['schemas']['SVD_COORDINATE_SET_REQUEST']
+          | components['schemas']['PCA_COORDINATE_SET_REQUEST']
+          | components['schemas']['NPV1_COORDINATE_SET_REQUEST']
+          | components['schemas']['NPV2_COORDINATE_SET_REQUEST']
+          | components['schemas']['CLUSTER_ASSIGNMENT_REQUEST']
+          | components['schemas']['HDBSCAN_CLUSTER_ASSIGNMENT_REQUEST']
+          | components['schemas']['CHECKPOINT_DESCRIPTION_REQUEST']
+          | components['schemas']['QUADTREE_REQUEST']
+          | components['schemas']['DUPLICATES_REQUEST']
+          | components['schemas']['KEYWORDS_TOPIC_LABEL_REQUEST']
+          | components['schemas']['LLM_TOPIC_LABEL_REQUEST']
+          | components['schemas']['TOPIC_LABEL_POSITIONS_REQUEST']
+          | components['schemas']['MAP_CHECKPOINT_REQUEST']
+          | components['schemas']['SIDECAR_FROM_PARQUET_REQUEST']
+          | components['schemas']['EMBEDDING_SIDECAR_REQUEST']
+          | components['schemas']['SIDECAR_FROM_DATA_TABLE_REQUEST']
+          | components['schemas']['CLUSTER_SIDECAR_REQUEST']
+          | components['schemas']['OPENGRAPH_IMAGE_REQUEST']
+        )[];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['ResourceResponse'][];
         };
       };
       /** @description Validation Error */
@@ -6696,6 +8730,7 @@ export interface operations {
   };
   /**
    * Update Project Metadata
+   * @deprecated
    * @description Edit project metadata.
    */
   update_project_metadata_v1_dataset_update__project_id__post: {
@@ -6756,28 +8791,6 @@ export interface operations {
       200: {
         content: {
           'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /** Project Name Search */
-  project_name_search_v1_dataset_search_name_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ProjectNameSearchRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['ProjectNameSearchResponse'];
         };
       };
       /** @description Validation Error */
@@ -6870,22 +8883,11 @@ export interface operations {
    * @description Updates the indices in a project that has unindexed progressively added data
    */
   update_project_indices_v1_dataset_update_indices_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['UpdateProjectIndicesRequest'];
-      };
-    };
     responses: {
       /** @description Successful Response */
       200: {
         content: {
-          'application/json': components['schemas']['UpdateProjectIndicesResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          'application/json': unknown;
         };
       };
     };
@@ -6917,57 +8919,6 @@ export interface operations {
     };
   };
   /**
-   * Data Update
-   * @description Updates the requested datums. Does not reflect in project/index state until an
-   * index update call if made (transaction commit)
-   */
-  data_update_v1_dataset_data_update_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ProjectDataUpdateRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SuccessResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Data Get Arrow
-   * @description Export data as arrow format for a project and/or index
-   */
-  data_get_arrow_v1_dataset_data_get_arrow_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ProjectDataArrowExportRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
    * Add Arrow
    * @description Add data to a project in arrow format.
    */
@@ -6976,7 +8927,32 @@ export interface operations {
       /** @description Successful Response */
       200: {
         content: {
-          'application/json': components['schemas']['SuccessResponse'];
+          'application/json': components['schemas']['AddArrowSuccessResponse'];
+        };
+      };
+    };
+  };
+  /**
+   * Get Last Upload Timestamp
+   * @description Get the last timestamp for a change to lance dataset.
+   */
+  get_last_upload_timestamp_v1_dataset__dataset_id__last_modified_get: {
+    parameters: {
+      path: {
+        dataset_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['AddArrowSuccessResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
         };
       };
     };
@@ -7051,28 +9027,6 @@ export interface operations {
       };
     };
   };
-  /** Nearest Neighbors By Ids Arrow */
-  nearest_neighbors_by_ids_arrow_v1_dataset_data_get_arrow_nearest_neighbors_by_id_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['EmbeddingNeighborByIDRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
   /** Nearest Neighbors By Ids */
   nearest_neighbors_by_ids_v1_dataset_data_get_nearest_neighbors_by_id_post: {
     requestBody: {
@@ -7085,53 +9039,6 @@ export interface operations {
       200: {
         content: {
           'application/json': components['schemas']['EmbeddingNeighborResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /** Data Topic Query */
-  data_topic_query_v1_dataset_data_get_embedding_topic_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['EmbeddingTopicRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
-   * Get Embedding Page Endpoint
-   * @description Get a page of embedding data for a project
-   */
-  get_embedding_page_endpoint_v1_dataset_data_get_embedding_paged_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['PagedEmbeddingRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': unknown;
         };
       };
       /** @description Validation Error */
@@ -7157,13 +9064,46 @@ export interface operations {
          */
         qid: string[];
         /** @description The response type, either 'arrow' or 'json' */
-        response_type?: string;
+        response_type?: 'arrow' | 'json';
         /** @description The columns to fetch */
-        columns?: string[];
+        columns?: string[] | null;
         summary?: unknown;
       };
       path: {
         map_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Datum Table Post
+   * @description Get a table of datums for a map via POST request
+   */
+  datum_table_post_v1_dataset_projection__map_id__datums_post: {
+    parameters: {
+      query?: {
+        summary?: unknown;
+      };
+      path: {
+        map_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DatumTableRequest'];
       };
     };
     responses: {
@@ -7193,6 +9133,28 @@ export interface operations {
       200: {
         content: {
           'application/json': components['schemas']['GetDatumResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Get Datums By Field Name */
+  get_datums_by_field_name_v1_dataset__dataset_id__data_get_get: {
+    parameters: {
+      path: {
+        dataset_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['DataPointResponse'];
         };
       };
       /** @description Validation Error */
@@ -7421,33 +9383,6 @@ export interface operations {
       };
     };
   };
-  /** Topic Density */
-  topic_density_v1_dataset__atlas_index_id__topic_density_post: {
-    parameters: {
-      path: {
-        atlas_index_id: string;
-      };
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['TopicDensityRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['TopicDensityResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
   /**
    * Fetch Map Information
    * @description Fetches all information about a map such as topics, defaults, etc.
@@ -7592,32 +9527,6 @@ export interface operations {
     };
   };
   /**
-   * Search User
-   * @description Searches against users by nickname and email who are non in the organization of the user performing search.
-   * This endpoint is used when attempting to invite users to an organization.
-   */
-  search_user_v1_dataset_search_user_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['SearchUserProjectRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SearchUserResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
    * Fetch Project By Slug
    * @description Fetches all details about a project.
    */
@@ -7740,6 +9649,107 @@ export interface operations {
       200: {
         content: {
           'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Log Analyst Request */
+  log_analyst_request_v1_dataset_analyst_log_post: {
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['LogAnalystRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Update Analyst Log Rating */
+  update_analyst_log_rating_v1_dataset_analyst_log__log_id__rating_put: {
+    parameters: {
+      path: {
+        log_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AnalystLogUpdateRatingRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Update Analyst Log Flag */
+  update_analyst_log_flag_v1_dataset_analyst_log__log_id__flag_put: {
+    parameters: {
+      path: {
+        log_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AnalystLogUpdateFlagRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Get Projection From Index
+   * @description Get the projection ID associated with an atlas index ID.
+   */
+  get_projection_from_index_v1_dataset_projection_from_index__index_id__get: {
+    parameters: {
+      path: {
+        index_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['ProjectionIdResponse'];
         };
       };
       /** @description Validation Error */
@@ -7910,33 +9920,8 @@ export interface operations {
     };
   };
   /**
-   * Set Organization Billing Limits
-   * @description Sets the organization billing limits
-   */
-  set_organization_billing_limits_v1_stripe_set_organization_limits_post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['SetOrganizationLimitsRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['SetOrganizationLimitsResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  /**
    * Cancel Stripe Subscription
-   * @description Create stripe subscription checkout session url and send it to front end
+   * @description Cancels a stripe subscription. Used internally for unit tests.
    */
   cancel_stripe_subscription_v1_stripe_cancel_post: {
     requestBody: {
@@ -8240,7 +10225,7 @@ export interface operations {
     parameters: {
       query: {
         tag_id: string;
-        project_id?: string;
+        project_id?: string | null;
       };
     };
     responses: {
@@ -8330,28 +10315,6 @@ export interface operations {
       };
     };
   };
-  /** Reduce Dimensionality By Embedding */
-  reduce_dimensionality_by_embedding_v1_reduce__post: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DimensionalityReductionRequest'];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          'application/json': components['schemas']['DimensionalityReductionResponse'];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
   /**
    * Fetch Datasets By Query
    * @description Fetches datasets based on query parameters
@@ -8360,7 +10323,7 @@ export interface operations {
     parameters: {
       query?: {
         /** @description Search term to match on project name or description */
-        search_term?: string;
+        search_term?: string | null;
       };
     };
     responses: {
@@ -8378,19 +10341,21 @@ export interface operations {
       };
     };
   };
-  /** Returns the resource info */
-  resource_info_sketch_resource__dataset_id___resource_id__get: {
-    parameters: {
-      path: {
-        dataset_id: string;
-        resource_id: string;
+  /**
+   * Create Connector Handler
+   * @description Create a new connector for the organization.
+   */
+  create_connector_handler_v1_connector__post: {
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConnectorCreateRequest'];
       };
     };
     responses: {
       /** @description Successful Response */
-      200: {
+      201: {
         content: {
-          'application/json': components['schemas']['ResourceResponse'];
+          'application/json': components['schemas']['ConnectorResponse'];
         };
       };
       /** @description Validation Error */
@@ -8401,8 +10366,227 @@ export interface operations {
       };
     };
   };
-  /** Creates a resource */
-  create_sketch_resource__dataset_id__create_post: {
+  /**
+   * Get Connector Handler
+   * @description Get a specific connector by ID.
+   */
+  get_connector_handler_v1_connector__connector_id__get: {
+    parameters: {
+      path: {
+        connector_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['ConnectorResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Update Connector Handler
+   * @description Update a specific connector.
+   */
+  update_connector_handler_v1_connector__connector_id__put: {
+    parameters: {
+      path: {
+        connector_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConnectorUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['SuccessResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Delete Connector Handler
+   * @description Delete a specific connector.
+   */
+  delete_connector_handler_v1_connector__connector_id__delete: {
+    parameters: {
+      path: {
+        connector_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['SuccessResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Create Connector Dataset Handler
+   * @description Create a new dataset through a specific connector.
+   */
+  create_connector_dataset_handler_v1_connector__connector_id__dataset_post: {
+    parameters: {
+      path: {
+        connector_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConnectorDatasetCreateRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        content: {
+          'application/json': components['schemas']['ConnectorDatasetResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Update Connector Dataset Handler
+   * @description Update a specific connector dataset's metadata.
+   */
+  update_connector_dataset_handler_v1_connector__connector_id__dataset__dataset_id__put: {
+    parameters: {
+      path: {
+        connector_id: string;
+        dataset_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConnectorDatasetUpdateRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['SuccessResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Get Snowflake Preview Handler
+   * @description Get a preview of the data in a snowflake table.
+   */
+  get_snowflake_preview_handler_v1_connector_snowflake_preview_post: {
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SnowflakeIngestDataRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Ingest Snowflake Data Handler
+   * @description Ingest data from a snowflake table.
+   */
+  ingest_snowflake_data_handler_v1_connector_snowflake_ingest_and_build_post: {
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SnowflakeMapBuildRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['SuccessResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Get Dataset Recurring Jobs
+   * @description Get all recurring jobs for a dataset.
+   */
+  get_dataset_recurring_jobs_v1_recurring_jobs_dataset__dataset_id__get: {
+    parameters: {
+      path: {
+        dataset_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['RecurringJob'][];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Create Dataset Recurring Job
+   * @description Create a new recurring job for a dataset.
+   */
+  create_dataset_recurring_job_v1_recurring_jobs_dataset__dataset_id__post: {
     parameters: {
       path: {
         dataset_id: string;
@@ -8410,12 +10594,435 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['Resource'];
+        'application/json': components['schemas']['RecurringJobRequest'];
       };
     };
     responses: {
       /** @description Successful Response */
       201: {
+        content: {
+          'application/json': components['schemas']['RecurringJob'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Delete Dataset Recurring Job
+   * @description Delete a recurring job for a dataset.
+   */
+  delete_dataset_recurring_job_v1_recurring_jobs_dataset__dataset_id___job_id__delete: {
+    parameters: {
+      path: {
+        dataset_id: string;
+        job_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Update Dataset Recurring Job
+   * @description Update a recurring job for a dataset.
+   */
+  update_dataset_recurring_job_v1_recurring_jobs_dataset__dataset_id___job_id__patch: {
+    parameters: {
+      path: {
+        dataset_id: string;
+        job_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RecurringJobUpdate'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['RecurringJob'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Create Recurring Connector Builds
+   * @description Create a recurring job for a zendesk connector.
+   */
+  create_recurring_connector_builds_v1_recurring_jobs_create_zendesk_connector_post: {
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ZendeskConnectorRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['RecurringJob'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Get Recurring Map Builds
+   * @description Get all recurring map builds for a dataset.
+   */
+  get_recurring_map_builds_v1_recurring_jobs_dataset__dataset_id__recurring_map_builds_get: {
+    parameters: {
+      path: {
+        dataset_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['RecurringMapBuild'][];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Parse */
+  parse_v1_parsing_parse_post: {
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ParseRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['TaskResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Parse files into structured information
+   * @description Parse a file into structured information.
+   *
+   *         Supports PDF files with configurable chunking strategies and optional embedding generation.
+   */
+  parse_v1_parse_post: {
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ParseRequest'];
+      };
+    };
+    responses: {
+      /** @description The task id of the parsing task. */
+      201: {
+        content: {
+          'application/json': components['schemas']['TaskResponse'];
+        };
+      };
+      /** @description The user is not authorized to perform this action. */
+      403: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Get Job Status
+   * @description Get the status of a parsing job.
+   */
+  get_job_status_v1_parsing_job__job_id__get: {
+    parameters: {
+      path: {
+        job_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['JobStatusResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Cancel a parsing task
+   * @description Cancel a parsing task.
+   */
+  cancel_job_v1_parse_task__task_id__delete: {
+    parameters: {
+      path: {
+        task_id: string;
+      };
+    };
+    responses: {
+      /** @description The task was successfully cancelled. */
+      204: {
+        content: never;
+      };
+      /** @description The user is not authorized to perform this action. */
+      403: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Cancel Job */
+  cancel_job_v1_parsing_job__task_id__delete: {
+    parameters: {
+      path: {
+        task_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Get URLs to upload files
+   * @description Get URLs to upload files and use in different tasks (parsing, extraction, etc.).
+   */
+  upload_v1_upload_post: {
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UploadRequest'];
+      };
+    };
+    responses: {
+      /** @description The URLs to upload the files to. */
+      201: {
+        content: {
+          'application/json': components['schemas']['UploadResponse'];
+        };
+      };
+      /** @description The user is not authorized to perform this action. */
+      403: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Render a PDF document into images
+   * @description Render a PDF document into images.
+   */
+  render_v1_render_post: {
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RenderRequest'];
+      };
+    };
+    responses: {
+      /** @description The task id of the rendering task. */
+      201: {
+        content: {
+          'application/json': components['schemas']['RenderResponse'];
+        };
+      };
+      /** @description The user is not authorized to perform this action. */
+      403: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /** Render */
+  render_v1_render_render_post: {
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RenderRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['RenderResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Get Job Status
+   * @description Get the status of a parsing job.
+   */
+  get_job_status_v1_render_job__job_id__get: {
+    parameters: {
+      path: {
+        job_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          'application/json': components['schemas']['TaskStatusResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Get the status of a task
+   * @description Get the status of a task (parsing, extraction).
+   */
+  get_job_status_v1_status__task_id__get: {
+    parameters: {
+      path: {
+        task_id: string;
+      };
+    };
+    responses: {
+      /** @description The status of the task. */
+      200: {
+        content: {
+          'application/json': components['schemas']['TaskStatusResponse'];
+        };
+      };
+      /** @description The user is not authorized to perform this action. */
+      403: {
+        content: {
+          'application/json': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  /**
+   * Get Organization Events
+   * @description Get the task events for an organization.
+   */
+  get_organization_events_v1_status_tasks_events_get: {
+    responses: {
+      /** @description The events for the organization. */
+      200: {
+        content: {
+          'application/json': components['schemas']['TaskEventResponse'];
+        };
+      };
+    };
+  };
+  /**
+   * Get specific data from your files using a template
+   * @description Extract specific information from your files (like names, dates, amounts) by providing a template (JSON schema) of what you want to find.
+   */
+  extract_v1_extract_post: {
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ExtractRequest'];
+      };
+    };
+    responses: {
+      /** @description The task id of the extraction task. */
+      201: {
+        content: {
+          'application/json': components['schemas']['ExtractResponse'];
+        };
+      };
+      /** @description The user is not authorized to perform this action. */
+      403: {
         content: {
           'application/json': unknown;
         };
