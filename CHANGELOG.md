@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.13.0](https://github.com/nomic-ai/ts-nomic/compare/v0.12.0...v0.13.0) (2025-09-16)
+
+
+### Features
+
+* use multipart upload ([#113](https://github.com/nomic-ai/ts-nomic/issues/113)) ([a6ea345](https://github.com/nomic-ai/ts-nomic/commit/a6ea3455bbaee4c1e110e5b18503f629ddfabca7))
+
+
+### Bug Fixes
+
+* make withLoadedAttributes not bust cache by default ([#95](https://github.com/nomic-ai/ts-nomic/issues/95)) ([0722b18](https://github.com/nomic-ai/ts-nomic/commit/0722b18282fc5920c1732beeaf277a1b44f7eafd))
+
 ## [0.12.0](https://github.com/nomic-ai/ts-nomic/compare/v0.11.0...v0.12.0) (2024-11-04)
 
 
